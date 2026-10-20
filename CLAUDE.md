@@ -32,7 +32,8 @@ Ekran görüntüleri `oracle/screenshots/Vxx.png` adıyla kaydedilir; girilecek 
 - `[REA]` yalnızca adres ya da dize kanıtıyla yazılır. Kanıt yoksa etiket `[AJAN]` olur.
 
 ## CLI
-- Varsayılan çıktı tek satır JSON'dur; uyarılar stderr'e gider.
+- Çıktı stdout'a tek satır JSON'dur; hata da `{"error":"..."}` olarak stdout'a yazılır.
+- stderr'e hiçbir şey yazılmaz (CONTRACT_ASSUMED.md E1).
 
 ## Mimari
 - Hesap mantığı yalnızca `src/powerlab/engine/` içindedir. CLI, MCP ve ajan katmanları hesap
