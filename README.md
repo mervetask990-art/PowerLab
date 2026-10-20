@@ -13,7 +13,7 @@
 ## 1. Proje Durumu ve Katmanlar
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
-- [ ] **Katman 1: Kâhin Vektörleri** (30 planlı vektörden 1'i dolu: V01, `oracle/screenshots/V01.png`; kalan 29 ekran görüntüsü bekleniyor)
+- [ ] **Katman 1: Kâhin Vektörleri** (41 planlı vektörden 1'i dolu: V01, `oracle/screenshots/V01.png`; kalan 40 ekran görüntüsü bekleniyor, bkz. `oracle/TOPLAMA_LISTESI.md`)
 - [x] **Katman 2: Oturum 1 (İnceleme)** (`LEDGER.md` var; ancak henüz hiçbir [REA] kanıtı yok — tüm binary iddiaları [AJAN])
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
 - [ ] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı ölçülmedi: 0 kâhin vektörü; yalnızca self-check var, bkz. `conformance.md`)
@@ -101,7 +101,9 @@ repo/
 │   ├── 02_yazim_oturumu.md
 │   └── NOTLAR.md              # Sonradan alınan kararlar (orijinal prompt'lar değiştirilmez)
 ├── oracle/
-│   ├── gpower_vectors.csv         # G*Power kâhin şablonu (30 girdi; beklenen değerler boş)
+│   ├── gpower_vectors.csv         # G*Power kâhini: 41 vektör (V01 dolu, diğerleri bekliyor)
+│   ├── TOPLAMA_LISTESI.md         # G*Power'da girilecek vektörlerin yazdırılabilir kontrol listesi
+│   ├── generate_toplama_listesi.py
 │   ├── screenshots/               # G*Power ekran görüntüleri (V01.png)
 │   ├── selfcheck_scipy.csv        # KÂHİN DEĞİL: motorun kendi kendine tutarlılık verisi
 │   ├── generate_selfcheck_scipy.py
@@ -131,7 +133,7 @@ repo/
 ### Kâhin ve self-check ayrımı
 
 - **Kâhin yalnızca G*Power'dır.** `oracle/gpower_vectors.csv` içindeki bir beklenen değer, ancak
-  `oracle/screenshots/` altında karşılık gelen ekran görüntüsü varsa doldurulur. Şu an 30 vektörden
+  `oracle/screenshots/` altında karşılık gelen ekran görüntüsü varsa doldurulur. Şu an 41 vektörden
   yalnızca **V01** dolu (`oracle/screenshots/V01.png`). `test_differential.py` dolu vektörleri çalıştırır:
   N ve df tam, diğer alanlar CSV'deki basamak sayısına (V01'de 7) kadar eşleşmelidir. Hiç dolu vektör
   kalmazsa test açıkça **atlanır (skip)**.
