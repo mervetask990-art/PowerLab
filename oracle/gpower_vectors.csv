@@ -1,5 +1,5 @@
 id,family,mode,tails,effect,alpha,power,n_input,predictors,n_expected,actual_power_expected,critical_expected,df_expected,ncp_expected,screenshot,notes
-V01,t-paired,a-priori,2,0.5,0.05,0.95,,,,,,,,,Standart orta etki çift kuyruk
+V01,t-paired,a-priori,2,0.5,0.05,0.95,,,54,0.9502120,2.0057460,53,3.6742346,V01.png,"Standart orta etki çift kuyruk — G*Power 3.1.9.7 Output Parameters paneli, 7 ondalık"
 V02,t-paired,a-priori,2,0.5,0.05,0.80,,,,,,,,,Standart orta etki 0.80 güç
 V03,t-paired,a-priori,1,0.5,0.05,0.95,,,,,,,,,Tek kuyruk orta etki
 V04,t-paired,a-priori,1,0.5,0.05,0.80,,,,,,,,,Tek kuyruk 0.80 güç

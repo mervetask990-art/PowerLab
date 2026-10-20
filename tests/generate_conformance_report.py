@@ -24,6 +24,13 @@ SELFCHECK_MISMATCH_REASON = (
 )
 
 
+def count_planned_vectors():
+    if not GPOWER_CSV.exists():
+        return 0
+    with open(GPOWER_CSV, "r", encoding="utf-8") as f:
+        return sum(1 for _ in csv.DictReader(f))
+
+
 def run_gpower_oracle():
     total, matches, mismatches = 0, 0, []
     if not GPOWER_CSV.exists():
@@ -94,9 +101,13 @@ def main():
     REPORT_MD.parent.mkdir(parents=True, exist_ok=True)
     g_total, g_match, g_mis = run_gpower_oracle()
     s_total, s_match, s_mis = run_selfcheck()
+    planned = count_planned_vectors()
 
     if g_total == 0:
         gate = "⏸ ÖLÇÜLMEDİ — G*Power kâhin vektörü yok (ekran görüntüsüyle doğrulanmış değer: 0)"
+    elif g_total < planned:
+        gate = (f"⏳ KISMİ — {g_total}/{planned} planlı vektör dolu "
+                f"(şu anki oran {_rate(g_match, g_total)}); kapı kararı tüm vektörler dolunca verilir")
     elif g_match / g_total >= 0.90:
         gate = "✅ GEÇTİ"
     else:
@@ -114,6 +125,7 @@ def main():
 
 | Metrik | Değer |
 |---|---|
+| Planlı vektör (şablon satırı) | {planned} |
 | Beklenen değeri dolu vektör | {g_total} |
 | Tam N eşleşmesi | {g_match} |
 | Tam N eşleşme oranı | {_rate(g_match, g_total)} |

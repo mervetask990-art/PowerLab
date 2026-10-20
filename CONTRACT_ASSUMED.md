@@ -71,8 +71,10 @@ eklemez; stdout yine tek satır JSON'dur, stderr boştur.
 
 | # | Varsayım | Gerekçe |
 |---|---|---|
-| D1 | `actual_power`, `critical` ve `ncp` **6 basamağa** yuvarlanır. Bu değer tek bir sabitten yönetilir: `OUTPUT_DECIMALS` (`src/powerlab/engine/rounding.py`). | Örnek 4 basamak kullanıyor. Ancak hoca toleransı "G*Power'ın ekranda gösterdiği basamak sayısına kadar" olarak tanımlamış, yani karşılaştırma **sayısal** yapılacak. 6 basamak daha fazla bilgi taşır ve 4 basamaklı bir toleransı bozmaz. |
-| D2 | **G*Power ekranında kaç basamak gösteriliyorsa oracle'dan doğrulanacak.** | Basamak sayısı ekran görüntüsünden okunup `oracle/gpower_vectors.csv`'ye aynen yazılır; diferansiyel test o basamak sayısına kadar karşılaştırır. |
+| D1 | `actual_power`, `critical` ve `ncp` **7 basamağa** yuvarlanır. Bu değer tek bir sabitten yönetilir: `OUTPUT_DECIMALS` (`src/powerlab/engine/rounding.py`). | **Kanıt: `oracle/screenshots/V01.png`.** G*Power 3.1.9.7'nin Output Parameters paneli bu üç alanı 7 ondalıkla gösteriyor (δ = 3.6742346, Critical t = 2.0057460, Actual power = 0.9502120). Hoca toleransı "G*Power'ın ekranda gösterdiği basamak sayısına kadar" olarak tanımladığı için karşılaştırma 7 basamakta sayısal yapılır. Önceki 6 basamak ncp'de yetersiz kaldı (3.674235 ≠ 3.6742346). Ödev metnindeki örneğin 4 basamağı, ekran kanıtı karşısında bağlayıcı değildir. |
+| D2 | Her yeni kâhin vektöründe basamak sayısı ekran görüntüsünden okunup `oracle/gpower_vectors.csv`'ye **metin olarak aynen** yazılır (sondaki sıfırlar dahil, ör. `2.0057460`). Diferansiyel test o basamak sayısına kadar karşılaştırır. | Başka bir test ailesi ya da alan farklı sayıda basamak gösterirse D1 o kanıta göre güncellenir. Şu an tek kanıt V01'dir (t-paired, a-priori). |
+| D3 | JSON sayısal değer taşır, metin değil: `2.0057460`, JSON'da `2.005746` olarak görünür (sondaki sıfır düşer). Değer aynıdır. | Hocanın karşılaştırması sayısal (D1). Biçimi metin olarak birebir taklit etmek gerekirse resmi CONTRACT.md'ye göre yeniden değerlendirilir. |
+| D4 | Grafik başlığındaki `critical t = 2.00575` (5 basamak) **kâhin olarak kullanılmaz**; yalnızca Output Parameters paneli esas alınır. | Aynı ekranda iki farklı biçim var. Sayısal sonucu bildiren alan paneldir; başlık bir grafik etiketidir. |
 
 ## 6. Hatalar ve çıkış kodları
 

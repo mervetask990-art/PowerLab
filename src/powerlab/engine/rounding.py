@@ -6,9 +6,10 @@ Yuvarlama, tamsayı N dönüşümü ve grup oran dağıtım kuralları.
 import math
 from typing import Tuple
 
-# Çıktıdaki float alanların ondalık basamak sayısı. Tek kaynak budur
-# (gerekçe: CONTRACT_ASSUMED.md D1-D2; G*Power ekranındaki basamak sayısı oracle'dan doğrulanacak).
-OUTPUT_DECIMALS = 6
+# Çıktıdaki float alanların ondalık basamak sayısı. Tek kaynak budur.
+# Kanıt: G*Power 3.1.9.7 Output Parameters paneli 7 ondalık gösterir (oracle/screenshots/V01.png);
+# gerekçe: CONTRACT_ASSUMED.md D1-D3.
+OUTPUT_DECIMALS = 7
 
 
 def ceil_to_int(value: float) -> int:
