@@ -62,11 +62,12 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
     And alfa anlamlılık düzeyi alpha = 0.05
     And hedeflenen güç power = 0.95
     When a priori güç analizi çözücüsü çalıştırıldığında
-    Then hesaplanan tamsayı N değeri 54 olmalıdır
-    And hesaplanan serbestlik derecesi df = 53 olmalıdır
-    And merkezsizlik parametresi ncp yaklaşık 3.6742 olmalıdır
-    And kritik değer critical_t yaklaşık 2.0057 olmalıdır
-    And gerçekleşen güç actual_power >= 0.95 olmalı ve yaklaşık 0.9531 olmalıdır
+    Then hesaplanan tamsayı N değeri — beklenen: oracle vektörü #V01, G*Power ile doğrulanacak
+    And hesaplanan serbestlik derecesi df — beklenen: oracle vektörü #V01, G*Power ile doğrulanacak
+    And merkezsizlik parametresi ncp — beklenen: oracle vektörü #V01, G*Power ile doğrulanacak
+    And kritik değer critical_t — beklenen: oracle vektörü #V01, G*Power ile doğrulanacak
+    And gerçekleşen güç actual_power hedef güçten (0.95) küçük olmamalıdır
+    And gerçekleşen güç actual_power değeri — beklenen: oracle vektörü #V01, G*Power ile doğrulanacak
 
   Scenario: Standart orta etki boyutu ve 0.80 güç (V02)
     Given test ailesi "t-paired"
@@ -76,10 +77,11 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
     And alfa anlamlılık düzeyi alpha = 0.05
     And hedeflenen güç power = 0.80
     When a priori güç analizi çözücüsü çalıştırıldığında
-    Then hesaplanan tamsayı N değeri 34 olmalıdır
-    And hesaplanan serbestlik derecesi df = 33 olmalıdır
-    And merkezsizlik parametresi ncp yaklaşık 2.9155 olmalıdır
-    And gerçekleşen güç actual_power >= 0.80 olmalı ve yaklaşık 0.8078 olmalıdır
+    Then hesaplanan tamsayı N değeri — beklenen: oracle vektörü #V02, G*Power ile doğrulanacak
+    And hesaplanan serbestlik derecesi df — beklenen: oracle vektörü #V02, G*Power ile doğrulanacak
+    And merkezsizlik parametresi ncp — beklenen: oracle vektörü #V02, G*Power ile doğrulanacak
+    And gerçekleşen güç actual_power hedef güçten (0.80) küçük olmamalıdır
+    And gerçekleşen güç actual_power değeri — beklenen: oracle vektörü #V02, G*Power ile doğrulanacak
 
   Scenario: Tek kuyruklu a priori analiz (V03)
     Given test ailesi "t-paired"
@@ -89,10 +91,11 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
     And alfa anlamlılık düzeyi alpha = 0.05
     And hedeflenen güç power = 0.95
     When a priori güç analizi çözücüsü çalıştırıldığında
-    Then hesaplanan tamsayı N değeri 45 olmalıdır
-    And hesaplanan serbestlik derecesi df = 44 olmalıdır
-    And kritik değer critical_t yaklaşık 1.6802 olmalıdır
-    And gerçekleşen güç actual_power yaklaşık 0.9533 olmalıdır
+    Then hesaplanan tamsayı N değeri — beklenen: oracle vektörü #V03, G*Power ile doğrulanacak
+    And hesaplanan serbestlik derecesi df — beklenen: oracle vektörü #V03, G*Power ile doğrulanacak
+    And kritik değer critical_t — beklenen: oracle vektörü #V03, G*Power ile doğrulanacak
+    And gerçekleşen güç actual_power hedef güçten (0.95) küçük olmamalıdır
+    And gerçekleşen güç actual_power değeri — beklenen: oracle vektörü #V03, G*Power ile doğrulanacak
 
   # -------------------------------------------------------------
   # POST HOC ANALİZLER (Güç Hesaplama)

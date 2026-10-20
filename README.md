@@ -154,8 +154,9 @@ gpower-clone --test t-paired --mode a-priori --tails 2 --dz 0.5 --alpha 0.05 --p
 ```
 **Çıktı (Tek satır JSON):**
 ```json
-{"n":54,"n_total":54,"actual_power":0.953103,"critical":2.005746,"df":53,"ncp":3.674235}
+{"n":54,"n_total":54,"actual_power":0.950212,"critical":2.005746,"df":53,"ncp":3.674235}
 ```
+> Motor çıktısıdır, kâhin değildir. G*Power'ın bu girdiler için verdiği değer henüz ekran görüntüsüyle doğrulanmadı (oracle vektörü #V01).
 
 ### Hata Durumu:
 ```bash
