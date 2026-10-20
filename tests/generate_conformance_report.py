@@ -1,6 +1,9 @@
 """
 tests/generate_conformance_report.py
-Tüm oracle vektörlerini test eder ve tests/report/conformance.md raporunu oluşturur.
+Uyum raporunu iki AYRI bölümle üretir:
+  1) G*Power kâhini (oracle/gpower_vectors.csv): yalnızca beklenen değeri dolu satırlar.
+  2) Self-check (oracle/selfcheck_scipy.csv): KÂHİN DEĞİLDİR, motorla aynı algoritmadan üretilmiştir.
+Çıktı: tests/report/conformance.md
 """
 
 import csv
@@ -10,147 +13,132 @@ from powerlab.engine.solver import run_power_analysis
 
 WORKSPACE = Path(__file__).parent.parent
 GPOWER_CSV = WORKSPACE / "oracle" / "gpower_vectors.csv"
-REF_CSV = WORKSPACE / "oracle" / "reference_stats.csv"
+SELFCHECK_CSV = WORKSPACE / "oracle" / "selfcheck_scipy.csv"
 REPORT_MD = WORKSPACE / "tests" / "report" / "conformance.md"
+
+EXPECTED_COLUMNS = ("n_expected", "actual_power_expected", "critical_expected", "df_expected", "ncp_expected")
+
+SELFCHECK_MISMATCH_REASON = (
+    "Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, "
+    "`NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder."
+)
+
+
+def run_gpower_oracle():
+    total, matches, mismatches = 0, 0, []
+    if not GPOWER_CSV.exists():
+        return total, matches, mismatches
+    with open(GPOWER_CSV, "r", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            if not row.get("n_expected", "").strip():
+                continue
+            total += 1
+            params = {"tails": int(row["tails"]), "dz": float(row["effect"]), "alpha": float(row["alpha"])}
+            if row["mode"] == "a-priori":
+                params["power"] = float(row["power"])
+            else:
+                params["n"] = int(row["n_input"])
+            expected_n = int(row["n_expected"])
+            try:
+                calculated_n = run_power_analysis(test=row["family"], mode=row["mode"], params=params)["n"]
+            except Exception as e:
+                mismatches.append((row["id"], expected_n, "HATA", str(e)))
+                continue
+            if calculated_n == expected_n:
+                matches += 1
+            else:
+                mismatches.append((row["id"], expected_n, calculated_n, "İncelenecek"))
+    return total, matches, mismatches
+
+
+def run_selfcheck():
+    total, matches, mismatches = 0, 0, []
+    if not SELFCHECK_CSV.exists():
+        return total, matches, mismatches
+    with open(SELFCHECK_CSV, "r", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            total += 1
+            expected_n = int(row["n_rounded"])
+            params = {
+                "tails": int(row["tails"]),
+                "dz": float(row["dz"]),
+                "alpha": float(row["alpha"]),
+                "power": float(row["target_power"]),
+            }
+            try:
+                calculated_n = run_power_analysis(test="t-paired", mode="a-priori", params=params)["n"]
+            except Exception as e:
+                mismatches.append((row["id"], expected_n, "HATA", str(e)))
+                continue
+            if calculated_n == expected_n:
+                matches += 1
+            else:
+                mismatches.append((row["id"], expected_n, calculated_n, SELFCHECK_MISMATCH_REASON))
+    return total, matches, mismatches
+
+
+def _rate(matches, total):
+    return f"%{matches / total * 100.0:.2f}" if total else "ölçülemedi (0 vektör)"
+
+
+def _table(mismatches):
+    if not mismatches:
+        return "Uyuşmazlık yok.\n"
+    out = "| Vektör ID | Beklenen N | Hesaplanan N | Açıklama |\n|---|---|---|---|\n"
+    for vid, exp, calc, reason in mismatches[:50]:
+        out += f"| {vid} | {exp} | {calc} | {reason} |\n"
+    return out
 
 
 def main():
     REPORT_MD.parent.mkdir(parents=True, exist_ok=True)
-    
-    total_vectors = 0
-    exact_n_matches = 0
-    mismatches = []
-    
-    # 1. G*Power Vektörlerini Test Et
-    if GPOWER_CSV.exists():
-        with open(GPOWER_CSV, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if not row.get("ID") or row["ID"].startswith("#"):
-                    continue
-                if not row.get("n_expected") or not row["n_expected"].strip():
-                    continue
-                
-                total_vectors += 1
-                mode = row["mode"]
-                tails = int(row["tails"])
-                dz = float(row["dz"])
-                alpha = float(row["alpha"])
-                expected_n = int(row["n_expected"])
-                
-                params = {"tails": tails, "dz": dz, "alpha": alpha}
-                if mode == "a-priori":
-                    params["power"] = float(row["power"])
-                else:
-                    params["n"] = int(row["n_input"])
-                    
-                try:
-                    res = run_power_analysis(test="t-paired", mode=mode, params=params)
-                    calculated_n = res["n"]
-                    if calculated_n == expected_n:
-                        exact_n_matches += 1
-                    else:
-                        mismatches.append({
-                            "source": "G*Power Vektörü",
-                            "id": row["ID"],
-                            "expected_n": expected_n,
-                            "calculated_n": calculated_n,
-                            "reason": "Olası tolerans veya durma koşulu farkı"
-                        })
-                except Exception as e:
-                    mismatches.append({
-                        "source": "G*Power Vektörü",
-                        "id": row["ID"],
-                        "expected_n": expected_n,
-                        "calculated_n": "HATA",
-                        "reason": str(e)
-                    })
+    g_total, g_match, g_mis = run_gpower_oracle()
+    s_total, s_match, s_mis = run_selfcheck()
 
-    # 2. Reference Stats (Tüm Sentetik Havuz) Test Et
-    if REF_CSV.exists():
-        with open(REF_CSV, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                total_vectors += 1
-                tails = int(row["tails"])
-                dz = float(row["dz"])
-                alpha = float(row["alpha"])
-                target_power = float(row["target_power"])
-                expected_n = int(row["n_rounded"])
-                
-                try:
-                    res = run_power_analysis(
-                        test="t-paired",
-                        mode="a-priori",
-                        params={"tails": tails, "dz": dz, "alpha": alpha, "power": target_power}
-                    )
-                    calculated_n = res["n"]
-                    if calculated_n == expected_n:
-                        exact_n_matches += 1
-                    else:
-                        mismatches.append({
-                            "source": "Reference Stats",
-                            "id": row["id"],
-                            "expected_n": expected_n,
-                            "calculated_n": calculated_n,
-                            "reason": "Yuvarlama eşiği"
-                        })
-                except Exception as e:
-                    mismatches.append({
-                        "source": "Reference Stats",
-                        "id": row["id"],
-                        "expected_n": expected_n,
-                        "calculated_n": "HATA",
-                        "reason": str(e)
-                    })
+    if g_total == 0:
+        gate = "⏸ ÖLÇÜLMEDİ — G*Power kâhin vektörü yok (ekran görüntüsüyle doğrulanmış değer: 0)"
+    elif g_match / g_total >= 0.90:
+        gate = "✅ GEÇTİ"
+    else:
+        gate = "❌ KALDI"
 
-    match_rate = (exact_n_matches / total_vectors * 100.0) if total_vectors > 0 else 0.0
-    gate_passed = match_rate >= 90.0
+    report = f"""# Uyum Raporu (Conformance Report)
 
-    report_content = f"""# Uyum ve Doğruluk Raporu (Conformance Report)
-
-**Oluşturulma Tarihi**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
-**Test Ailesi**: `t-paired` (Means: Difference between two dependent means / matched pairs)  
-**Uyum Kapısı**: %90 Tam N Eşleşmesi  
-**Durum**: {'✅ GEÇTİ (Kapı %90 üstünde)' if gate_passed else '❌ KALDI'}
+**Oluşturulma Tarihi**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Test Ailesi**: `t-paired`
+**%90 Kapısı (yalnızca G*Power kâhinine karşı)**: {gate}
 
 ---
 
-## 1. Özet Metrikler
+## 1. G*Power Kâhini (`oracle/gpower_vectors.csv`)
 
 | Metrik | Değer |
 |---|---|
-| **Toplam Test Edilen Vektör** | {total_vectors} |
-| **Tam Eşleşen N Sayısı** | {exact_n_matches} |
-| **Uyuşmazlık Sayısı** | {len(mismatches)} |
-| **Tam N Eşleşme Oranı** | **%{match_rate:.2f}** |
-| **Kabul Eşiği (%90 Kapısı)** | {'✅ SAĞLANDI' if gate_passed else '❌ SAĞLANAMADI'} |
+| Beklenen değeri dolu vektör | {g_total} |
+| Tam N eşleşmesi | {g_match} |
+| Tam N eşleşme oranı | {_rate(g_match, g_total)} |
 
+{_table(g_mis)}
 ---
 
-## 2. Diferansiyel Analiz ve Uyuşmazlıklar
+## 2. Self-check (`oracle/selfcheck_scipy.csv`) — KÂHİN DEĞİLDİR
 
-"""
-    if not mismatches:
-        report_content += "Tüm vektörlerde ($N$ tamsayı değeri) %100 birebir tam eşleşme sağlanmıştır. Hiçbir sapma veya uyuşmazlık bulunmamaktadır.\n"
-    else:
-        report_content += "| Kaynak | Vektör ID | Beklenen N | Hesaplanan N | Açıklama |\n|---|---|---|---|---|\n"
-        for m in mismatches[:50]:  # İlk 50 tanesini listele
-            report_content += f"| {m['source']} | {m['id']} | {m['expected_n']} | {m['calculated_n']} | {m['reason']} |\n"
+Bu veri, motorla aynı algoritmanın (kesikli N araması + `scipy.stats.nct`) ayrı bir kopyasından
+üretilmiştir. Buradaki oran G*Power uyumu hakkında **hiçbir şey söylemez**; yalnızca motorun
+bağımsız bir yeniden yazımla tutarlılığını gösterir.
 
-    report_content += """
----
+| Metrik | Değer |
+|---|---|
+| Toplam vektör | {s_total} |
+| Tam N eşleşmesi | {s_match} |
+| Tam N eşleşme oranı | {_rate(s_match, s_total)} |
 
-## 3. Matematiksel Doğrulama Notları
-- Noncentral-t CDF ve Survival fonksiyonları `scipy.stats.nct` ile hesaplanmıştır.
-- G*Power'ın çift kuyrukta simetrik iki taraflı integrali alma davranışı koda birebir yansıtılmıştır.
-- Kesikli tamsayı arama algoritması ($Power(N) \ge TargetPower$) sayesinde statsmodels kesirli $N$ sapmaları engellenmiş, G*Power ile tam eşleşme elde edilmiştir.
-"""
+{_table(s_mis)}"""
 
     with open(REPORT_MD, "w", encoding="utf-8") as f:
-        f.write(report_content)
+        f.write(report)
 
-    print(f"Rapor oluşturuldu: {REPORT_MD} | Eşleşme: %{match_rate:.2f} ({exact_n_matches}/{total_vectors})")
+    print(f"Rapor oluşturuldu: {REPORT_MD} | G*Power: {g_match}/{g_total} | Self-check: {s_match}/{s_total}")
 
 
 if __name__ == "__main__":

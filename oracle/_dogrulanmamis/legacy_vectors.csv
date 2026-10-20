@@ -1,0 +1,6 @@
+# G*Power ekran görüntüsü YOK, kâhin değildir. Bu değerler snapshot d7b36b3'teki oracle/gpower_vectors.csv V01-V04 satırlarından taşındı (orijinalde sütunlar bir kaymıştı; burada doğru alanlara yerleştirildi). Hiçbir testte beklenen değer olarak kullanılmaz.
+id,family,mode,tails,effect,alpha,power,n_input,predictors,n_expected,actual_power_expected,critical_expected,df_expected,ncp_expected,screenshot,notes
+V01,t-paired,a-priori,2,0.5,0.05,0.95,,,54,0.953103,2.005746,53,3.674235,,Standart orta etki çift kuyruk (orijinalde s01_standard_d05_p95.png anılıyordu; dosya yok)
+V02,t-paired,a-priori,2,0.5,0.05,0.80,,,34,0.807778,2.034515,33,2.915476,,Standart orta etki 0.80 güç (orijinalde s02_standard_d05_p80.png anılıyordu; dosya yok)
+V03,t-paired,a-priori,1,0.5,0.05,0.95,,,45,0.953335,1.680230,44,3.354102,,Tek kuyruk orta etki (orijinalde s03_standard_1tail_p95.png anılıyordu; dosya yok)
+V04,t-paired,a-priori,1,0.5,0.05,0.80,,,27,0.814237,1.705618,26,2.598076,,Tek kuyruk 0.80 güç (orijinalde s04_standard_1tail_p80.png anılıyordu; dosya yok)

@@ -1,53 +1,55 @@
-# Uyum ve Doğruluk Raporu (Conformance Report)
+# Uyum Raporu (Conformance Report)
 
-**Oluşturulma Tarihi**: 2026-10-19 09:49:26  
-**Test Ailesi**: `t-paired` (Means: Difference between two dependent means / matched pairs)  
-**Uyum Kapısı**: %90 Tam N Eşleşmesi  
-**Durum**: ✅ GEÇTİ (Kapı %90 üstünde)
+**Oluşturulma Tarihi**: 2026-10-20 12:56:41
+**Test Ailesi**: `t-paired`
+**%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ⏸ ÖLÇÜLMEDİ — G*Power kâhin vektörü yok (ekran görüntüsüyle doğrulanmış değer: 0)
 
 ---
 
-## 1. Özet Metrikler
+## 1. G*Power Kâhini (`oracle/gpower_vectors.csv`)
 
 | Metrik | Değer |
 |---|---|
-| **Toplam Test Edilen Vektör** | 1280 |
-| **Tam Eşleşen N Sayısı** | 1259 |
-| **Uyuşmazlık Sayısı** | 21 |
-| **Tam N Eşleşme Oranı** | **%98.36** |
-| **Kabul Eşiği (%90 Kapısı)** | ✅ SAĞLANDI |
+| Beklenen değeri dolu vektör | 0 |
+| Tam N eşleşmesi | 0 |
+| Tam N eşleşme oranı | ölçülemedi (0 vektör) |
+
+Uyuşmazlık yok.
 
 ---
 
-## 2. Diferansiyel Analiz ve Uyuşmazlıklar
+## 2. Self-check (`oracle/selfcheck_scipy.csv`) — KÂHİN DEĞİLDİR
 
-| Kaynak | Vektör ID | Beklenen N | Hesaplanan N | Açıklama |
-|---|---|---|---|---|
-| Reference Stats | REF_0647 | 2863 | 2862 | Yuvarlama eşiği |
-| Reference Stats | REF_0648 | 3163 | 3161 | Yuvarlama eşiği |
-| Reference Stats | REF_0687 | 1276 | 1275 | Yuvarlama eşiği |
-| Reference Stats | REF_0728 | 801 | 795 | Yuvarlama eşiği |
-| Reference Stats | REF_0807 | 325 | 323 | Yuvarlama eşiği |
-| Reference Stats | REF_0808 | 357 | 356 | Yuvarlama eşiği |
-| Reference Stats | REF_0847 | 242 | 239 | Yuvarlama eşiği |
-| Reference Stats | REF_0848 | 264 | 263 | Yuvarlama eşiği |
-| Reference Stats | REF_0887 | 185 | 184 | Yuvarlama eşiği |
-| Reference Stats | REF_0927 | 151 | 147 | Yuvarlama eşiği |
-| Reference Stats | REF_0928 | 163 | 162 | Yuvarlama eşiği |
-| Reference Stats | REF_1008 | 95 | 94 | Yuvarlama eşiği |
-| Reference Stats | REF_1047 | 66 | 64 | Yuvarlama eşiği |
-| Reference Stats | REF_1048 | 72 | 70 | Yuvarlama eşiği |
-| Reference Stats | REF_1127 | 42 | 41 | Yuvarlama eşiği |
-| Reference Stats | REF_1128 | 47 | 45 | Yuvarlama eşiği |
-| Reference Stats | REF_1166 | 31 | 30 | Yuvarlama eşiği |
-| Reference Stats | REF_1206 | 24 | 23 | Yuvarlama eşiği |
-| Reference Stats | REF_1246 | 24 | 17 | Yuvarlama eşiği |
-| Reference Stats | REF_1247 | 24 | 19 | Yuvarlama eşiği |
-| Reference Stats | REF_1248 | 24 | 20 | Yuvarlama eşiği |
+Bu veri, motorla aynı algoritmanın (kesikli N araması + `scipy.stats.nct`) ayrı bir kopyasından
+üretilmiştir. Buradaki oran G*Power uyumu hakkında **hiçbir şey söylemez**; yalnızca motorun
+bağımsız bir yeniden yazımla tutarlılığını gösterir.
 
----
+| Metrik | Değer |
+|---|---|
+| Toplam vektör | 1280 |
+| Tam N eşleşmesi | 1259 |
+| Tam N eşleşme oranı | %98.36 |
 
-## 3. Matematiksel Doğrulama Notları
-- Noncentral-t CDF ve Survival fonksiyonları `scipy.stats.nct` ile hesaplanmıştır.
-- G*Power'ın çift kuyrukta simetrik iki taraflı integrali alma davranışı koda birebir yansıtılmıştır.
-- Kesikli tamsayı arama algoritması ($Power(N) \ge TargetPower$) sayesinde statsmodels kesirli $N$ sapmaları engellenmiş, G*Power ile tam eşleşme elde edilmiştir.
+| Vektör ID | Beklenen N | Hesaplanan N | Açıklama |
+|---|---|---|---|
+| REF_0647 | 2863 | 2862 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0648 | 3163 | 3161 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0687 | 1276 | 1275 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0728 | 801 | 795 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0807 | 325 | 323 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0808 | 357 | 356 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0847 | 242 | 239 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0848 | 264 | 263 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0887 | 185 | 184 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0927 | 151 | 147 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_0928 | 163 | 162 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1008 | 95 | 94 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1047 | 66 | 64 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1048 | 72 | 70 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1127 | 42 | 41 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1128 | 47 | 45 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1166 | 31 | 30 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1206 | 24 | 23 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1246 | 24 | 17 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1247 | 24 | 19 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |
+| REF_1248 | 24 | 20 | Üretici betikte sol kuyruk NaN koruması yok: nct.cdf(-t_crit) NaN dönünce güç NaN olur, `NaN >= hedef` False verir ve betik N'yi gereğinden büyük seçer. Motor NaN'ı 0.0 kabul eder. |

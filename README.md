@@ -11,10 +11,10 @@
 ## 1. Proje Durumu ve Katmanlar
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
-- [x] **Katman 1: Kâhin Vektörleri** (1280 vektörlük sentetik referans havuzu ve 30+ G*Power şablonu)
+- [ ] **Katman 1: Kâhin Vektörleri** (30 G*Power girdi şablonu hazır; beklenen değerler boş, ekran görüntüsü bekleniyor)
 - [x] **Katman 2: Oturum 1 (İnceleme)** (Tersine mühendislik & sayısal kararsızlık kanıt defteri: `LEDGER.md`)
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
-- [x] **Katman 4: Diferansiyel Test & Doğrulama** (%98.36 Tam N Eşleşmesi ile %90 kapısı aşıldı: `conformance.md`)
+- [ ] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı ölçülmedi: 0 kâhin vektörü; yalnızca self-check var, bkz. `conformance.md`)
 - [x] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (`src/powerlab/mcp_server.py`, `src/powerlab/agent/`)
 
 ---
@@ -82,10 +82,13 @@ repo/
 │   ├── 01_inceleme_oturumu.md
 │   └── 02_yazim_oturumu.md
 ├── oracle/
-│   ├── gpower_vectors.csv         # Elle toplanan >=30 vektör
-│   ├── screenshots/               # Ekran görüntüleri (s01.png ...)
-│   ├── reference_stats.csv        # statsmodels ile 500+ vektör
-│   └── boundary_vectors.csv       # Sınır değerler
+│   ├── gpower_vectors.csv         # G*Power kâhin şablonu (30 girdi; beklenen değerler boş)
+│   ├── screenshots/               # Ekran görüntüleri (henüz boş)
+│   ├── selfcheck_scipy.csv        # KÂHİN DEĞİL: motorun kendi kendine tutarlılık verisi
+│   ├── generate_selfcheck_scipy.py
+│   ├── boundary_vectors.csv       # Sınır değerler
+│   └── _dogrulanmamis/
+│       └── legacy_vectors.csv     # Ekran görüntüsü olmayan eski V01–V04 değerleri (kâhin değil)
 ├── src/
 │   └── powerlab/
 │       ├── engine/                # TEK hesap motoru (saf fonksiyonlar)
@@ -105,6 +108,17 @@ repo/
     ├── test_cli_mcp_parity.py
     └── report/conformance.md      # Otomatik üretilen uyum raporu
 ```
+
+### Kâhin ve self-check ayrımı
+
+- **Kâhin yalnızca G*Power'dır.** `oracle/gpower_vectors.csv` içindeki bir beklenen değer, ancak
+  `oracle/screenshots/` altında karşılık gelen ekran görüntüsü varsa doldurulur. Şu an tüm beklenen
+  sütunlar boştur; `test_differential.py` bu durumda G*Power testini açıkça **atlar (skip)**.
+- **`oracle/selfcheck_scipy.csv` kâhin değildir.** Motorla aynı algoritmanın (kesikli N araması +
+  `scipy.stats.nct`) ayrı bir kopyasından üretilmiştir; yalnızca motorun kendi kendine tutarlılığını
+  sınar. Buradaki eşleşme oranı G*Power uyumu hakkında bilgi vermez.
+- `oracle/_dogrulanmamis/legacy_vectors.csv`: önceki sürümde "G*Power değeri" olarak yazılmış ama
+  ekran görüntüsü olmayan V01–V04 değerleri. Hiçbir testte kullanılmaz.
 
 ---
 

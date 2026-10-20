@@ -1,31 +1,31 @@
-# ID,category,test,mode,tails,dz,alpha,power,n_input,n_expected,actual_power,critical_t,df,ncp,screenshot_file,notes
-V01,standard,t-paired,a-priori,2,0.5,0.05,0.95,,,54,0.953103,2.005746,53,3.674235,s01_standard_d05_p95.png,Standart orta etki çift kuyruk
-V02,standard,t-paired,a-priori,2,0.5,0.05,0.80,,,34,0.807778,2.034515,33,2.915476,s02_standard_d05_p80.png,Standart orta etki 0.80 güç
-V03,standard,t-paired,a-priori,1,0.5,0.05,0.95,,,45,0.953335,1.680230,44,3.354102,s03_standard_1tail_p95.png,Tek kuyruk orta etki
-V04,standard,t-paired,a-priori,1,0.5,0.05,0.80,,,27,0.814237,1.705618,26,2.598076,s04_standard_1tail_p80.png,Tek kuyruk 0.80 güç
-V05,standard,t-paired,a-priori,2,0.2,0.05,0.80,,,,,,,s05_small_effect.png,Küçük etki boyutu d=0.2
-V06,standard,t-paired,a-priori,2,0.2,0.05,0.90,,,,,,,s06_small_p90.png,Küçük etki d=0.2 power=0.90
-V07,standard,t-paired,a-priori,2,0.2,0.01,0.80,,,,,,,s07_small_alpha01.png,Katı alfa alpha=0.01
-V08,standard,t-paired,a-priori,2,0.8,0.05,0.80,,,,,,,s08_large_effect.png,Büyük etki boyutu d=0.8
-V09,standard,t-paired,a-priori,2,0.8,0.05,0.95,,,,,,,s09_large_p95.png,Büyük etki power=0.95
-V10,standard,t-paired,a-priori,1,0.8,0.05,0.80,,,,,,,s10_large_1tail.png,Büyük etki tek kuyruk
-V11,standard,t-paired,a-priori,2,0.3,0.05,0.85,,,,,,,s11_d03_p85.png,Ara etki d=0.3
-V12,standard,t-paired,a-priori,2,0.4,0.05,0.80,,,,,,,s12_d04_p80.png,Orta-düşük etki d=0.4
-V13,standard,t-paired,a-priori,2,0.6,0.05,0.90,,,,,,,s13_d06_p90.png,Orta-yüksek etki d=0.6
-V14,standard,t-paired,a-priori,2,0.7,0.05,0.80,,,,,,,s14_d07_p80.png,Yüksek etki d=0.7
-V15,standard,t-paired,a-priori,2,1.0,0.05,0.90,,,,,,,s15_d10_p90.png,Çok büyük etki d=1.0
-V16,standard,t-paired,a-priori,2,1.2,0.05,0.95,,,,,,,s16_d12_p95.png,Çok büyük etki d=1.2
-V17,standard,t-paired,a-priori,1,0.3,0.05,0.90,,,,,,,s17_d03_1t_p90.png,Tek kuyruk d=0.3
-V18,standard,t-paired,a-priori,1,0.4,0.01,0.90,,,,,,,s18_d04_a01.png,Tek kuyruk katı alfa
-V19,standard,t-paired,a-priori,2,0.5,0.001,0.80,,,,,,,s19_a001.png,Çok katı alfa alpha=0.001
-V20,standard,t-paired,a-priori,2,0.5,0.10,0.90,,,,,,,s20_a10.png,Gevşek alfa alpha=0.10
-V21,post-hoc,t-paired,post-hoc,2,0.5,0.05,,30,,,,,,s21_posthoc_n30.png,Post-hoc analiz N=30
-V22,post-hoc,t-paired,post-hoc,2,0.5,0.05,,54,,,,,,s22_posthoc_n54.png,Post-hoc analiz N=54
-V23,post-hoc,t-paired,post-hoc,1,0.5,0.05,,30,,,,,,s23_posthoc_1t.png,Post-hoc tek kuyruk N=30
-V24,post-hoc,t-paired,post-hoc,2,0.2,0.05,,100,,,,,,s24_posthoc_small_n100.png,Post-hoc küçük etki N=100
-V25,post-hoc,t-paired,post-hoc,2,0.8,0.05,,20,,,,,,s25_posthoc_large_n20.png,Post-hoc büyük etki N=20
-V26,post-hoc,t-paired,post-hoc,2,0.3,0.01,,50,,,,,,s26_posthoc_a01.png,Post-hoc alfa=0.01 N=50
-V27,post-hoc,t-paired,post-hoc,2,1.0,0.05,,15,,,,,,s27_posthoc_d10.png,Post-hoc d=1.0 N=15
-V28,post-hoc,t-paired,post-hoc,1,0.8,0.01,,25,,,,,,s28_posthoc_1t_large.png,Post-hoc tek kuyruk büyük etki
-V29,post-hoc,t-paired,post-hoc,2,0.15,0.05,,200,,,,,,s29_posthoc_n200.png,Post-hoc büyük N=200
-V30,post-hoc,t-paired,post-hoc,2,0.5,0.05,,10,,,,,,s30_posthoc_n10.png,Post-hoc küçük N=10
+id,family,mode,tails,effect,alpha,power,n_input,predictors,n_expected,actual_power_expected,critical_expected,df_expected,ncp_expected,screenshot,notes
+V01,t-paired,a-priori,2,0.5,0.05,0.95,,,,,,,,,Standart orta etki çift kuyruk
+V02,t-paired,a-priori,2,0.5,0.05,0.80,,,,,,,,,Standart orta etki 0.80 güç
+V03,t-paired,a-priori,1,0.5,0.05,0.95,,,,,,,,,Tek kuyruk orta etki
+V04,t-paired,a-priori,1,0.5,0.05,0.80,,,,,,,,,Tek kuyruk 0.80 güç
+V05,t-paired,a-priori,2,0.2,0.05,0.80,,,,,,,,,Küçük etki boyutu d=0.2
+V06,t-paired,a-priori,2,0.2,0.05,0.90,,,,,,,,,Küçük etki d=0.2 power=0.90
+V07,t-paired,a-priori,2,0.2,0.01,0.80,,,,,,,,,Katı alfa alpha=0.01
+V08,t-paired,a-priori,2,0.8,0.05,0.80,,,,,,,,,Büyük etki boyutu d=0.8
+V09,t-paired,a-priori,2,0.8,0.05,0.95,,,,,,,,,Büyük etki power=0.95
+V10,t-paired,a-priori,1,0.8,0.05,0.80,,,,,,,,,Büyük etki tek kuyruk
+V11,t-paired,a-priori,2,0.3,0.05,0.85,,,,,,,,,Ara etki d=0.3
+V12,t-paired,a-priori,2,0.4,0.05,0.80,,,,,,,,,Orta-düşük etki d=0.4
+V13,t-paired,a-priori,2,0.6,0.05,0.90,,,,,,,,,Orta-yüksek etki d=0.6
+V14,t-paired,a-priori,2,0.7,0.05,0.80,,,,,,,,,Yüksek etki d=0.7
+V15,t-paired,a-priori,2,1.0,0.05,0.90,,,,,,,,,Çok büyük etki d=1.0
+V16,t-paired,a-priori,2,1.2,0.05,0.95,,,,,,,,,Çok büyük etki d=1.2
+V17,t-paired,a-priori,1,0.3,0.05,0.90,,,,,,,,,Tek kuyruk d=0.3
+V18,t-paired,a-priori,1,0.4,0.01,0.90,,,,,,,,,Tek kuyruk katı alfa
+V19,t-paired,a-priori,2,0.5,0.001,0.80,,,,,,,,,Çok katı alfa alpha=0.001
+V20,t-paired,a-priori,2,0.5,0.10,0.90,,,,,,,,,Gevşek alfa alpha=0.10
+V21,t-paired,post-hoc,2,0.5,0.05,,30,,,,,,,,Post-hoc analiz N=30
+V22,t-paired,post-hoc,2,0.5,0.05,,54,,,,,,,,Post-hoc analiz N=54
+V23,t-paired,post-hoc,1,0.5,0.05,,30,,,,,,,,Post-hoc tek kuyruk N=30
+V24,t-paired,post-hoc,2,0.2,0.05,,100,,,,,,,,Post-hoc küçük etki N=100
+V25,t-paired,post-hoc,2,0.8,0.05,,20,,,,,,,,Post-hoc büyük etki N=20
+V26,t-paired,post-hoc,2,0.3,0.01,,50,,,,,,,,Post-hoc alfa=0.01 N=50
+V27,t-paired,post-hoc,2,1.0,0.05,,15,,,,,,,,Post-hoc d=1.0 N=15
+V28,t-paired,post-hoc,1,0.8,0.01,,25,,,,,,,,Post-hoc tek kuyruk büyük etki
+V29,t-paired,post-hoc,2,0.15,0.05,,200,,,,,,,,Post-hoc büyük N=200
+V30,t-paired,post-hoc,2,0.5,0.05,,10,,,,,,,,Post-hoc küçük N=10

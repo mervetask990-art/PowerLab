@@ -1,7 +1,10 @@
 """
-oracle/generate_reference_stats.py
-500+ sentetik parametre kombinasyonunda t-paired için teorik değerleri üretir.
-G*Power ile statsmodels arasındaki kesirli N / yuvarlama farkını belgelemek için kullanılır.
+oracle/generate_selfcheck_scipy.py
+1280 sentetik parametre kombinasyonunda t-paired değerlerini scipy ile üretir.
+KÂHİN DEĞİLDİR: motorla aynı algoritmayı (kesikli N araması + scipy.stats.nct) kullanır,
+yalnızca motorun kendi kendine tutarlılığını sınar. statsmodels kullanılmaz.
+Bilinen fark: bu betikte sol kuyruk NaN koruması yoktur; motor (distributions.nct_power)
+NaN'ı 0.0 kabul eder. Selfcheck uyuşmazlıklarının kaynağı budur.
 """
 
 import csv
@@ -34,7 +37,7 @@ def compute_t_paired(dz: float, alpha: float, target_power: float, tails: int):
     return None
 
 def main():
-    output_path = Path(__file__).parent / "reference_stats.csv"
+    output_path = Path(__file__).parent / "selfcheck_scipy.csv"
     
     dz_values = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5]
     alpha_values = [0.001, 0.01, 0.025, 0.05, 0.10]
@@ -72,7 +75,7 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
         
-    print(f"Başarıyla {len(rows)} referans vektörü üretildi -> {output_path}")
+    print(f"Başarıyla {len(rows)} selfcheck vektörü üretildi -> {output_path}")
 
 if __name__ == "__main__":
     main()

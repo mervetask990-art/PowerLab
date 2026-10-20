@@ -1,102 +1,112 @@
 """
 tests/test_differential.py
-Diferansiyel test kiti: oracle/gpower_vectors.csv ve oracle/reference_stats.csv
-verilerini okuyarak motoru kâhin ile karşılaştırır.
-Standart unittest uyumludur.
+Diferansiyel test kiti.
+
+1) oracle/gpower_vectors.csv: G*Power kâhini. Yalnızca beklenen değeri dolu
+   (ekran görüntüsüyle doğrulanmış) satırlar test edilir. Hiç dolu satır yoksa
+   test SESSİZCE GEÇMEZ, açıkça atlanır (skip).
+2) oracle/selfcheck_scipy.csv: KÂHİN DEĞİLDİR. Motorla aynı algoritmadan
+   üretilmiş kendi kendine tutarlılık (self-check) verisidir.
 """
 
 import csv
-import unittest
 from pathlib import Path
+
+import pytest
+
 from powerlab.engine.solver import run_power_analysis
 
 WORKSPACE = Path(__file__).parent.parent
 GPOWER_CSV = WORKSPACE / "oracle" / "gpower_vectors.csv"
-REF_CSV = WORKSPACE / "oracle" / "reference_stats.csv"
+SELFCHECK_CSV = WORKSPACE / "oracle" / "selfcheck_scipy.csv"
+
+EXPECTED_COLUMNS = (
+    "n_expected",
+    "actual_power_expected",
+    "critical_expected",
+    "df_expected",
+    "ncp_expected",
+)
+
+
+def _has_expectation(row: dict) -> bool:
+    return any((row.get(c) or "").strip() for c in EXPECTED_COLUMNS)
 
 
 def load_gpower_vectors():
     if not GPOWER_CSV.exists():
         return []
-    vectors = []
     with open(GPOWER_CSV, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if not row.get("ID") or row["ID"].startswith("#"):
-                continue
-            if row.get("n_expected") and row["n_expected"].strip():
-                vectors.append(row)
-    return vectors
+        return [row for row in csv.DictReader(f) if _has_expectation(row)]
 
 
-def load_sample_reference_vectors(limit=100):
-    if not REF_CSV.exists():
+def load_selfcheck_vectors(limit=50):
+    if not SELFCHECK_CSV.exists():
         return []
-    vectors = []
-    with open(REF_CSV, "r", encoding="utf-8") as f:
+    with open(SELFCHECK_CSV, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        for i, row in enumerate(reader):
-            if i >= limit:
-                break
-            vectors.append(row)
-    return vectors
+        return [row for i, row in enumerate(reader) if i < limit]
 
 
-class TestDifferential(unittest.TestCase):
-    def test_gpower_conformance_vectors(self):
-        vectors = load_gpower_vectors()
-        for vec in vectors:
-            with self.subTest(vector_id=vec.get("ID", "vec")):
-                mode = vec["mode"]
-                tails = int(vec["tails"])
-                dz = float(vec["dz"])
-                alpha = float(vec["alpha"])
-                expected_n = int(vec["n_expected"])
-
-                params = {"tails": tails, "dz": dz, "alpha": alpha}
-                if mode == "a-priori":
-                    params["power"] = float(vec["power"])
-                else:
-                    params["n"] = int(vec["n_input"])
-
-                res = run_power_analysis(test="t-paired", mode=mode, params=params)
-
-                # N tam eşleşmelidir (%90 kapısı)
-                self.assertEqual(
-                    res["n"], expected_n,
-                    f"N uyuşmazlığı ({vec['ID']}): beklenen={expected_n}, hesaplanan={res['n']}"
-                )
-
-                if vec.get("actual_power") and vec["actual_power"].strip():
-                    self.assertAlmostEqual(res["actual_power"], float(vec["actual_power"]), places=3)
-
-                if vec.get("critical_t") and vec["critical_t"].strip():
-                    self.assertAlmostEqual(res["critical"], float(vec["critical_t"]), places=3)
-
-                if vec.get("df") and vec["df"].strip():
-                    self.assertEqual(res["df"], int(vec["df"]))
-
-    def test_reference_stats_conformance(self):
-        ref_vectors = load_sample_reference_vectors(limit=50)
-        for ref in ref_vectors:
-            with self.subTest(ref_id=ref.get("id", "ref")):
-                tails = int(ref["tails"])
-                dz = float(ref["dz"])
-                alpha = float(ref["alpha"])
-                target_power = float(ref["target_power"])
-                expected_n = int(ref["n_rounded"])
-
-                res = run_power_analysis(
-                    test="t-paired",
-                    mode="a-priori",
-                    params={"tails": tails, "dz": dz, "alpha": alpha, "power": target_power}
-                )
-
-                self.assertEqual(
-                    res["n"], expected_n,
-                    f"Ref N uyuşmazlığı ({ref['id']}): beklenen={expected_n}, hesaplanan={res['n']}"
-                )
+def _decimals(text: str) -> int:
+    """CSV'deki değerin ondalık basamak sayısı (karşılaştırma hassasiyeti)."""
+    text = text.strip()
+    return len(text.split(".", 1)[1]) if "." in text else 0
 
 
-if __name__ == "__main__":
-    unittest.main()
+def _params_from_row(row: dict) -> dict:
+    params = {
+        "tails": int(row["tails"]),
+        "dz": float(row["effect"]),
+        "alpha": float(row["alpha"]),
+    }
+    if row["mode"] == "a-priori":
+        params["power"] = float(row["power"])
+    else:
+        params["n"] = int(row["n_input"])
+    return params
+
+
+GPOWER_VECTORS = load_gpower_vectors()
+
+
+@pytest.mark.skipif(
+    not GPOWER_VECTORS,
+    reason="0 G*Power vektörü — kâhin yok (oracle/gpower_vectors.csv beklenen sütunları boş)",
+)
+@pytest.mark.parametrize("vec", GPOWER_VECTORS, ids=lambda v: v["id"])
+def test_gpower_oracle_vector(vec):
+    res = run_power_analysis(test=vec["family"], mode=vec["mode"], params=_params_from_row(vec))
+
+    if vec["n_expected"].strip():
+        assert res["n"] == int(vec["n_expected"]), f"N uyuşmazlığı ({vec['id']})"
+    if vec["df_expected"].strip():
+        assert res["df"] == int(vec["df_expected"])
+
+    for col, key in (
+        ("actual_power_expected", "actual_power"),
+        ("critical_expected", "critical"),
+        ("ncp_expected", "ncp"),
+    ):
+        text = vec[col]
+        if text.strip():
+            places = _decimals(text)
+            assert round(res[key], places) == pytest.approx(float(text), abs=0.5 * 10 ** -places), (
+                f"{key} uyuşmazlığı ({vec['id']}): beklenen={text}, hesaplanan={res[key]}"
+            )
+
+
+@pytest.mark.parametrize("ref", load_selfcheck_vectors(limit=50), ids=lambda r: r["id"])
+def test_selfcheck_scipy(ref):
+    """Kâhin değildir: motorun aynı algoritmanın bağımsız bir kopyasıyla tutarlılığı."""
+    res = run_power_analysis(
+        test="t-paired",
+        mode="a-priori",
+        params={
+            "tails": int(ref["tails"]),
+            "dz": float(ref["dz"]),
+            "alpha": float(ref["alpha"]),
+            "power": float(ref["target_power"]),
+        },
+    )
+    assert res["n"] == int(ref["n_rounded"]), f"Selfcheck N uyuşmazlığı ({ref['id']})"
