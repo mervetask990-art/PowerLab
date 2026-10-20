@@ -53,7 +53,8 @@ def solve_n(params: Dict[str, Any]) -> Dict[str, Any]:
     """
     A priori analiz: Verilen dz, alpha, target_power ve tails parametreleriyle
     hedef güce (Power >= target_power) ulaşan en küçük tamsayı N değerini bulur.
-    G*Power ile birebir aynı durma koşulunu ve kesikli tamsayı aramasını uygular.
+    Durma koşulu (Power(N) >= target_power olan en küçük tamsayı N) bir VARSAYIMDIR
+    (LEDGER L06, [AJAN]); G*Power ile aynı olduğu henüz doğrulanmadı.
     """
     tails = int(params.get("tails", 2))
     dz = float(params["dz"])
