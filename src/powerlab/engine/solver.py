@@ -12,6 +12,14 @@ FAMILY_REGISTRY = {
     "t_paired": t_paired,
 }
 
+# Adı tanınan ama motoru henüz yazılmamış aileler (hesap yapılmaz, yalnızca hata döner).
+NOT_IMPLEMENTED_FAMILIES = {"multireg-r2"}
+
+
+def normalize_family(test: str) -> str:
+    """Test ailesi adını kanonik biçime çevirir (küçük harf, '_' -> '-')."""
+    return test.strip().lower().replace("_", "-")
+
 
 def run_power_analysis(test: str, mode: str, params: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -19,7 +27,9 @@ def run_power_analysis(test: str, mode: str, params: Dict[str, Any]) -> Dict[str
     mode: 'a-priori' (veya 'a_priori') -> solve_n
           'post-hoc' (veya 'post_hoc') -> compute_power
     """
-    clean_test = test.strip().lower().replace("_", "-")
+    clean_test = normalize_family(test)
+    if clean_test in NOT_IMPLEMENTED_FAMILIES:
+        raise ValueError(f"{clean_test} henüz uygulanmadı")
     if clean_test not in FAMILY_REGISTRY:
         supported = list(FAMILY_REGISTRY.keys())
         raise ValueError(f"Desteklenmeyen test ailesi: '{test}'. Desteklenenler: {supported}")

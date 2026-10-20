@@ -99,8 +99,9 @@ def test_missing_effect_size():
 
 def test_unsupported_family():
     args = list(VALID_APRIORI)
-    args[args.index("--test") + 1] = "multireg-r2"
-    assert_json_error(run_cli(*args), expected_code=1)
+    args[args.index("--test") + 1] = "anova-oneway"
+    msg = assert_json_error(run_cli(*args), expected_code=1)
+    assert "Desteklenmeyen test ailesi" in msg
 
 
 def test_success_writes_nothing_to_stderr():
