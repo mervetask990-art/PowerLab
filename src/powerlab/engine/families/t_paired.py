@@ -53,7 +53,7 @@ def compute_power(params: Dict[str, Any]) -> Dict[str, Any]:
         "df": df,
         "ncp": ncp,
     }
-    return round_result_dict(res, precision=6)
+    return round_result_dict(res)
 
 
 def solve_n(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -117,4 +117,4 @@ def solve_n(params: Dict[str, Any]) -> Dict[str, Any]:
         "df": df,
         "ncp": ncp,
     }
-    return round_result_dict(res, precision=6)
+    return round_result_dict(res)

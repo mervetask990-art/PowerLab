@@ -42,3 +42,12 @@ def test_mcp_field_order(name):
     data = res["result"]
     assert list(data) == T_PAIRED_FIELDS
     assert data["n"] == data["n_total"]
+
+
+def test_float_fields_use_single_decimals_constant():
+    from powerlab.engine.rounding import OUTPUT_DECIMALS
+    from powerlab.engine.solver import run_power_analysis
+
+    res = run_power_analysis("t-paired", "a-priori", {"tails": 2, "dz": 0.5, "alpha": 0.05, "power": 0.95})
+    for key in ("actual_power", "critical", "ncp"):
+        assert res[key] == round(res[key], OUTPUT_DECIMALS)
