@@ -12,10 +12,10 @@
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
 - [ ] **Katman 1: Kâhin Vektörleri** (30 G*Power girdi şablonu hazır; beklenen değerler boş, ekran görüntüsü bekleniyor)
-- [x] **Katman 2: Oturum 1 (İnceleme)** (Tersine mühendislik & sayısal kararsızlık kanıt defteri: `LEDGER.md`)
+- [x] **Katman 2: Oturum 1 (İnceleme)** (`LEDGER.md` var; ancak henüz hiçbir [REA] kanıtı yok — tüm binary iddiaları [AJAN])
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
 - [ ] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı ölçülmedi: 0 kâhin vektörü; yalnızca self-check var, bkz. `conformance.md`)
-- [x] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (`src/powerlab/mcp_server.py`, `src/powerlab/agent/`)
+- [ ] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (taslak kod var: `src/powerlab/mcp_server.py`, `src/powerlab/agent/`; gerçek MCP el sıkışması yok, ajan kural tabanlı, benchmark ölçülmedi)
 
 ---
 
@@ -43,21 +43,12 @@ Ajan modülü: `src/powerlab/agent/clinical_agent.py`
 Benchmark çalıştırıcısı: `python eval/evaluate_agent.py`
 
 ### Benchmark Sonuçları (10 Klinik Soru):
-- **Test Ailesi Doğru Sınıflandırma Oranı**: **%100.0 (10/10)**
-- **Türkçe Sorularda Doğruluk**: **%100.0 (8/8)**
-- **İngilizce Sorularda Doğruluk**: **%100.0 (2/2)**
-- **Örneklem $N$ Tam Eşleşmesi**: **%100.0 (4/4 test ailesi)**
+- **Henüz ölçülmedi.** Beklenen etiketler ve `expected_n` değerleri ajanla aynı oturumda yazıldı ve hiçbir kâhinle doğrulanmadı.
 - **Ajan Çağrı Günlüğü**: `eval/agent_calls.jsonl`
 
 ### Token / Süre / Doğruluk Karşılaştırması: MCP Yolu vs. GUI Yolu
 
-| Metrik | MCP / CLI Programatik Yolu | GUI (Ekran Görüntüsü / Vision) Yolu |
-|---|---|---|
-| **Ortalama İstek Başına Token** | ~250 token (hafif şema) | ~1,600 - 2,500 token (görsel enc.) |
-| **Ortalama Yanıt Süresi** | < 15 milisaniye (saf fonksiyon) | 4.5 - 8.0 saniye (OCR & tık simülasyonu) |
-| **Örneklem $N$ Doğruluğu** | %100 (tam tamsayı ve formül) | %85 - 90 (OCR ve piksel okuma hataları) |
-| **Yan Etki ve Kırılganlık** | Sıfır yan etki, deterministik | OS çözünürlüğü ve pencere kaymalarına bağlı |
-| **Otomasyona Uygunluk** | Mükemmel (CI/CD, API, Ajan) | Düşük (Kullanıcı müdahalesi gerektirir) |
+Henüz ölçülmedi.
 
 ### İnceleme Altındaki Binary Bilgileri
 - **Yazılım**: G*Power 3.1.9.7 for Windows (32/64 bit)

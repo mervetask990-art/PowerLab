@@ -2,7 +2,7 @@
 eval/evaluate_agent.py
 eval/questions_tr.jsonl dosyasındaki 10 soruyu ajana sorarak
 test ailesi seçim doğruluğunu, N eşleşmesini ve Türkçe/İngilizce performansını ölçer.
-Token, süre ve doğruluk analizi (MCP vs GUI) tablosunu basar.
+MCP ile GUI arasındaki token/süre karşılaştırması henüz ölçülmedi.
 """
 
 import json
@@ -84,21 +84,11 @@ def main():
     print(f"Doğru Aile Seçim Oranı     : %{fam_acc:.1f} ({correct_family}/{total})")
     print(f"Türkçe Soru Doğruluk Oranı : %{tr_acc:.1f} ({tr_correct}/{tr_total})")
     print(f"İngilizce Soru Doğruluk    : %{en_acc:.1f} ({en_correct}/{en_total})")
-    print(f"Hedef N Tam Eşleşen        : 4/4 (%100 t-paired örnekleri)")
+    print("Hedef N Tam Eşleşen        : henüz ölçülmedi (expected_n değerleri kâhinle doğrulanmadı)")
     print(f"Ajan Çağrı Log Dosyası     : {LOG_FILE}")
 
-    print("\n" + "=" * 70)
-    print("TOKEN / SÜRE / DOĞRULUK KARŞILAŞTIRMASI: MCP YOLU vs. GUI YOLU")
-    print("=" * 70)
-    print("""
-| Metrik | MCP / CLI Programatik Yolu | GUI (Ekran Görüntüsü / Vision) Yolu |
-|---|---|---|
-| Ortalama İstek Başına Token | ~250 token (hafif şema) | ~1,600 - 2,500 token (görsel enc.) |
-| Ortalama Yanıt Süresi | < 15 milisaniye (saf fonksiyon) | 4.5 - 8.0 saniye (OCR & tık simülasyonu) |
-| Örneklem N Doğruluğu | %100 (tam tamsayı ve formül) | %85 - 90 (OCR ve piksel okuma hataları) |
-| Yan Etki ve Kırılganlık | Sıfır yan etki, deterministik | OS çözünürlüğü ve pencere kaymalarına bağlı |
-| Otomasyona Uygunluk | Mükemmel (CI/CD, API, Ajan) | Düşük (Kullanıcı müdahalesi gerektirir) |
-""")
+    print()
+    print("TOKEN / SÜRE / DOĞRULUK KARŞILAŞTIRMASI (MCP vs. GUI): henüz ölçülmedi")
 
 
 if __name__ == "__main__":
