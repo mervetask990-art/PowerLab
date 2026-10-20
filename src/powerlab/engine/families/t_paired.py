@@ -19,19 +19,26 @@ from powerlab.engine.validation import (
 from powerlab.engine.rounding import round_result_dict
 
 
+def _require(params: Dict[str, Any], key: str) -> Any:
+    if params.get(key) is None:
+        raise ValueError(f"Eksik parametre: '{key}'")
+    return params[key]
+
+
 def compute_power(params: Dict[str, Any]) -> Dict[str, Any]:
     """
     Post-hoc analiz: Verilen n, dz, alpha ve tails parametreleriyle gerçekleşen gücü hesaplar.
     """
-    tails = int(params.get("tails", 2))
-    dz = float(params["dz"])
-    alpha = float(params["alpha"])
-    n = int(params["n"])
+    tails = params.get("tails", 2)
+    dz = _require(params, "dz")
+    alpha = _require(params, "alpha")
+    n = _require(params, "n")
 
     validate_tails(tails)
     validate_effect_size(dz)
     validate_alpha(alpha)
     validate_sample_size(n, min_n=2)
+    tails, dz, alpha, n = int(tails), float(dz), float(alpha), int(n)
 
     df = n - 1
     ncp = dz * math.sqrt(n)
@@ -56,15 +63,16 @@ def solve_n(params: Dict[str, Any]) -> Dict[str, Any]:
     Durma koşulu (Power(N) >= target_power olan en küçük tamsayı N) bir VARSAYIMDIR
     (LEDGER L06, [AJAN]); G*Power ile aynı olduğu henüz doğrulanmadı.
     """
-    tails = int(params.get("tails", 2))
-    dz = float(params["dz"])
-    alpha = float(params["alpha"])
-    target_power = float(params["power"])
+    tails = params.get("tails", 2)
+    dz = _require(params, "dz")
+    alpha = _require(params, "alpha")
+    target_power = _require(params, "power")
 
     validate_tails(tails)
     validate_effect_size(dz)
     validate_alpha(alpha)
     validate_power(target_power)
+    tails, dz, alpha, target_power = int(tails), float(dz), float(alpha), float(target_power)
 
     # İkili arama (Binary search) veya monotonik tarama
     # N artarken df ve ncp monotonik artar, dolayısıyla güç de monotonik artar.

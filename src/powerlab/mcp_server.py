@@ -77,8 +77,9 @@ def call_tool(name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
 
     test = arguments.get("test")
     mode = arguments.get("mode", "a-priori")
-    tails = int(arguments.get("tails", 2))
-    alpha = float(arguments.get("alpha", 0.05))
+    # Tür dönüşümü ve doğrulama motorda yapılır (NaN/inf dahil); burada yalnızca aktarılır.
+    tails = arguments.get("tails", 2)
+    alpha = arguments.get("alpha", 0.05)
 
     params: Dict[str, Any] = {
         "tails": tails,
@@ -88,16 +89,16 @@ def call_tool(name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
     # dz veya d
     dz_val = arguments.get("dz", arguments.get("d"))
     if dz_val is not None:
-        params["dz"] = float(dz_val)
+        params["dz"] = dz_val
 
     if "power" in arguments and arguments["power"] is not None:
-        params["power"] = float(arguments["power"])
+        params["power"] = arguments["power"]
 
     if "n" in arguments and arguments["n"] is not None:
-        params["n"] = int(arguments["n"])
+        params["n"] = arguments["n"]
 
     if "ratio" in arguments and arguments["ratio"] is not None:
-        params["ratio"] = float(arguments["ratio"])
+        params["ratio"] = arguments["ratio"]
 
     try:
         # ASLA HESAP KOPYALANMAZ -> SADECE ENGINE ÇAĞRILIR
