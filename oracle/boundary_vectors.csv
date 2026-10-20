@@ -1,0 +1,15 @@
+# ID,category,test,mode,tails,dz,alpha,power,n_input,expected_behavior,notes
+B01,boundary,t-paired,a-priori,2,0.01,0.05,0.80,,large_n,Aşırı küçük etki büyüklüğü dz=0.01 (N binlerce çıkmalı)
+B02,boundary,t-paired,a-priori,2,5.0,0.05,0.99,,small_n,Aşırı büyük etki büyüklüğü dz=5.0 (N minimumlara inmeli örn N=3 ya da 4)
+B03,boundary,t-paired,a-priori,2,0.5,0.00001,0.9999,,extreme_tail,Aşırı katı alfa ve aşırı yüksek güç
+B04,boundary,t-paired,a-priori,2,0.5,0.05,0.05,,power_le_alpha,power <= alpha durumu (anlamsız güç talebi, N=2 veya hata)
+B05,boundary,t-paired,a-priori,2,0.5,0.50,0.50,,power_eq_alpha,power == alpha durumu
+B06,invalid,t-paired,a-priori,2,-0.5,0.05,0.80,,error,Negatif etki büyüklüğü dz < 0
+B07,invalid,t-paired,a-priori,2,0.0,0.05,0.80,,error,Sıfır etki büyüklüğü dz = 0
+B08,invalid,t-paired,a-priori,2,0.5,0.0,0.80,,error,alpha = 0
+B09,invalid,t-paired,a-priori,2,0.5,1.0,0.80,,error,alpha = 1
+B10,invalid,t-paired,a-priori,2,0.5,0.05,0.0,,error,power = 0
+B11,invalid,t-paired,a-priori,2,0.5,0.05,1.0,,error,power = 1
+B12,invalid,t-paired,a-priori,3,0.5,0.05,0.80,,error,Geçersiz kuyruk sayısı tails = 3
+B13,invalid,t-paired,post-hoc,2,0.5,0.05,,1,error,Post-hoc için serbestlik derecesi df = n - 1 <= 0 (n=1 hatası)
+B14,invalid,t-paired,post-hoc,2,0.5,0.05,,-5,error,Post-hoc için negatif n
