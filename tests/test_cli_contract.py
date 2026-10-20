@@ -63,7 +63,7 @@ class TestCLIContract(unittest.TestCase):
             "--power", "0.95"
         )
         self.assertNotEqual(res.returncode, 0)
-        err_data = json.loads(res.stderr.strip())
+        err_data = json.loads(res.stdout.strip())
         self.assertIn("error", err_data)
         self.assertIn("dz", err_data["error"])
 

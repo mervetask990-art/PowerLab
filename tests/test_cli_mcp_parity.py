@@ -96,7 +96,7 @@ class TestCliMcpParity(unittest.TestCase):
             "--power", "0.80"
         )
         self.assertNotEqual(cli_res.returncode, 0)
-        cli_err = json.loads(cli_res.stderr.strip())
+        cli_err = json.loads(cli_res.stdout.strip())
 
         mcp_res = call_tool("power_analysis", {
             "test": "t-paired",

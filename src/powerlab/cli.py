@@ -2,6 +2,10 @@
 src/powerlab/cli.py
 İnce katman CLI arayüzü: argparse -> engine -> tek satır JSON.
 Hesap mantığı içermez, yalnızca engine katmanını çağırır.
+
+Çıktı sözleşmesi: başarı ve hata dahil her sonuç STDOUT'a tek satır JSON olarak yazılır;
+hata durumunda {"error": "..."} ve sıfırdan farklı çıkış kodu (1: hesap/doğrulama, 2: argüman).
+stderr'e hiçbir şey yazılmaz. --help normal metin yazar ve 0 ile çıkar.
 """
 
 import argparse
@@ -11,9 +15,24 @@ from typing import List, Optional
 
 from powerlab.engine.solver import run_power_analysis
 
+EXIT_ENGINE_ERROR = 1
+EXIT_USAGE_ERROR = 2
+
+
+def _emit(payload: dict) -> None:
+    print(json.dumps(payload, separators=(",", ":")))
+
+
+class JsonArgumentParser(argparse.ArgumentParser):
+    """Argüman hatalarını (bilinmeyen/eksik parametre, geçersiz seçenek) JSON olarak bildirir."""
+
+    def error(self, message: str) -> None:
+        _emit({"error": f"Geçersiz argüman: {message}"})
+        sys.exit(EXIT_USAGE_ERROR)
+
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = JsonArgumentParser(
         prog="gpower-clone",
         description="powerlab: G*Power Uyumlu Güç Analizi ve Boyut Belirleme Motoru",
     )
@@ -45,11 +64,7 @@ def _force_utf8_streams() -> None:
 def main(args: Optional[List[str]] = None) -> None:
     _force_utf8_streams()
     parser = build_parser()
-    try:
-        parsed = parser.parse_args(args)
-    except SystemExit as e:
-        # argparse default çıkışlarında sıfırdan farklı exit code korunsun
-        sys.exit(e.code)
+    parsed = parser.parse_args(args)
 
     params = {}
     # dz veya d desteği
@@ -67,14 +82,11 @@ def main(args: Optional[List[str]] = None) -> None:
 
     try:
         result = run_power_analysis(test=parsed.test, mode=parsed.mode, params=params)
-        # Tek satır saf JSON çıktısı (Ödev sözleşmesi)
-        print(json.dumps(result, separators=(",", ":")))
-        sys.exit(0)
     except Exception as err:
-        # Hata durumunda JSON formatında açıklama ve exit code != 0
-        error_payload = {"error": str(err)}
-        print(json.dumps(error_payload, separators=(",", ":")), file=sys.stderr)
-        sys.exit(1)
+        _emit({"error": str(err)})
+        sys.exit(EXIT_ENGINE_ERROR)
+    _emit(result)
+    sys.exit(0)
 
 
 if __name__ == "__main__":

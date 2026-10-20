@@ -131,11 +131,24 @@ repo/
 
 ## 3. CLI Kullanım Sözleşmesi
 
-Komut adı: `powerlab`
+Komut adı: `gpower-clone` (birincil), `powerlab` (ikincil). Kurulum yapılmadan `python -m powerlab.cli` de aynı CLI'yi çalıştırır.
+
+### Çıktı ve hata kuralları
+
+> ⚠️ Bu kurallar proje içinde alınmış bir karardır; **CONTRACT.md gelince doğrulanacak.**
+
+- Başarı **ve hata** dahil her sonuç **STDOUT'a tek satır JSON** olarak yazılır.
+- Hata durumunda çıktı `{"error":"..."}` olur ve çıkış kodu sıfırdan farklıdır:
+  - `1`: hesap ya da doğrulama hatası (ör. `dz <= 0`, NaN/inf, eksik `--dz`, desteklenmeyen aile)
+  - `2`: argüman hatası (bilinmeyen parametre, eksik zorunlu parametre, geçersiz seçenek ya da tür)
+- **stderr'e hiçbir şey yazılmaz** (çift çıktı olmaz).
+- JSON ASCII olarak kaçışlanır (`ensure_ascii=True`); Türkçe karakterler `ü` gibi görünür.
+- `--help` normal metin yazar ve `0` ile çıkar.
+- Negatif ya da sonsuz değerlerde `=` biçimini kullanın: `--dz=-inf` (argparse ayrı yazılmış `-inf`'i bayrak sanar).
 
 ### A Priori Örnek:
 ```bash
-python -m powerlab.cli --test t-paired --mode a-priori --tails 2 --dz 0.5 --alpha 0.05 --power 0.95
+gpower-clone --test t-paired --mode a-priori --tails 2 --dz 0.5 --alpha 0.05 --power 0.95
 ```
 **Çıktı (Tek satır JSON):**
 ```json
@@ -144,11 +157,19 @@ python -m powerlab.cli --test t-paired --mode a-priori --tails 2 --dz 0.5 --alph
 
 ### Hata Durumu:
 ```bash
-python -m powerlab.cli --test t-paired --mode a-priori --tails 2 --dz -0.5 --alpha 0.05 --power 0.95
+gpower-clone --test t-paired --mode a-priori --tails 2 --dz -0.5 --alpha 0.05 --power 0.95
 ```
-**Çıktı (Çıkış kodu $\ne 0$):**
+**Çıktı (stdout, çıkış kodu 1):**
 ```json
-{"error":"Invalid effect size: dz must be strictly positive (> 0)"}
+{"error":"Etki büyüklüğü (dz) kesinlikle pozitif (> 0) olmalıdır, alınan: -0.5"}
+```
+
+```bash
+gpower-clone --test t-paired --tails 3 --alpha 0.05
+```
+**Çıktı (stdout, çıkış kodu 2):**
+```json
+{"error":"Geçersiz argüman: argument --tails: invalid choice: 3 (choose from 1, 2)"}
 ```
 
 ---
