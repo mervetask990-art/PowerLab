@@ -67,8 +67,16 @@ Benchmark çalıştırıcısı: `python eval/evaluate_agent.py`
 Henüz ölçülmedi.
 
 ### İnceleme Altındaki Binary Bilgileri
-- **Yazılım**: G*Power 3.1.9.7 for Windows (32/64 bit)
-- **SHA-256 Hash**: `(Kendi GPower.exe dosyanızın hash değerini ekleyin: Get-FileHash GPower.exe)`
+- **Yazılım**: G*Power 3.1.9.7 for Windows (taşınabilir paket `GPowerWin_3.1.9.7`, kurulum gerektirmez)
+- **Asıl çalıştırılan exe**: `GPowerNT.exe` (paketteki tek G*Power programı; repoya eklenmez)
+- **Sürüm (dosya özellikleri)**: FileVersion / ProductVersion `3.1.9.7`, ProductName `GPower`, Company `Franz Faul`
+- **Boyut**: 2.287.616 bayt
+- **Mimari**: **32-bit (x86)**. PE başlığı: Machine `0x014C` (i386), Optional Header magic `0x10B` (PE32)
+- **SHA-256 Hash**: `c63e6a133eb6372932f810c08cc33dc35a06d1ddb658f897bd6c34a754efc812`
+  (`certutil -hashfile GPowerNT.exe SHA256` ve `Get-FileHash` ile aynı sonuç alındı)
+- **Paketteki diğer dosya**: `VC_redist.x86.exe`, Microsoft Visual C++ 2015-2022 Redistributable (x86)
+  14.36.32532; 13.837.672 bayt; SHA-256 `5365a927487945ecb040e143ea770adbb296074ece4021b1d14213bde538c490`.
+  Çalışma zamanı kütüphanesidir, inceleme hedefi değildir.
 - **Atıf (Citations)**:
   - Faul, F., Erdfelder, E., Lang, A.-G., & Buchner, A. (2007). *G*Power 3: A flexible statistical power analysis program for the social, behavioral, and biomedical sciences.* Behavior Research Methods, 39, 175-191.
   - Faul, F., Erdfelder, E., Buchner, A., & Lang, A.-G. (2009). *Statistical power analyses using G*Power 3.1: Tests for correlation and regression analyses.* Behavior Research Methods, 41, 1149-1160.

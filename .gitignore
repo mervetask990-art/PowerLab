@@ -1,5 +1,7 @@
 # G*Power binaries and projects (Ödev kuralı: repo hijyeni)
 GPower.exe
+GPowerNT.exe
+VC_redist*
 *.exe
 *.gzf
 *.rep/
