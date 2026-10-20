@@ -60,7 +60,7 @@ Benchmark çalıştırıcısı: `python eval/evaluate_agent.py`
 
 ### Benchmark Sonuçları (10 Klinik Soru):
 - **Henüz ölçülmedi.** Beklenen etiketler ve `expected_n` değerleri ajanla aynı oturumda yazıldı ve hiçbir kâhinle doğrulanmadı.
-- **Ajan Çağrı Günlüğü**: `eval/agent_calls.jsonl`
+- **Ajan Çağrı Günlüğü**: `eval/agent_calls.jsonl` (eski, geçersiz çalıştırma: `eval/_eski/`)
 
 ### Token / Süre / Doğruluk Karşılaştırması: MCP Yolu vs. GUI Yolu
 
