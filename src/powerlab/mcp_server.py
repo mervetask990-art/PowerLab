@@ -15,14 +15,14 @@ from powerlab.engine.solver import run_power_analysis
 # MCP Araç Şeması (README ve LLM Tool Calling için standart tanımlama)
 POWER_ANALYSIS_TOOL_SCHEMA = {
     "name": "power_analysis",
-    "description": "G*Power uyumlu istatistiksel güç ve örneklem boyutu analizi aracı.",
+    "description": "İstatistiksel güç ve örneklem boyutu analizi aracı. G*Power 3.1.9.7 davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir.",
     "parameters": {
         "type": "object",
         "properties": {
             "test": {
                 "type": "string",
-                "description": "Test ailesi (örn: 't-paired', 't2-indep', 'anova-oneway')",
-                "enum": ["t-paired", "t2-indep", "anova-oneway", "chi2-contingency", "multireg-r2"]
+                "description": "Test ailesi (şimdilik yalnızca 't-paired'; multireg-r2 eklenince genişletilecek)",
+                "enum": ["t-paired"]
             },
             "mode": {
                 "type": "string",

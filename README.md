@@ -1,4 +1,6 @@
-# PowerLab: G*Power Uyumlu İstatistiksel Güç Analizi ve Boyut Hesaplama Kütüphanesi
+# PowerLab: İstatistiksel Güç Analizi ve Örneklem Boyutu Hesaplama Kütüphanesi
+
+> G*Power 3.1.9.7 davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir.
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Architecture](https://img.shields.io/badge/architecture-clean--room-green.svg)]()
@@ -40,7 +42,7 @@ Protokol: Model Context Protocol (MCP) / JSON-RPC 2.0 (stdio)
 
 | Araç Adı | Parametre | Tip | Zorunlu? | Açıklama |
 |---|---|---|---|---|
-| `power_analysis` | `test` | string | Evet | Test ailesi (`t-paired`, `t2-indep`, `anova-oneway`, `chi2-contingency`, `multireg-r2`) |
+| `power_analysis` | `test` | string | Evet | Test ailesi: şimdilik yalnızca `t-paired` (multireg-r2 eklenince genişletilecek) |
 | `power_analysis` | `mode` | string | Hayır | `a-priori` (varsayılan) veya `post-hoc` |
 | `power_analysis` | `tails` | integer | Hayır | 1 (tek yönlü) veya 2 (çift yönlü, varsayılan: 2) |
 | `power_analysis` | `dz` / `d` | number | Evet | Etki büyüklüğü ($d_z > 0$) |

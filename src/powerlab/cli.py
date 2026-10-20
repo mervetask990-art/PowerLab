@@ -34,7 +34,7 @@ class JsonArgumentParser(argparse.ArgumentParser):
 def build_parser() -> argparse.ArgumentParser:
     parser = JsonArgumentParser(
         prog="gpower-clone",
-        description="powerlab: G*Power Uyumlu Güç Analizi ve Boyut Belirleme Motoru",
+        description="powerlab: G*Power 3.1.9.7 davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir.",
     )
     parser.add_argument("--test", type=str, required=True, help="Test ailesi (örn: t-paired)")
     parser.add_argument(
