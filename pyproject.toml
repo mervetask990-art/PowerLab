@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "powerlab"
+version = "0.1.0"
+description = "G*Power 3.1.9.7 davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "scipy",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "statsmodels",
+]
+
+[project.scripts]
+gpower-clone = "powerlab.cli:main"
+powerlab = "powerlab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

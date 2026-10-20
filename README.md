@@ -19,6 +19,20 @@
 
 ---
 
+## Kurulum (Windows)
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -e ".[dev]"
+gpower-clone --help
+pytest
+```
+
+Birincil komut `gpower-clone`, ikinci komut `powerlab`; ikisi de aynı CLI'yi çalıştırır (bkz. `prompts/NOTLAR.md`).
+
+---
+
 ## 2. MCP Araç Şeması (Model Context Protocol)
 
 Sunucu modülü: `src/powerlab/mcp_server.py`  
@@ -69,9 +83,11 @@ repo/
 ├── HALLUCINATIONS.md      # Yakalanan ajan yanılgıları ve düzeltmeler
 ├── AGENT_COST.md          # Telemetri, token ve süre kayıtları
 ├── .gitignore             # GPower.exe, *.gzf, ghidra projeleri
+├── pyproject.toml         # Paketleme; konsol komutları gpower-clone ve powerlab
 ├── prompts/
 │   ├── 01_inceleme_oturumu.md
-│   └── 02_yazim_oturumu.md
+│   ├── 02_yazim_oturumu.md
+│   └── NOTLAR.md              # Sonradan alınan kararlar (orijinal prompt'lar değiştirilmez)
 ├── oracle/
 │   ├── gpower_vectors.csv         # G*Power kâhin şablonu (30 girdi; beklenen değerler boş)
 │   ├── screenshots/               # Ekran görüntüleri (henüz boş)

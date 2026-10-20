@@ -14,7 +14,7 @@ from powerlab.engine.solver import run_power_analysis
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="powerlab",
+        prog="gpower-clone",
         description="powerlab: G*Power Uyumlu Güç Analizi ve Boyut Belirleme Motoru",
     )
     parser.add_argument("--test", type=str, required=True, help="Test ailesi (örn: t-paired)")
@@ -35,7 +35,15 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _force_utf8_streams() -> None:
+    """Windows konsolunda Türkçe karakterler (--help metni vb.) bozulmasın."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
+
+
 def main(args: Optional[List[str]] = None) -> None:
+    _force_utf8_streams()
     parser = build_parser()
     try:
         parsed = parser.parse_args(args)
