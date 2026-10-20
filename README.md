@@ -13,7 +13,7 @@
 ## 1. Proje Durumu ve Katmanlar
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
-- [ ] **Katman 1: Kâhin Vektörleri** (30 G*Power girdi şablonu hazır; beklenen değerler boş, ekran görüntüsü bekleniyor)
+- [ ] **Katman 1: Kâhin Vektörleri** (30 planlı vektörden 1'i dolu: V01, `oracle/screenshots/V01.png`; kalan 29 ekran görüntüsü bekleniyor)
 - [x] **Katman 2: Oturum 1 (İnceleme)** (`LEDGER.md` var; ancak henüz hiçbir [REA] kanıtı yok — tüm binary iddiaları [AJAN])
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
 - [ ] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı ölçülmedi: 0 kâhin vektörü; yalnızca self-check var, bkz. `conformance.md`)
@@ -102,7 +102,7 @@ repo/
 │   └── NOTLAR.md              # Sonradan alınan kararlar (orijinal prompt'lar değiştirilmez)
 ├── oracle/
 │   ├── gpower_vectors.csv         # G*Power kâhin şablonu (30 girdi; beklenen değerler boş)
-│   ├── screenshots/               # Ekran görüntüleri (henüz boş)
+│   ├── screenshots/               # G*Power ekran görüntüleri (V01.png)
 │   ├── selfcheck_scipy.csv        # KÂHİN DEĞİL: motorun kendi kendine tutarlılık verisi
 │   ├── generate_selfcheck_scipy.py
 │   ├── boundary_vectors.csv       # Sınır değerler
@@ -131,8 +131,10 @@ repo/
 ### Kâhin ve self-check ayrımı
 
 - **Kâhin yalnızca G*Power'dır.** `oracle/gpower_vectors.csv` içindeki bir beklenen değer, ancak
-  `oracle/screenshots/` altında karşılık gelen ekran görüntüsü varsa doldurulur. Şu an tüm beklenen
-  sütunlar boştur; `test_differential.py` bu durumda G*Power testini açıkça **atlar (skip)**.
+  `oracle/screenshots/` altında karşılık gelen ekran görüntüsü varsa doldurulur. Şu an 30 vektörden
+  yalnızca **V01** dolu (`oracle/screenshots/V01.png`). `test_differential.py` dolu vektörleri çalıştırır:
+  N ve df tam, diğer alanlar CSV'deki basamak sayısına (V01'de 7) kadar eşleşmelidir. Hiç dolu vektör
+  kalmazsa test açıkça **atlanır (skip)**.
 - **`oracle/selfcheck_scipy.csv` kâhin değildir.** Motorla aynı algoritmanın (kesikli N araması +
   `scipy.stats.nct`) ayrı bir kopyasından üretilmiştir; yalnızca motorun kendi kendine tutarlılığını
   sınar. Buradaki eşleşme oranı G*Power uyumu hakkında bilgi vermez.
@@ -155,9 +157,9 @@ gpower-clone --test t-paired --mode a-priori --tails 2 --dz 0.5 --alpha 0.05 --p
 ```
 **Çıktı (Tek satır JSON):**
 ```json
-{"n":54,"n_total":54,"actual_power":0.950212,"critical":2.005746,"df":53,"ncp":3.674235}
+{"n":54,"n_total":54,"actual_power":0.950212,"critical":2.005746,"df":53,"ncp":3.6742346}
 ```
-> Motor çıktısıdır, kâhin değildir. G*Power'ın bu girdiler için verdiği değer henüz ekran görüntüsüyle doğrulanmadı (oracle vektörü #V01).
+> Motor çıktısıdır, kâhin değildir; değerler 7 ondalığa yuvarlanır. G*Power aynı girdilerde N=54, Df=53, δ=3.6742346, Critical t=2.0057460, Actual power=0.9502120 gösteriyor (`oracle/screenshots/V01.png`). JSON sondaki sıfırları atar (`2.0057460` → `2.005746`); değer aynıdır (CONTRACT_ASSUMED D3).
 
 ### Hata Durumu:
 ```bash

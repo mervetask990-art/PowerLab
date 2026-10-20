@@ -6,6 +6,7 @@ Bu defter, G*Power 3.1.9.7 davranışlarının kaynağını ve kanıt zincirini 
 - **`[DOK]`**: Resmi kılavuz, makale (Faul et al., 2007, 2009) veya istatistik literatürü.
 - **`[REA]`**: GPower.exe binary'sinden Ghidra / x64dbg ile kanıtlanmış bulgu (fonksiyon adresi / dize referansı zorunlu).
 - **`[AJAN]`**: Ajanın akıl yürütmesi / çıkarımı; tersine mühendislikle doğrulanana kadar hipotez statüsündedir.
+- **`[KÂHİN]`** (KÂHİN GÖZLEMİ): G*Power arayüzünde gözlenen ve `oracle/screenshots/` altındaki ekran görüntüsüyle belgelenen davranış. Binary kanıtı değildir, **[REA] yerine geçmez**; "ne" olduğunu gösterir, "nasıl" olduğunu göstermez.
 
 ---
 
@@ -18,8 +19,22 @@ Bu defter, G*Power 3.1.9.7 davranışlarının kaynağını ve kanıt zincirini 
 | L03 | [DOK] | Dağılım | Güç hesabı noncentral t dağılımı kümülatif fonksiyonu (CDF) ile yapılır. | Faul et al. (2007) s. 177 | Yüksek (%100) |
 | L04 | [AJAN] | Çözücü | A priori modda N, kesikli tamsayı arama (veya float N arayıp tavan tamsayıya yuvarlama) ile belirlenir. | statsmodels float N döndürürken G*Power her zaman tamsayı N verir. | Orta (%80) |
 | L05 | [AJAN] | Çözücü | Çözücü N_min = 2'den başlar veya ikili arama (bisection) kullanır. | df = N - 1 >= 1 olmalıdır. | Orta (%75) |
-| L06 | [AJAN] | Yuvarlama | G*Power'ın hedef güce ulaşan ilk tamsayıyı seçtiği varsayılır (Power(N) >= TargetPower); bu tavan yuvarlamaya denk gelir. | Kanıt yok; G*Power ekran görüntüsü bekleniyor (oracle V01). | Orta |
+| L06 | [AJAN] | Yuvarlama | G*Power'ın hedef güce ulaşan ilk tamsayıyı seçtiği varsayılır (Power(N) >= TargetPower); bu tavan yuvarlamaya denk gelir. | V01 (L10) bu kuralla tutarlı: G*Power N=54'te 0.9502120 gösteriyor. N=53 için motor 0.9465273 hesaplıyor (bu kâhin değil, motor çıktısı). Tek veri noktası olduğu için kural kanıtlanmış sayılmaz. (kanıt bekleniyor: Ghidra) | Orta |
 | L07 | [AJAN] | Sınır | dz <= 0 veya alpha <= 0 veya alpha >= 1 için GUI hesaplamayı reddeder ya da hata kutusu açar. | G*Power arayüz doğrulama davranış hipotezi | Yüksek (%90) |
 | L08 | [AJAN] | Dağılım | Çift kuyrukta güç hesabının iki taraflı noncentral t kuyruğunu topladığı varsayılır: (1 - cdf(t_crit)) + cdf(-t_crit). Not: sol kuyruğun NaN dönmesi G*Power davranışı değil, scipy'ye özgü bir sayısal sorundur (motor 0.0 kabul eder). | Adres/dize yok; yalnızca scipy denemesi. (kanıt bekleniyor: Ghidra) | Orta |
 | L09 | [DOK] | Fark | statsmodels.stats.power.ttest_power kesirli N verir; G*Power her zaman tamsayı N verir ve actual_power'ı bu tamsayı N ile günceller. | Faul et al. (2007) | Yüksek |
-| L10 | [AJAN] | Çözücü | V01 girdileri (dz=0.5, α=0.05, güç=0.95, iki kuyruk) için MOTOR N=54, actual_power=0.950212 üretir. G*Power'ın bu girdiler için verdiği değer bilinmiyor; ekran görüntüsü gelene kadar L06'daki kural hipotezdir. | Adres/dize yok; motor çıktısıdır, kâhin değildir. (kanıt bekleniyor: Ghidra) | Düşük |
+| L10 | [KÂHİN] | Çözücü | V01 (t-paired, a-priori, iki kuyruk, dz=0.5, α=0.05, güç=0.95): G*Power N=54, Df=53, δ=3.6742346, Critical t=2.0057460, Actual power=0.9502120 gösteriyor. Motor 7 basamakta beş değerin hepsini aynı üretiyor. | `oracle/screenshots/V01.png` | Yüksek (gözlem) |
+| L11 | [KÂHİN] | Biçim | KÂHİN GÖZLEMİ: G*Power çıktıyı 7 ondalık basamakla gösterir (Output Parameters paneli; δ, Critical t, Actual power). Grafik başlığı ise `critical t = 2.00575` biçiminde 5 basamak gösteriyor. | `oracle/screenshots/V01.png` | Yüksek (gözlem) |
+
+---
+
+## İnceleme Oturumu İçin Açık Sorular
+
+Bu sorular yazım oturumunda **cevaplanmaz**; ayrı inceleme oturumunda binary üzerinde aranacaktır.
+Cevap bulunursa ilgili satır adres/dize kanıtıyla `[REA]` olarak eklenir.
+
+| # | Soru | İlgili satır | Ne aranacak |
+|---|---|---|---|
+| Q1 | 7 ondalık gösterim sabit bir biçim dizesinden mi geliyor, yoksa anlamlı basamak / alan genişliği kuralından mı? Diğer test ailelerinde ve alanlarda da 7 mi? | L11 | Çıktı panelini dolduran kodda sayı biçimlendirme dizesi ya da basamak sayısı sabiti; grafik başlığındaki 5 basamaklı biçimle ilişkisi |
+| Q2 | A priori çözücünün durma koşulu Power(N) >= hedef mi? | L06 | N arama döngüsü ve karşılaştırma koşulu |
+| Q3 | Çift kuyrukta güç, iki kuyruğun toplamı mı? | L08 | Güç hesabını yapan fonksiyon |

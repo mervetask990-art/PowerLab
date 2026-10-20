@@ -25,6 +25,10 @@ kontrolün yakaladığını belgeler.
   SPEC/README/CSV ile karşılaştırılması. Otomatik bir test yakalamadı, çünkü CSV hiç yüklenmiyordu (bkz. H03).
 - **Düzeltme**: Değerler `oracle/_dogrulanmamis/legacy_vectors.csv` dosyasına taşındı. SPEC'te
   V01–V03 beklentileri "G*Power ile doğrulanacak" olarak işaretlendi. LEDGER L06/L10 düzeltildi.
+- **DOĞRULANDI: G*Power 0.9502120 gösteriyor (`oracle/screenshots/V01.png`).** 0.9531 / 0.953103
+  değeri gerçekten yanlıştı. Ekrandaki diğer değerler: N=54, Df=53, δ=3.6742346, Critical t=2.0057460.
+  Motorun 0.950212 sonucu doğruydu; ekran ayrıca çıktının 7 ondalık gösterildiğini ortaya koydu
+  (LEDGER L11).
 
 ### H02: Kanıtsız [REA] etiketleri
 - **Ne iddia edildi**: LEDGER L08 ve L10 (`d7b36b3:LEDGER.md:23,25`) GPower.exe binary'sinden
