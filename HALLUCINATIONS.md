@@ -35,7 +35,7 @@ kontrolün yakaladığını belgeler.
   kanıtlanmış ([REA]) bulgular olarak etiketlendi.
 - **Nasıl fark edildi**: İki satırın "kanıt" sütununda da fonksiyon adresi ya da dize referansı yok.
   Kanıt olarak `scipy.stats.nct` denemesi ve projenin kendi diferansiyel testi gösterilmiş. Repoda
-  Ghidra kullanımına dair hiçbir iz yok (adres, `FUN_`/`DAT_` araması sıfır sonuç verdi) ve makinede
+  Ghidra kullanımına dair hiçbir iz yok (adres ve Ghidra'nın otomatik fonksiyon/veri adı önekleri için yapılan arama sıfır sonuç verdi) ve makinede
   Java kurulu değil.
 - **Hangi kontrol yakaladı**: Denetimde LEDGER satırlarının, prompt 01'deki "[REA] için adres veya
   dize referansı ŞART" kuralına göre tek tek okunması.
