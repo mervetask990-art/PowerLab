@@ -26,9 +26,26 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
   - Çift kuyruk (`tails = 2`):
     $$\text{Güç} = 1 - F_{\text{nct}}(t_{\text{crit}}; \, \text{df}, \, \delta) + F_{\text{nct}}(-t_{\text{crit}}; \, \text{df}, \, \delta)$$
     *(Not: G*Power t testlerinde çift kuyrukta sol kuyruk integralini de dahil eder; etki büyüklüğü orta/büyük olduğunda sol kuyruk $10^{-6}$ mertebesinde ihmal edilebilir olsa da hassas hesaplamada toplanır).*
-    *([REA], LEDGER L22, kısmi: çift kuyrukta α iki kuyruğa α/2 + α/2 olarak bölünür (`0x4bdee0`) ve güç
-    `1 - (F(t_c) - F(-t_c))` biçiminde döner (`0x4d38b0`); assembly ile teyit bekliyor. δ = dz·√N dönüşümü `0x4dbdc0`'da
-    doğrulandı, LEDGER L24.)*
+    *([REA], LEDGER L25, L26: assembly ile doğrulandı. Güç `1 - (F(t_c) - F(-t_c))` biçiminde döner (`0x4d38b0`);
+    α'nın ikiye bölünmesi de aynı fonksiyonda kuyruk bayrağına bağlıdır. L22'deki "`0x4bdee0` α'yı böler" okuması
+    yanlıştı; orada yarıya bölünen N'dir. δ = dz·√N dönüşümü `0x4dbdc0`'da (L24), df = N − 1 `0x4db950`'de (L28)
+    doğrulandı.)*
+- **Kritik değerin hesaplanışı ([REA], L28):** Kritik t, merkezsizliği 0 olan (merkezi) t dağılımının ters CDF'idir;
+  δ ancak bundan sonra ayarlanıp güç hesaplanır.
+- **G*Power'da kuyruk yönü ([REA], L27; sözleşme gereği motorda uygulanmaz):** Yön, etki büyüklüğünün işaretiyle seçilir.
+  $d_z \ge 0$ için $t_{\text{crit}}$ üst kuyruktan alınır ($1-\alpha$ ya da $1-\alpha/2$). $d_z < 0$ için alt kuyruktan
+  alınır ($\alpha$ ya da $\alpha/2$, negatif $t_{\text{crit}}$); tek kuyruk gücü bu durumda $F_{\text{nct}}(t_{\text{crit}})$ olur.
+  $d_z = 0$ üst kuyruk dalına düşer ve güç $= \alpha$ çıkar (V41, V43).
+- **Merkezsiz t CDF'i ([REA], L29):** G*Power'da df'e bağlı bir yöntem değişikliği yoktur; aynı seri toplamı her df için
+  kullanılır (göreli tolerans ≈ 5.55·10⁻¹⁷, en çok 50000 terim). $|\delta| < 10^{-100}$ ise merkezi t'ye geçilir.
+  V42 uyuşmazlığının (L17) nedeni bilinmiyor.
+- **G*Power girdi aralıkları ([REA], L32, L33; ekran görüntüsüyle sınanmadı):**
+  - $\alpha$ ve hedef güç $[10^{-7},\ 0.9999999]$ kapalı aralığında olmalıdır.
+  - Post hoc'ta $d_z \in [-20,\ 20]$ olmalıdır.
+  - A priori'de $d_z$ için yalnızca $|d_z| \ge 0.00001$ kontrolü vardır, üst sınır yoktur.
+
+  Motor bu aralıkları değil CONTRACT.md §5'i uygular; G*Power'ın kabul edip sözleşmenin reddettiği (ya da tersi)
+  değerler kasıtlı sapmadır.
 
 ---
 
@@ -47,6 +64,12 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
    (`0x496aa0`, `0x4f9bb0`, `0x496a20`). Güç $N$'de monoton olduğu sürece bu, 3. maddedeki "en küçük tamsayı" kuralıyla
    aynı $N$'yi verir; motor 3. maddeyi uygular. İki kuralın ayrışabileceği sınır vakaları (kök bir tamsayıya $10^{-10}$
    içinde yakınsa ya da güç fonksiyonu sayısal olarak farklıysa, bkz. V42 / L17) kâhinle izlenir.
+5. **G*Power'ın arama aralığı ([REA], LEDGER L34)**: Kök bulucunun alt sınırı 2'dir; başlangıç noktası 100'dür.
+   Güç(100) hedefe ulaşıyorsa aralık 2'ye doğru daraltılır. Ulaşmıyorsa üst uç hedefe ulaşılana dek 1.6 ile çarpılarak
+   büyütülür. **G*Power'da üst sınır yoktur** (V42: N = 78488272181). Yuvarlanmış N alt sınırdan küçükse 2'ye çekilir;
+   a priori'de en küçük N bu yüzden 2'dir (V16). Güç = α durumunda (V16) aralıkta işaret değişimi olmadığında kök
+   bulucunun ne döndürdüğü izlenmedi ([AJAN], L35). *Not: Yukarıdaki 1. maddedeki $N_{\max} = 100\,000$ G*Power
+   davranışı değildir; V42 senaryosuyla çelişir.*
 
 ---
 
