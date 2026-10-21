@@ -7,105 +7,50 @@ Hesap mantığı KOPYALANMAZ.
 
 import json
 import sys
-from typing import Dict, Any, Optional
+from typing import Any, Dict
 
-from powerlab.engine.solver import run_power_analysis
+from powerlab.engine.contract import dumps, error_payload, handle_request
+from powerlab.engine.errors import UNSUPPORTED
+from powerlab.engine.solver import CONTRACT_MODES, CONTRACT_TESTS
 
+TOOL_NAME = "power_analysis"
 
-# MCP Araç Şeması (README ve LLM Tool Calling için standart tanımlama)
+# MCP araç şeması: alan adları CLI ile birebir aynıdır (CONTRACT.md §7, §4.2).
 POWER_ANALYSIS_TOOL_SCHEMA = {
-    "name": "power_analysis",
-    "description": "İstatistiksel güç ve örneklem boyutu analizi aracı. G*Power 3.1.9.7 davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir.",
-    "parameters": {
+    "name": TOOL_NAME,
+    "description": "İstatistiksel güç ve örneklem büyüklüğü analizi (CONTRACT.md 1.0.0). G*Power 3.1.9.7 "
+                   "davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir. Şu an uygulanan: "
+                   "t-paired a-priori ve post-hoc; diğerleri UNSUPPORTED döner.",
+    "inputSchema": {
         "type": "object",
         "properties": {
-            "test": {
-                "type": "string",
-                "description": "Test ailesi (şimdilik yalnızca 't-paired'; multireg-r2 eklenince genişletilecek)",
-                "enum": ["t-paired"]
-            },
-            "mode": {
-                "type": "string",
-                "description": "Analiz türü: 'a-priori' (gereken N) veya 'post-hoc' (elde edilen güç)",
-                "enum": ["a-priori", "post-hoc"],
-                "default": "a-priori"
-            },
-            "tails": {
-                "type": "integer",
-                "description": "Kuyruk sayısı: 1 (tek yönlü) veya 2 (çift yönlü)",
-                "enum": [1, 2],
-                "default": 2
-            },
-            "dz": {
-                "type": "number",
-                "description": "Eşleştirilmiş t-testi etki büyüklüğü (Cohen's dz; işaretli olabilir, a priori'de |dz| >= 0.00001)"
-            },
-            "d": {
-                "type": "number",
-                "description": "Genel etki büyüklüğü d (dz yerine de kabul edilir)"
-            },
-            "alpha": {
-                "type": "number",
-                "description": "Tip I hata olasılığı (örn: 0.05)",
-                "default": 0.05
-            },
-            "power": {
-                "type": "number",
-                "description": "Hedef güç (1 - beta, örn: 0.80 veya 0.95, a-priori için zorunlu)"
-            },
-            "n": {
-                "type": "integer",
-                "description": "Örneklem büyüklüğü (post-hoc analizi için çift sayısı)"
-            },
-            "ratio": {
-                "type": "number",
-                "description": "İki bağımsız grup arasındaki oran (n2/n1)",
-                "default": 1.0
-            }
+            "test": {"type": "string", "enum": list(CONTRACT_TESTS), "description": "Test kimliği"},
+            "mode": {"type": "string", "enum": list(CONTRACT_MODES), "description": "Analiz modu"},
+            "tails": {"type": "integer", "enum": [1, 2], "description": "Kuyruk sayısı (t testleri)"},
+            "dz": {"type": "number", "description": "Etki büyüklüğü dz (> 0)"},
+            "alpha": {"type": "number", "description": "I. tip hata olasılığı (0 < α < 1)"},
+            "power": {"type": "number", "description": "Hedef güç 1-β (a-priori)"},
+            "n_total": {"type": "integer", "description": "Toplam örneklem büyüklüğü, çift sayısı (post-hoc)"},
         },
-        "required": ["test", "alpha"]
-    }
+        "required": ["test", "mode"],
+    },
 }
 
 
 def call_tool(name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
     """
-    MCP tool handler: Girdileri alır, engine'e devreder ve JSON uyumlu yanıt döner.
+    MCP araç işleyicisi: CLI ile aynı istek katmanını çağırır; dönen sözlük CLI'nin stdout JSON'udur.
+    Hesap ve doğrulama KOPYALANMAZ.
     """
-    if name != "power_analysis":
-        return {"error": f"Bilinmeyen araç: '{name}'"}
+    if name != TOOL_NAME:
+        return error_payload(UNSUPPORTED, None, f"Bilinmeyen araç: '{name}'")
+    payload, _ = handle_request(dict(arguments))
+    return payload
 
-    test = arguments.get("test")
-    mode = arguments.get("mode", "a-priori")
-    # Tür dönüşümü ve doğrulama motorda yapılır (NaN/inf dahil); burada yalnızca aktarılır.
-    tails = arguments.get("tails", 2)
-    alpha = arguments.get("alpha", 0.05)
 
-    params: Dict[str, Any] = {
-        "tails": tails,
-        "alpha": alpha,
-    }
-
-    # dz veya d
-    dz_val = arguments.get("dz", arguments.get("d"))
-    if dz_val is not None:
-        params["dz"] = dz_val
-
-    if "power" in arguments and arguments["power"] is not None:
-        params["power"] = arguments["power"]
-
-    if "n" in arguments and arguments["n"] is not None:
-        params["n"] = arguments["n"]
-
-    if "ratio" in arguments and arguments["ratio"] is not None:
-        params["ratio"] = arguments["ratio"]
-
-    try:
-        # ASLA HESAP KOPYALANMAZ -> SADECE ENGINE ÇAĞRILIR
-        result = run_power_analysis(test=test, mode=mode, params=params)
-        return {"result": result}
-    except Exception as err:
-        return {"error": str(err)}
+def call_tool_text(name: str, arguments: Dict[str, Any]) -> str:
+    """MCP metin içeriği: CLI'nin stdout satırıyla birebir aynı."""
+    return dumps(call_tool(name, arguments))
 
 
 def handle_jsonrpc_request(request: Dict[str, Any]) -> Dict[str, Any]:
@@ -117,37 +62,16 @@ def handle_jsonrpc_request(request: Dict[str, Any]) -> Dict[str, Any]:
     params = request.get("params", {})
 
     if method == "tools/list":
-        return {
-            "jsonrpc": "2.0",
-            "id": req_id,
-            "result": {
-                "tools": [POWER_ANALYSIS_TOOL_SCHEMA]
-            }
-        }
+        return {"jsonrpc": "2.0", "id": req_id, "result": {"tools": [POWER_ANALYSIS_TOOL_SCHEMA]}}
     elif method == "tools/call":
-        tool_name = params.get("name")
-        tool_args = params.get("arguments", {})
-        tool_res = call_tool(tool_name, tool_args)
-        if "error" in tool_res:
-            return {
-                "jsonrpc": "2.0",
-                "id": req_id,
-                "error": {
-                    "code": -32602,
-                    "message": tool_res["error"]
-                }
-            }
+        payload = call_tool(params.get("name"), params.get("arguments", {}))
         return {
             "jsonrpc": "2.0",
             "id": req_id,
             "result": {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(tool_res["result"])
-                    }
-                ]
-            }
+                "content": [{"type": "text", "text": dumps(payload)}],
+                "isError": "error" in payload,
+            },
         }
     else:
         return {

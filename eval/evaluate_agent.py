@@ -62,8 +62,8 @@ def main():
                     en_correct += 1
 
             n_match_str = "-"
-            if exp_n is not None and "tool_result" in res and "result" in res["tool_result"]:
-                calc_n = res["tool_result"]["result"].get("n")
+            if exp_n is not None and "n_total" in res.get("tool_result", {}):
+                calc_n = res["tool_result"]["n_total"]
                 if calc_n == exp_n:
                     correct_n += 1
                     n_match_str = f"TAM EŞLEŞTİ (N={calc_n})"
