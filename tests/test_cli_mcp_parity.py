@@ -86,12 +86,12 @@ class TestCliMcpParity(unittest.TestCase):
         self.assertEqual(cli_data, mcp_data)
 
     def test_error_parity(self):
-        # Negatif dz durumunda ikisinin de hata üretmesi
+        # A priori dz = 0 durumunda ikisinin de hata üretmesi (G*Power V25)
         cli_res = run_cli(
             "--test", "t-paired",
             "--mode", "a-priori",
             "--tails", "2",
-            "--dz", "-0.2",
+            "--dz", "0",
             "--alpha", "0.05",
             "--power", "0.80"
         )
@@ -102,7 +102,7 @@ class TestCliMcpParity(unittest.TestCase):
             "test": "t-paired",
             "mode": "a-priori",
             "tails": 2,
-            "dz": -0.2,
+            "dz": 0,
             "alpha": 0.05,
             "power": 0.80
         })

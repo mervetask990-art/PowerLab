@@ -4,12 +4,17 @@ B02,t-paired,a-priori,2,5.0,0.05,0.99,,,,,,,,,Doğrulanmamış hipotez (small_n)
 B03,t-paired,a-priori,2,0.5,0.00001,0.9999,,,,,,,,,Doğrulanmamış hipotez (extreme_tail): Aşırı katı alfa ve aşırı yüksek güç,
 B04,t-paired,a-priori,2,0.5,0.05,0.05,,,,,,,,,"Doğrulanmamış hipotez (power_le_alpha): power <= alpha durumu (anlamsız güç talebi, N=2 veya hata) | G*Power kâhini: gpower_vectors.csv V16 (beklenen değerler ve G*Power tepkisi yalnızca orada)",
 B05,t-paired,a-priori,2,0.5,0.50,0.50,,,,,,,,,Doğrulanmamış hipotez (power_eq_alpha): power == alpha durumu,
-B06,t-paired,a-priori,2,-0.5,0.05,0.80,,,,,,,,,Negatif etki büyüklüğü dz < 0 | G*Power kâhini: gpower_vectors.csv V26 (beklenen değerler ve G*Power tepkisi yalnızca orada),error
-B07,t-paired,a-priori,2,0.0,0.05,0.80,,,,,,,,,Sıfır etki büyüklüğü dz = 0 | G*Power kâhini: gpower_vectors.csv V25 (beklenen değerler ve G*Power tepkisi yalnızca orada),error
+B06,t-paired,a-priori,2,-0.5,0.05,0.80,,,,,,,,,"Negatif etki büyüklüğü dz < 0: G*Power kabul ediyor, δ ve Critical t işaretli, N |dz| ile aynı (LEDGER L13) | G*Power kâhini: gpower_vectors.csv V26 (beklenen değerler yalnızca orada)",
+B07,t-paired,a-priori,2,0.0,0.05,0.80,,,,,,,,,"Sıfır etki büyüklüğü dz = 0, a priori: G*Power Input error (LEDGER L14) | G*Power kâhini: gpower_vectors.csv V25 (G*Power tepkisi yalnızca orada)",error
 B08,t-paired,a-priori,2,0.5,0.0,0.80,,,,,,,,,alpha = 0,error
 B09,t-paired,a-priori,2,0.5,1.0,0.80,,,,,,,,,alpha = 1,error
 B10,t-paired,a-priori,2,0.5,0.05,0.0,,,,,,,,,power = 0,error
 B11,t-paired,a-priori,2,0.5,0.05,1.0,,,,,,,,,power = 1,error
 B12,t-paired,a-priori,3,0.5,0.05,0.80,,,,,,,,,Geçersiz kuyruk sayısı tails = 3,error
-B13,t-paired,post-hoc,2,0.5,0.05,,1,,,,,,,,Post-hoc için serbestlik derecesi df = n - 1 <= 0 (n=1 hatası) | G*Power kâhini: gpower_vectors.csv V40 (beklenen değerler ve G*Power tepkisi yalnızca orada),error
+B13,t-paired,post-hoc,2,0.5,0.05,,1,,,,,,,,"Post hoc N=1: G*Power Input error, izin verilen aralık (3, 2147483646) (LEDGER L15) | G*Power kâhini: gpower_vectors.csv V40 (G*Power tepkisi yalnızca orada)",error
 B14,t-paired,post-hoc,2,0.5,0.05,,-5,,,,,,,,Post-hoc için negatif n,error
+B15,t-paired,post-hoc,2,0.5,0.05,,2,,,,,,,,"Post hoc N=2: G*Power Input error, izin verilen aralık (3, 2147483646) (LEDGER L15) | G*Power kâhini: gpower_vectors.csv V29",error
+B16,t-paired,a-priori,2,0.5,0.05,0.03,,,,,,,,,Hedef güç < alpha: G*Power Input error (LEDGER L12) | G*Power kâhini: gpower_vectors.csv V17,error
+B17,t-paired,a-priori,2,0.00001,0.05,0.80,,,,,,,,,"Mutlak dz = 0.00001 sınırı, a priori: G*Power kabul ediyor (LEDGER L14) | G*Power kâhini: gpower_vectors.csv V42 (beklenen değerler yalnızca orada)",
+B18,t-paired,post-hoc,2,0,0.05,,30,,,,,,,,"Post hoc dz = 0: G*Power kabul ediyor, güç = alpha (LEDGER L16) | G*Power kâhini: gpower_vectors.csv V41 (iki kuyruk), V43 (tek kuyruk)",
+B19,t-paired,a-priori,2,0.000005,0.05,0.80,,,,,,,,,"Doğrulanmamış hipotez (abs_dz_below_threshold): 0 < mutlak dz < 0.00001 a priori'de reddedilir; G*Power mesajından çıkarım, ekranla doğrulanmadı (LEDGER Q5)",error

@@ -58,7 +58,7 @@ class TestCLIContract(unittest.TestCase):
             "--test", "t-paired",
             "--mode", "a-priori",
             "--tails", "2",
-            "--dz", "-0.5",
+            "--dz", "0",
             "--alpha", "0.05",
             "--power", "0.95"
         )
