@@ -20,6 +20,7 @@ from powerlab.engine.validation import (
     validate_tails,
     validate_effect_size,
     validate_a_priori_effect_size,
+    validate_post_hoc_effect_size,
     validate_power_not_below_alpha,
     validate_sample_size,
 )
@@ -45,6 +46,7 @@ def compute_power(params: Dict[str, Any]) -> Dict[str, Any]:
 
     validate_tails(tails)
     validate_effect_size(dz)
+    validate_post_hoc_effect_size(dz)
     validate_alpha(alpha)
     # Post hoc alt sınırı 3: G*Power N=1 ve N=2'yi reddediyor (V29, V40; [REA] 0x4dc2a0, LEDGER L20).
     validate_sample_size(n, min_n=3)
@@ -70,11 +72,12 @@ def solve_n(params: Dict[str, Any]) -> Dict[str, Any]:
     alpha = _require(params, "alpha")
     target_power = _require(params, "power")
 
+    # Sıra G*Power'daki gibi: dz eşiği -> α -> güç -> α <= güç ([REA] LEDGER L32).
     validate_tails(tails)
     validate_effect_size(dz)
+    validate_a_priori_effect_size(dz)
     validate_alpha(alpha)
     validate_power(target_power)
-    validate_a_priori_effect_size(dz)
     tails, dz, alpha, target_power = int(tails), float(dz), float(alpha), float(target_power)
     validate_power_not_below_alpha(target_power, alpha)
 

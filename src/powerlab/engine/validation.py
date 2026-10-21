@@ -32,16 +32,28 @@ def _require_integer(name: str, field: str, value: Any) -> int:
     return int(number)
 
 
+# α ve güç için G*Power'ın kabul aralığı (kapalı): [REA] 0x487530 / 0x488110, LEDGER L32.
+# CONTRACT.md §5'in (0, 1) aralığının içindedir.
+PROBABILITY_MIN = 1e-7
+PROBABILITY_MAX = 0.9999999
+
+
 def validate_alpha(alpha: float) -> None:
     alpha = _require_finite("Alpha", "alpha", alpha)
-    if not (0.0 < alpha < 1.0):
-        raise ContractError(OUT_OF_RANGE, "alpha", f"Alpha değeri (0, 1) açık aralığında olmalıdır, alınan: {alpha}")
+    if not (PROBABILITY_MIN <= alpha <= PROBABILITY_MAX):
+        raise ContractError(
+            OUT_OF_RANGE, "alpha",
+            f"Alpha değeri [{PROBABILITY_MIN:g}, {PROBABILITY_MAX}] aralığında olmalıdır, alınan: {alpha}",
+        )
 
 
 def validate_power(power: float) -> None:
     power = _require_finite("Power (güç)", "power", power)
-    if not (0.0 < power < 1.0):
-        raise ContractError(OUT_OF_RANGE, "power", f"Power (güç) değeri (0, 1) açık aralığında olmalıdır, alınan: {power}")
+    if not (PROBABILITY_MIN <= power <= PROBABILITY_MAX):
+        raise ContractError(
+            OUT_OF_RANGE, "power",
+            f"Power (güç) değeri [{PROBABILITY_MIN:g}, {PROBABILITY_MAX}] aralığında olmalıdır, alınan: {power}",
+        )
 
 
 def validate_tails(tails: Any) -> None:
@@ -69,6 +81,19 @@ def validate_a_priori_effect_size(dz: float) -> None:
         raise ContractError(
             OUT_OF_RANGE, "dz",
             f"A priori analizde etki büyüklüğü (dz) en az {A_PRIORI_MIN_DZ:.5f} olmalıdır, alınan: {dz}",
+        )
+
+
+# Post hoc'ta etki büyüklüğü üst sınırı (kapalı): [REA] 0x487b70, LEDGER L33. A priori'de üst sınır yok.
+POST_HOC_MAX_DZ = 20.0
+
+
+def validate_post_hoc_effect_size(dz: float) -> None:
+    dz = _require_finite("Etki büyüklüğü (dz)", "dz", dz)
+    if dz > POST_HOC_MAX_DZ:
+        raise ContractError(
+            OUT_OF_RANGE, "dz",
+            f"Post hoc analizde etki büyüklüğü (dz) en çok {POST_HOC_MAX_DZ:g} olabilir, alınan: {dz}",
         )
 
 
