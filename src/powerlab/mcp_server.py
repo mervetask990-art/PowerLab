@@ -38,7 +38,7 @@ POWER_ANALYSIS_TOOL_SCHEMA = {
             },
             "dz": {
                 "type": "number",
-                "description": "Eşleştirilmiş t-testi etki büyüklüğü (Cohen's dz > 0)"
+                "description": "Eşleştirilmiş t-testi etki büyüklüğü (Cohen's dz; işaretli olabilir, a priori'de |dz| >= 0.00001)"
             },
             "d": {
                 "type": "number",

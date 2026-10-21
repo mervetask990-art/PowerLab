@@ -3,6 +3,9 @@ src/powerlab/engine/families/t_paired.py
 Eşleştirilmiş iki bağımlı grup t-testi (Means: Difference between two dependent means / matched pairs).
 Mimaride her aile compute_power(params) ve solve_n(params) arayüzünü uygular.
 Saf fonksiyonlardır, yan etki barındırmaz.
+
+dz işaretlidir: N ve güç |dz| ile hesaplanır; ncp = dz * sqrt(N) ve critical, dz'nin işaretini
+taşır (dz = 0 için +). Kanıt: G*Power V21, V26, V37 (LEDGER L13).
 """
 
 import math
@@ -14,6 +17,8 @@ from powerlab.engine.validation import (
     validate_power,
     validate_tails,
     validate_effect_size,
+    validate_a_priori_effect_size,
+    validate_power_not_below_alpha,
     validate_sample_size,
 )
 from powerlab.engine.rounding import round_result_dict
@@ -23,6 +28,10 @@ def _require(params: Dict[str, Any], key: str) -> Any:
     if params.get(key) is None:
         raise ValueError(f"Eksik parametre: '{key}'")
     return params[key]
+
+
+def _sign(dz: float) -> float:
+    return -1.0 if dz < 0 else 1.0
 
 
 def compute_power(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -37,21 +46,21 @@ def compute_power(params: Dict[str, Any]) -> Dict[str, Any]:
     validate_tails(tails)
     validate_effect_size(dz)
     validate_alpha(alpha)
-    validate_sample_size(n, min_n=2)
+    # Post hoc alt sınırı 3: G*Power N=1 ve N=2'yi reddediyor (V29, V40; LEDGER L15).
+    validate_sample_size(n, min_n=3)
     tails, dz, alpha, n = int(tails), float(dz), float(alpha), int(n)
 
     df = n - 1
-    ncp = dz * math.sqrt(n)
     t_crit = t_critical_value(alpha=alpha, df=df, tails=tails)
-    power = nct_power(critical_t=t_crit, df=df, ncp=ncp, tails=tails)
+    power = nct_power(critical_t=t_crit, df=df, ncp=abs(dz) * math.sqrt(n), tails=tails)
 
     res = {
         "n": n,
         "n_total": n,
         "actual_power": power,
-        "critical": t_crit,
+        "critical": _sign(dz) * t_crit,
         "df": df,
-        "ncp": ncp,
+        "ncp": dz * math.sqrt(n),
     }
     return round_result_dict(res)
 
@@ -72,7 +81,10 @@ def solve_n(params: Dict[str, Any]) -> Dict[str, Any]:
     validate_effect_size(dz)
     validate_alpha(alpha)
     validate_power(target_power)
+    validate_a_priori_effect_size(dz)
     tails, dz, alpha, target_power = int(tails), float(dz), float(alpha), float(target_power)
+    validate_power_not_below_alpha(target_power, alpha)
+    sign, dz = _sign(dz), abs(dz)
 
     # İkili arama (Binary search) veya monotonik tarama
     # N artarken df ve ncp monotonik artar, dolayısıyla güç de monotonik artar.
@@ -113,8 +125,8 @@ def solve_n(params: Dict[str, Any]) -> Dict[str, Any]:
         "n": best_n,
         "n_total": best_n,
         "actual_power": actual_power,
-        "critical": t_crit,
+        "critical": sign * t_crit,
         "df": df,
-        "ncp": ncp,
+        "ncp": sign * ncp,
     }
     return round_result_dict(res)
