@@ -28,6 +28,9 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
   - Çift kuyruk (`tails = 2`):
     $$\text{Güç} = 1 - F_{\text{nct}}(t_{\text{crit}}; \, \text{df}, \, \delta) + F_{\text{nct}}(-t_{\text{crit}}; \, \text{df}, \, \delta)$$
     *(Not: G*Power t testlerinde çift kuyrukta sol kuyruk integralini de dahil eder; etki büyüklüğü orta/büyük olduğunda sol kuyruk $10^{-6}$ mertebesinde ihmal edilebilir olsa da hassas hesaplamada toplanır).*
+    *([REA], LEDGER L22, kısmi: çift kuyrukta α iki kuyruğa α/2 + α/2 olarak bölünür (`0x4bdee0`) ve güç
+    `1 - (F(t_c) - F(-t_c))` biçiminde döner (`0x4d38b0`); assembly ile teyit bekliyor. δ = dz·√N dönüşümü `0x4dbdc0`'da
+    doğrulandı, LEDGER L24.)*
 
 ---
 
@@ -40,6 +43,12 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
    - $N$ artarken güç monotonik artar.
    - İkili arama (binary search) veya artırımlı tarama ile $\text{Power}(N) \ge \text{target\_power}$ olan en küçük $N$ seçilir.
    - Elde edilen $N$ için `actual_power`, `critical`, `df`, `ncp` değerleri raporlanır.
+4. **G*Power'ın gerçek yöntemi ([REA], LEDGER L21)**: G*Power tamsayı tarama yapmaz. Sürekli $N$ üzerinde
+   $\text{Power}(N) = \text{target\_power}$ kökünü Brent türü bir kök bulucuyla arar (tolerans $10^{-10}$, en çok 300
+   iterasyon), sonucu $\lfloor N \cdot 10^{10} + 0.5 \rfloor / 10^{10}$ ile 10 ondalığa yuvarlar ve tavanını alır
+   (`0x496aa0`, `0x4f9bb0`, `0x496a20`). Güç $N$'de monoton olduğu sürece bu, 3. maddedeki "en küçük tamsayı" kuralıyla
+   aynı $N$'yi verir; motor 3. maddeyi uygular. İki kuralın ayrışabileceği sınır vakaları (kök bir tamsayıya $10^{-10}$
+   içinde yakınsa ya da güç fonksiyonu sayısal olarak farklıysa, bkz. V42 / L17) kâhinle izlenir.
 
 ---
 
