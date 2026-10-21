@@ -1,8 +1,8 @@
 # Uyum Raporu (Conformance Report)
 
-**Oluşturulma Tarihi**: 2026-10-21 20:37:58
+**Oluşturulma Tarihi**: 2026-10-21 21:07:16
 **Test Ailesi**: `t-paired`
-**%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ❌ KALDI — 33/37 (%89.19)
+**%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ✅ GEÇTİ — 38/39 (%97.44)
 
 ---
 
@@ -10,11 +10,11 @@
 
 | Metrik | Değer |
 |---|---|
-| Planlı vektör (şablon satırı) | 41 |
-| Beklenen değeri dolu vektör | 37 |
+| Planlı vektör (şablon satırı) | 43 |
+| Beklenen değeri dolu vektör | 39 |
 | G*Power hata verdi (beklenen alanlar boş) | 4 |
-| Tüm alanları eşleşen vektör | 33 |
-| Eşleşme oranı (hata vektörleri hariç) | %89.19 |
+| Tüm alanları eşleşen vektör | 38 |
+| Eşleşme oranı (hata vektörleri hariç) | %97.44 |
 
 Karşılaştırılan alanlar: a priori'de N, Df, δ, Critical t, Actual power; post hoc'ta Df, δ, Critical t,
 Power. N ve Df tam; diğerleri CSV'deki basamak sayısına kadar.
@@ -23,10 +23,10 @@ Power. N ve Df tam; diğerleri CSV'deki basamak sayısına kadar.
 
 | Vektör ID | Mod | Alan | Beklenen (G*Power) | Hesaplanan (motor) | Açıklama |
 |---|---|---|---|---|---|
-| V21 | a-priori | — | — | HATA | Etki büyüklüğü (dz) kesinlikle pozitif (> 0) olmalıdır, alınan: -0.5 |
-| V26 | a-priori | — | — | HATA | Etki büyüklüğü (dz) kesinlikle pozitif (> 0) olmalıdır, alınan: -0.5 |
-| V37 | post-hoc | — | — | HATA | Etki büyüklüğü (dz) kesinlikle pozitif (> 0) olmalıdır, alınan: -0.5 |
-| V41 | post-hoc | — | — | HATA | Etki büyüklüğü (dz) kesinlikle pozitif (> 0) olmalıdır, alınan: 0.0 |
+| V42 | a-priori | N | 78488272181 | 78488605096 | İncelenecek |
+| V42 | a-priori | Df | 78488272180 | 78488605095 | İncelenecek |
+| V42 | a-priori | δ | 2.8015758 | 2.8015818 | İncelenecek |
+| V42 | a-priori | Actual power | 0.8000265 | 0.8 | İncelenecek |
 
 ### 1b. G*Power hata verdi
 
@@ -34,10 +34,10 @@ Bu vektörlerde G*Power girdiyi reddetti; beklenen değer yoktur, orana katılma
 
 | Vektör ID | Mod | Girdi | G*Power mesajı | Motor |
 |---|---|---|---|---|
-| V17 | a-priori | Two, dz=0.5, α=0.05, Power=0.03 | "Power must be greater than or equal to alpha." (çıktılar ?) | Hata vermeden sonuç döndürüyor: N=2, Df=1, δ=0.7071068, Critical t=12.7062047, power=0.0619486 |
-| V25 | a-priori | Two, dz=0, α=0.05, Power=0.80 | "In an a priori analysis, the absolute value of the effect size be greater than 0.00001." (çıktılar ?) | Reddediyor: Etki büyüklüğü (dz) kesinlikle pozitif (> 0) olmalıdır, alınan: 0.0 |
-| V29 | post-hoc | Two, dz=0.5, α=0.05, N=2 | "Total sample size is outside the admissible range (3, 2147483646)" (çıktılar ?) | Hata vermeden sonuç döndürüyor: N=2, Df=1, δ=0.7071068, Critical t=12.7062047, power=0.0619486 |
-| V40 | post-hoc | Two, dz=0.5, α=0.05, N=1 | "Total sample size is outside the admissible range (3, 2147483646)" (çıktılar ?) | Reddediyor: Örneklem büyüklüğü (n) en az 2 olmalıdır, alınan: 1 |
+| V17 | a-priori | Two, dz=0.5, α=0.05, Power=0.03 | "Power must be greater than or equal to alpha." (çıktılar ?) | Reddediyor: Power (güç) alpha değerinden küçük olamaz (power >= alpha olmalıdır), alınan: power=0.03, alpha=0.05 |
+| V25 | a-priori | Two, dz=0, α=0.05, Power=0.80 | "In an a priori analysis, the absolute value of the effect size be greater than 0.00001." (çıktılar ?) | Reddediyor: A priori analizde etki büyüklüğünün (dz) mutlak değeri en az 0.00001 olmalıdır, alınan: 0.0 |
+| V29 | post-hoc | Two, dz=0.5, α=0.05, N=2 | "Total sample size is outside the admissible range (3, 2147483646)" (çıktılar ?) | Reddediyor: Örneklem büyüklüğü (n) izin verilen aralığın dışında: en az 3 olmalıdır, alınan: 2 |
+| V40 | post-hoc | Two, dz=0.5, α=0.05, N=1 | "Total sample size is outside the admissible range (3, 2147483646)" (çıktılar ?) | Reddediyor: Örneklem büyüklüğü (n) izin verilen aralığın dışında: en az 3 olmalıdır, alınan: 1 |
 
 ---
 

@@ -13,10 +13,10 @@
 ## 1. Proje Durumu ve Katmanlar
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
-- [ ] **Katman 1: Kâhin Vektörleri** (41 planlı vektörün 41'inin de ekran görüntüsü var; 37'sinde beklenen değer dolu, 4'ü G*Power hata kutusu (V17, V25, V29, V40). Diferansiyel test 33/37. Uyuşmazlıklar: motor dz ≤ 0'ı reddediyor, G*Power hesap yapıyor (V21, V26, V37, V41; LEDGER L13, L16); G*Power güç < α'yı (V17, L12) ve post hoc N=2'yi (V29, L15) reddediyor, motor reddetmiyor. Bkz. `oracle/TOPLAMA_LISTESI.md`)
+- [x] **Katman 1: Kâhin Vektörleri** (43 vektörün hepsinin ekran görüntüsü var; 39'unda beklenen değer dolu, 4'ü G*Power hata kutusu (V17, V25, V29, V40). Motor G*Power sınır davranışlarına uyarlandı (LEDGER L12–L16). Diferansiyel test 38/39; tek uyuşmazlık V42: çok büyük N'de sayısal fark (LEDGER L17). Bkz. `oracle/TOPLAMA_LISTESI.md`)
 - [x] **Katman 2: Oturum 1 (İnceleme)** (`LEDGER.md` var; ancak henüz hiçbir [REA] kanıtı yok — tüm binary iddiaları [AJAN])
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
-- [ ] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı ölçülmedi: 0 kâhin vektörü; yalnızca self-check var, bkz. `conformance.md`)
+- [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 38/39 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; bkz. `tests/report/conformance.md`)
 - [ ] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (taslak kod var: `src/powerlab/mcp_server.py`, `src/powerlab/agent/`; gerçek MCP el sıkışması yok, ajan kural tabanlı, benchmark ölçülmedi)
 
 ---
@@ -45,7 +45,7 @@ Protokol: Model Context Protocol (MCP) / JSON-RPC 2.0 (stdio)
 | `power_analysis` | `test` | string | Evet | Test ailesi: şimdilik yalnızca `t-paired` (multireg-r2 eklenince genişletilecek) |
 | `power_analysis` | `mode` | string | Hayır | `a-priori` (varsayılan) veya `post-hoc` |
 | `power_analysis` | `tails` | integer | Hayır | 1 (tek yönlü) veya 2 (çift yönlü, varsayılan: 2) |
-| `power_analysis` | `dz` / `d` | number | Evet | Etki büyüklüğü ($d_z > 0$) |
+| `power_analysis` | `dz` / `d` | number | Evet | Etki büyüklüğü ($d_z$, işaretli; a priori'de mutlak değeri ≥ 0.00001) |
 | `power_analysis` | `alpha` | number | Evet | Anlamlılık düzeyi $\alpha \in (0, 1)$ |
 | `power_analysis` | `power` | number | A-priori için | Hedef istatistiksel güç $1 - \beta \in (0, 1)$ |
 | `power_analysis` | `n` | integer | Post-hoc için | Örneklem çift sayısı ($N \ge 2$) |
@@ -101,7 +101,7 @@ repo/
 │   ├── 02_yazim_oturumu.md
 │   └── NOTLAR.md              # Sonradan alınan kararlar (orijinal prompt'lar değiştirilmez)
 ├── oracle/
-│   ├── gpower_vectors.csv         # G*Power kâhini: 41 vektör (41'i görüntülü, 37'si dolu)
+│   ├── gpower_vectors.csv         # G*Power kâhini: 43 vektör (43'ü görüntülü, 39'u dolu)
 │   ├── TOPLAMA_LISTESI.md         # G*Power'da girilecek vektörlerin yazdırılabilir kontrol listesi
 │   ├── generate_toplama_listesi.py
 │   ├── screenshots/               # G*Power ekran görüntüleri (Vxx.png)
@@ -133,8 +133,8 @@ repo/
 ### Kâhin ve self-check ayrımı
 
 - **Kâhin yalnızca G*Power'dır.** `oracle/gpower_vectors.csv` içindeki bir beklenen değer, ancak
-  `oracle/screenshots/` altında karşılık gelen ekran görüntüsü varsa doldurulur. Şu an 41 vektörden
-  **37'si** dolu (V17, V25, V29, V40 G*Power hata kutusu; görüntüler `oracle/screenshots/`). `test_differential.py` dolu vektörleri çalıştırır:
+  `oracle/screenshots/` altında karşılık gelen ekran görüntüsü varsa doldurulur. Şu an 43 vektörden
+  **39'u** dolu (V17, V25, V29, V40 G*Power hata kutusu; görüntüler `oracle/screenshots/`). `test_differential.py` dolu vektörleri çalıştırır:
   N ve df tam, diğer alanlar CSV'deki basamak sayısına (V01'de 7) kadar eşleşmelidir. Hiç dolu vektör
   kalmazsa test açıkça **atlanır (skip)**.
 - **`oracle/selfcheck_scipy.csv` kâhin değildir.** Motorla aynı algoritmanın (kesikli N araması +
@@ -165,11 +165,11 @@ gpower-clone --test t-paired --mode a-priori --tails 2 --dz 0.5 --alpha 0.05 --p
 
 ### Hata Durumu:
 ```bash
-gpower-clone --test t-paired --mode a-priori --tails 2 --dz -0.5 --alpha 0.05 --power 0.95
+gpower-clone --test t-paired --mode a-priori --tails 2 --dz 0 --alpha 0.05 --power 0.95
 ```
 **Çıktı (stdout, çıkış kodu 1):**
 ```json
-{"error":"Etki b\u00fcy\u00fckl\u00fc\u011f\u00fc (dz) kesinlikle pozitif (> 0) olmal\u0131d\u0131r, al\u0131nan: -0.5"}
+{"error":"A priori analizde etki b\u00fcy\u00fckl\u00fc\u011f\u00fcn\u00fcn (dz) mutlak de\u011feri en az 0.00001 olmal\u0131d\u0131r, al\u0131nan: 0.0"}
 ```
 
 ```bash
