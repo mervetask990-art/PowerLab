@@ -81,7 +81,7 @@ eklemez; stdout yine tek satır JSON'dur, stderr boştur.
 | # | Varsayım | Gerekçe |
 |---|---|---|
 | E1 | Hata durumunda stdout'a `{"error":"..."}` yazılır; stderr'e hiçbir şey yazılmaz. | Çift çıktı olmaz; düzenek tek bir akışı okur. |
-| E2 | Çıkış kodu `1`: hesap ya da doğrulama hatası (dz ≤ 0, NaN/inf, eksik etki büyüklüğü, desteklenmeyen ya da henüz uygulanmamış aile). | |
+| E2 | Çıkış kodu `1`: hesap ya da doğrulama hatası (a priori'de \|dz\| < 0.00001, a priori'de hedef güç < α, post hoc'ta N < 3, NaN/inf, eksik etki büyüklüğü, desteklenmeyen ya da henüz uygulanmamış aile). Negatif dz ve post hoc'ta dz = 0 hata **değildir**. | G*Power tepkileri: V17, V25, V29, V40 hata; V21, V26, V37, V41, V42, V43 kabul (LEDGER L12–L16). |
 | E3 | Çıkış kodu `2`: argüman hatası (bilinmeyen parametre, eksik zorunlu parametre, geçersiz seçenek ya da tür, çakışan takma adlar, aileye ait olmayan anlamsız parametre). | argparse geleneği. |
 | E4 | `--help` normal metin yazar ve `0` ile çıkar. | |
-| E5 | Negatif ya da sonsuz değerler `=` biçimiyle verilir (`--dz=-inf`). | argparse, ayrı yazılmış `-inf`'i bayrak sanır. |
+| E5 | Negatif ya da sonsuz değerler `=` biçimiyle verilir (`--dz=-0.5`, `--dz=-inf`). Negatif dz geçerli bir girdidir (E2). | argparse, ayrı yazılmış `-inf`'i bayrak sanır. |
