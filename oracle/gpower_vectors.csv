@@ -40,3 +40,5 @@ V38,t-paired,post-hoc,2,0.2,0.05,,100,,,0.5082648,1.9842170,99,2.0000000,V38.png
 V39,t-paired,post-hoc,1,0.2,0.05,,100,,,0.6336178,1.6603912,99,2.0000000,V39.png,Tek kuyruk eşi: V38
 V40,t-paired,post-hoc,2,0.5,0.05,,1,,,,,,,V40.png,"GEÇERSİZ GİRDİ (boundary B13): N=1 (df=0); ekran görüntüsü G*Power'ın tepkisini göstermeli — G*Power Input error: ""Total sample size is outside the admissible range (3, 2147483646)"" (çıktılar ?)"
 V41,t-paired,post-hoc,2,0,0.05,,30,,,0.0500000,2.0452296,29,0,V41.png,dz=0 post hoc (G*Power gücü α olarak verebilir ya da hata verebilir; tepki kaydedilecek)
+V42,t-paired,a-priori,2,0.00001,0.05,0.80,,,78488272181,0.8000265,1.9599640,78488272180,2.8015758,V42.png,Mutlak dz sınırı (boundary B17): dz=0.00001 a priori'de kabul ediliyor; N post hoc üst sınırı 2147483646'yı aşıyor
+V43,t-paired,post-hoc,1,0,0.05,,30,,,0.0500000,1.6991270,29,0,V43.png,Tek kuyruk dz=0 post hoc; tek kuyruk eşi V41 (gücün α olduğu doğrulanıyor)

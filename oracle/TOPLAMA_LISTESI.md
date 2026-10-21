@@ -38,6 +38,7 @@
 | [x] | V24 | A priori | Two | 0.5 | 0.05 | 0.90 | Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan) |
 | [x] | V25 | A priori | Two | 0 | 0.05 | 0.80 | ⚠ GEÇERSİZ GİRDİ (boundary B07): dz=0; ekran görüntüsü G*Power'ın tepkisini göstermeli — G*Power Input error: "In an a priori analysis, the absolute value of the effect size be greater than 0.00001." (çıktılar ?) |
 | [x] | V26 | A priori | Two | -0.5 | 0.05 | 0.80 | ⚠ GEÇERSİZ GİRDİ (boundary B06): çift kuyrukta negatif dz; ekran görüntüsü G*Power'ın tepkisini göstermeli |
+| [x] | V42 | A priori | Two | 0.00001 | 0.05 | 0.80 | Mutlak dz sınırı (boundary B17): dz=0.00001 a priori'de kabul ediliyor; N post hoc üst sınırı 2147483646'yı aşıyor |
 
 ## 2. Post hoc — `Post hoc: Compute achieved power – given α, sample size, and effect size`
 
@@ -58,7 +59,8 @@
 | [x] | V39 | Post hoc | One | 0.2 | 0.05 | 100 | Tek kuyruk eşi: V38 |
 | [x] | V40 | Post hoc | Two | 0.5 | 0.05 | 1 | ⚠ GEÇERSİZ GİRDİ (boundary B13): N=1 (df=0); ekran görüntüsü G*Power'ın tepkisini göstermeli — G*Power Input error: "Total sample size is outside the admissible range (3, 2147483646)" (çıktılar ?) |
 | [x] | V41 | Post hoc | Two | 0 | 0.05 | 30 | ⚠ dz=0 post hoc (G*Power gücü α olarak verebilir ya da hata verebilir; tepki kaydedilecek) |
+| [x] | V43 | Post hoc | One | 0 | 0.05 | 30 | ⚠ Tek kuyruk dz=0 post hoc; tek kuyruk eşi V41 (gücün α olduğu doğrulanıyor) |
 
 ---
 
-Toplam 41 vektör: 26 A priori, 15 Post hoc. Bu liste `oracle/gpower_vectors.csv`'den üretilmiştir; girdiler CSV ile birebir aynıdır. Okuma ve onay adımları için bkz. `CLAUDE.md` → "Kâhin vektörü işleme".
+Toplam 43 vektör: 27 A priori, 16 Post hoc. Bu liste `oracle/gpower_vectors.csv`'den üretilmiştir; girdiler CSV ile birebir aynıdır. Okuma ve onay adımları için bkz. `CLAUDE.md` → "Kâhin vektörü işleme".
