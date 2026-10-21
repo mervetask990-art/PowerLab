@@ -3,20 +3,20 @@ V01,t-paired,a-priori,2,0.5,0.05,0.95,,,54,0.9502120,2.0057460,53,3.6742346,V01.
 V02,t-paired,a-priori,1,0.5,0.05,0.95,,,45,0.9512400,1.6802300,44,3.3541020,V02.png,Tek kuyruk eşi: V01
 V03,t-paired,a-priori,2,0.5,0.05,0.80,,,34,0.8077775,2.0345153,33,2.9154759,V03.png,Standart 0.80 güç; tek kuyruk eşi V04
 V04,t-paired,a-priori,1,0.5,0.05,0.80,,,27,0.8118316,1.7056179,26,2.5980762,V04.png,Tek kuyruk eşi: V03
-V05,t-paired,a-priori,2,0.2,0.05,0.80,,,,,,,,,Küçük etki; tek kuyruk eşi V06
+V05,t-paired,a-priori,2,0.2,0.05,0.80,,,199,0.8016910,1.9720175,198,2.8213472,V05.png,Küçük etki; tek kuyruk eşi V06
 V06,t-paired,a-priori,1,0.2,0.05,0.80,,,156,0.8001673,1.6547438,155,2.4979992,V06.png,Tek kuyruk eşi: V05
 V07,t-paired,a-priori,2,0.01,0.05,0.80,,,78491,0.8000024,1.9599942,78490,2.8016245,V07.png,dz çok küçük (N on binlerce); boundary B01 ile aynı girdi
 V08,t-paired,a-priori,2,0.05,0.05,0.80,,,3142,0.8000668,1.9607195,3141,2.8026773,V08.png,dz çok küçük
 V09,t-paired,a-priori,2,0.1,0.05,0.80,,,787,0.8000954,1.9629867,786,2.8053520,V09.png,dz çok küçük
 V10,t-paired,a-priori,2,1.5,0.05,0.80,,,6,0.8325293,2.5705818,5,3.6742346,V10.png,dz çok büyük
-V11,t-paired,a-priori,2,2,0.05,0.80,,,,,,,,,dz çok büyük
-V12,t-paired,a-priori,2,3,0.05,0.80,,,,,,,,,dz çok büyük
-V13,t-paired,a-priori,2,5,0.05,0.99,,,,,,,,,dz çok büyük (N minimuma iner); boundary B02 ile aynı girdi
-V14,t-paired,a-priori,2,0.5,0.05,0.99,,,,,,,,,Güç çok yüksek
-V15,t-paired,a-priori,2,0.5,0.05,0.999,,,,,,,,,Güç çok yüksek
-V16,t-paired,a-priori,2,0.5,0.05,0.05,,,,,,,,,Güç = α; boundary B04 ile aynı girdi
-V17,t-paired,a-priori,2,0.5,0.05,0.03,,,,,,,,,Güç < α
-V18,t-paired,a-priori,2,0.5,0.001,0.80,,,,,,,,,α alt ucu
+V11,t-paired,a-priori,2,2,0.05,0.80,,,5,0.9088849,2.7764451,4,4.4721360,V11.png,dz çok büyük
+V12,t-paired,a-priori,2,3,0.05,0.80,,,4,0.9670006,3.1824463,3,6.0000000,V12.png,dz çok büyük
+V13,t-paired,a-priori,2,5,0.05,0.99,,,4,0.9999662,3.1824463,3,10.0000000,V13.png,dz çok büyük (N minimuma iner); boundary B02 ile aynı girdi
+V14,t-paired,a-priori,2,0.5,0.05,0.99,,,76,0.9904221,1.9921022,75,4.3588989,V14.png,Güç çok yüksek
+V15,t-paired,a-priori,2,0.5,0.05,0.999,,,104,0.9990026,1.9832641,103,5.0990195,V15.png,Güç çok yüksek
+V16,t-paired,a-priori,2,0.5,0.05,0.05,,,2,0.0619486,12.7062047,1,0.7071068,V16.png,Güç = α; boundary B04 ile aynı girdi
+V17,t-paired,a-priori,2,0.5,0.05,0.03,,,,,,,,V17.png,"Güç < α — G*Power Input error: ""Power must be greater than or equal to alpha."" (çıktılar ?)"
+V18,t-paired,a-priori,2,0.5,0.001,0.80,,,74,0.8025148,3.4288542,73,4.3011626,V18.png,α alt ucu
 V19,t-paired,a-priori,2,0.5,0.2,0.80,,,,,,,,,α üst ucu; tek kuyruk eşi V20
 V20,t-paired,a-priori,1,0.5,0.2,0.80,,,,,,,,,Tek kuyruk eşi: V19
 V21,t-paired,a-priori,1,-0.5,0.05,0.80,,,,,,,,,Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek)

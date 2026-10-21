@@ -25,6 +25,7 @@ Bu defter, G*Power 3.1.9.7 davranışlarının kaynağını ve kanıt zincirini 
 | L09 | [DOK] | Fark | statsmodels.stats.power.ttest_power kesirli N verir; G*Power her zaman tamsayı N verir ve actual_power'ı bu tamsayı N ile günceller. | Faul et al. (2007) | Yüksek |
 | L10 | [KÂHİN] | Çözücü | V01 (t-paired, a-priori, iki kuyruk, dz=0.5, α=0.05, güç=0.95): G*Power N=54, Df=53, δ=3.6742346, Critical t=2.0057460, Actual power=0.9502120 gösteriyor. Motor 7 basamakta beş değerin hepsini aynı üretiyor. | `oracle/screenshots/V01.png` | Yüksek (gözlem) |
 | L11 | [KÂHİN] | Biçim | KÂHİN GÖZLEMİ: G*Power çıktıyı 7 ondalık basamakla gösterir (Output Parameters paneli; δ, Critical t, Actual power). Grafik başlığı ise `critical t = 2.00575` biçiminde 5 basamak gösteriyor. | `oracle/screenshots/V01.png` | Yüksek (gözlem) |
+| L12 | [KÂHİN] | Sınır | KÂHİN GÖZLEMİ / UYUŞMAZLIK: V17 (a-priori, iki kuyruk, dz=0.5, α=0.05, güç=0.03): G*Power "Input error" kutusu açıyor: `Power must be greater than or equal to alpha.`; çıktı alanları `?`. Motor ise hata vermeden N=2 döndürüyor (V16 ile aynı çıktı). Güç = α (V16) G*Power'da kabul ediliyor: N=2, Actual power=0.0619486; motor bunu eşliyor. Açık soru: spec'te mi eksik (güç < α doğrulaması tanımlı değil), kodda mı hata? | `oracle/screenshots/V17.png`, `oracle/screenshots/V16.png` | Yüksek (gözlem) |
 
 ---
 
@@ -38,3 +39,4 @@ Cevap bulunursa ilgili satır adres/dize kanıtıyla `[REA]` olarak eklenir.
 | Q1 | 7 ondalık gösterim sabit bir biçim dizesinden mi geliyor, yoksa anlamlı basamak / alan genişliği kuralından mı? Diğer test ailelerinde ve alanlarda da 7 mi? | L11 | Çıktı panelini dolduran kodda sayı biçimlendirme dizesi ya da basamak sayısı sabiti; grafik başlığındaki 5 basamaklı biçimle ilişkisi |
 | Q2 | A priori çözücünün durma koşulu Power(N) >= hedef mi? | L06 | N arama döngüsü ve karşılaştırma koşulu |
 | Q3 | Çift kuyrukta güç, iki kuyruğun toplamı mı? | L08 | Güç hesabını yapan fonksiyon |
+| Q4 | `Power must be greater than or equal to alpha.` doğrulaması hangi modlarda ve hangi karşılaştırmayla (`<` mı, `<=` mı) yapılıyor? | L12 | Bu hata dizesine giden xref ve önündeki karşılaştırma |

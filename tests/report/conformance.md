@@ -1,8 +1,8 @@
 # Uyum Raporu (Conformance Report)
 
-**Oluşturulma Tarihi**: 2026-10-21 19:55:26
+**Oluşturulma Tarihi**: 2026-10-21 20:12:03
 **Test Ailesi**: `t-paired`
-**%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ⏳ KISMİ — 9/41 planlı vektör dolu (şu anki oran %100.00); kapı kararı tüm vektörler dolunca verilir
+**%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ⏳ KISMİ — 17/41 planlı vektör dolu (şu anki oran %100.00); kapı kararı tüm vektörler dolunca verilir
 
 ---
 
@@ -11,8 +11,8 @@
 | Metrik | Değer |
 |---|---|
 | Planlı vektör (şablon satırı) | 41 |
-| Beklenen değeri dolu vektör | 9 |
-| Tam N eşleşmesi | 9 |
+| Beklenen değeri dolu vektör | 17 |
+| Tam N eşleşmesi | 17 |
 | Tam N eşleşme oranı | %100.00 |
 
 Uyuşmazlık yok.
