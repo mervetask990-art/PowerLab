@@ -122,6 +122,14 @@ ERRORS = [
     ("n_total-1", replaced(POSTHOC, "--n_total", "1"), "OUT_OF_RANGE", "n_total"),
     ("n_total-2-post-hoc", replaced(POSTHOC, "--n_total", "2"), "OUT_OF_RANGE", "n_total"),
     ("power-alfadan-kucuk", replaced(APRIORI, "--power", "0.03"), "INCONSISTENT", "power"),
+    # α ve güç [1e-7, 0.9999999] kapalı aralığında ([REA] 0x487530 / 0x488110, LEDGER L32).
+    ("alpha-1e-8", replaced(APRIORI, "--alpha", "1e-8"), "OUT_OF_RANGE", "alpha"),
+    ("alpha-0.99999995-post-hoc", replaced(POSTHOC, "--alpha", "0.99999995"), "OUT_OF_RANGE", "alpha"),
+    ("power-0.99999999", replaced(APRIORI, "--power", "0.99999999"), "OUT_OF_RANGE", "power"),
+    # Post hoc'ta dz <= 20 ([REA] 0x487b70, LEDGER L33).
+    ("dz-20.5-post-hoc", replaced(POSTHOC, "--dz", "20.5"), "OUT_OF_RANGE", "dz"),
+    # A priori kontrol sırası: dz eşiği α'dan önce ([REA] L32).
+    ("sira-dz-esigi-alfadan-once", replaced(replaced(APRIORI, "--dz", "0.000005"), "--alpha", "0"), "OUT_OF_RANGE", "dz"),
 ]
 
 
@@ -132,6 +140,22 @@ def test_invalid_input(capsys, args, code, field):
     assert list(data) == ["error", "code", "field"]
     assert data["error"]
     assert (data["code"], data["field"]) == (code, field)
+
+
+ACCEPTED = [
+    # [REA] L32 aralığının uçları kapalıdır.
+    ("alpha-1e-7", replaced(APRIORI, "--alpha", "1e-7")),
+    ("power-0.9999999", replaced(APRIORI, "--power", "0.9999999")),
+    # [REA] L33: post hoc'ta dz = 20 kabul; a priori'de dz için üst sınır yok.
+    ("dz-20-post-hoc", replaced(POSTHOC, "--dz", "20")),
+    ("dz-25-a-priori", replaced(APRIORI, "--dz", "25")),
+]
+
+
+@pytest.mark.parametrize("args", [a[1] for a in ACCEPTED], ids=[a[0] for a in ACCEPTED])
+def test_gpower_range_edges_are_accepted(capsys, args):
+    code, data = run(capsys, *args)
+    assert code == 0, data
 
 
 def test_power_equal_alpha_is_accepted(capsys):
