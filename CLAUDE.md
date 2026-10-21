@@ -3,9 +3,12 @@
 Bu dosya yalnızca çalışma kurallarını içerir; inceleme bulgusu içermez.
 
 ## Kâhin
-- Kâhin G*Power'dır. Ekran görüntüsü olmayan değer kâhin değildir ve **asla uydurulmaz**.
+- Kâhin G*Power'dır. Bir değer ancak **ekran görüntüsü YA DA eğitmen protokolü** ile belgelenmişse
+  kâhindir; ikisi de yoksa kâhin değildir ve **asla uydurulmaz**.
 - `oracle/gpower_vectors.csv` içindeki bir beklenen değer, ancak `oracle/screenshots/` altında ona
   karşılık gelen ekran görüntüsü varsa doldurulur. Değer bilinmiyorsa alan boş bırakılır.
+- Eğitmen protokolü: `oracle/public_vectors.jsonl`, CONTRACT.md §9'dan **satır satır aynen**
+  kopyalanmıştır; motorla hesaplanmaz ve düzeltilmez. CLI ve MCP için kâhindir.
 
 ## Kâhin vektörü işleme ("Vxx–Vyy hazır" dendiğinde)
 Ekran görüntüleri `oracle/screenshots/Vxx.png` adıyla kaydedilir; girilecek vektörler
