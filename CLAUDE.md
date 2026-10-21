@@ -35,8 +35,10 @@ Ekran görüntüleri `oracle/screenshots/Vxx.png` adıyla kaydedilir; girilecek 
 - `[REA]` yalnızca adres ya da dize kanıtıyla yazılır. Kanıt yoksa etiket `[AJAN]` olur.
 
 ## CLI
-- Çıktı stdout'a tek satır JSON'dur; hata da `{"error":"..."}` olarak stdout'a yazılır.
-- stderr'e hiçbir şey yazılmaz (CONTRACT_ASSUMED.md E1).
+- Sözleşme: `CONTRACT.md` (resmi, 1.0.0). `arsiv/CONTRACT_ASSUMED.md` geçersizdir.
+- Çıktı stdout'a tek satır JSON'dur; hata `{"error","code","field"}` olarak stdout'a yazılır
+  (CONTRACT.md §2.4). Çıkış kodu: 0 başarı, 2 geçersiz girdi, 1 iç hata.
+- stderr'e hiçbir şey yazılmaz (CONTRACT.md §2.3 izin verir; biz boş tutarız).
 
 ## Mimari
 - Hesap mantığı yalnızca `src/powerlab/engine/` içindedir. CLI, MCP ve ajan katmanları hesap

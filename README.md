@@ -89,7 +89,8 @@ Henüz ölçülmedi.
 repo/
 ├── README.md              # En üstte durum, hash, atıf, Sommerville bağlantısı
 ├── SPEC.md                # Gherkin kabul kriterleri
-├── CONTRACT_ASSUMED.md    # Varsayılan CLI sözleşmesi (resmi CONTRACT.md gelene kadar)
+├── CONTRACT.md            # Resmi arayüz sözleşmesi 1.0.0 (eğitmen)
+├── arsiv/CONTRACT_ASSUMED.md  # ARŞİV: resmi sözleşmeden önceki varsayımlar
 ├── CLAUDE.md              # Ajan çalışma kuralları
 ├── LEDGER.md              # [DOK] / [REA] / [AJAN] kanıt defteri
 ├── HALLUCINATIONS.md      # Yakalanan ajan yanılgıları ve düzeltmeler
@@ -151,7 +152,7 @@ Komut adı: `gpower-clone` (birincil), `powerlab` (ikincil). Kurulum yapılmadan
 
 ### Çıktı, hata ve takma ad kuralları
 
-Tüm kurallar ve gerekçeleri tek kaynakta: **[`CONTRACT_ASSUMED.md`](CONTRACT_ASSUMED.md)** (resmi CONTRACT.md gelince güncellenecek).
+Tüm kurallar tek kaynakta: **[`CONTRACT.md`](CONTRACT.md)** (resmi sözleşme 1.0.0). Önceki varsayımlar arşivde: [`arsiv/CONTRACT_ASSUMED.md`](arsiv/CONTRACT_ASSUMED.md).
 
 ### A Priori Örnek:
 ```bash

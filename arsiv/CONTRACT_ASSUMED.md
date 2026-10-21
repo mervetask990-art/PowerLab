@@ -1,8 +1,10 @@
 # CONTRACT_ASSUMED: Varsayılan CLI Sözleşmesi
 
-> ⚠️ **Resmi CONTRACT.md gelince bu dosya güncellenecek.** Buradaki her kural, resmi sözleşme
-> gelene kadar geçerli olan bir **varsayımdır**. Resmi metinle çelişen her madde resmi metne göre
-> değiştirilir.
+> 🗄️ **ARŞİV — Yerini CONTRACT.md 1.0.0 aldı (commit dff800c).** Bu dosya artık geçerli değildir;
+> yalnızca tarihçe için tutulur. Madde madde karşılaştırma ve hangi varsayımın neden düştüğü:
+> CONTRACT.md'nin eklendiği oturumun planı (C2–C5, T1–T8, J2–J4, D1, E2 çelişkili; C1, E1, E3, D2, D4 uyumlu).
+>
+> ~~Resmi CONTRACT.md gelince bu dosya güncellenecek.~~
 
 ## 0. Tek dış kaynak
 
