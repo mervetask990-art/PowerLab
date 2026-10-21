@@ -1,6 +1,6 @@
 # Uyum Raporu (Conformance Report)
 
-**Oluşturulma Tarihi**: 2026-10-21 20:21:00
+**Oluşturulma Tarihi**: 2026-10-21 20:34:32
 **Test Ailesi**: `t-paired`
 **%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ⏳ KISMİ — 24/41 planlı vektör dolu (şu anki oran %91.67); kapı kararı tüm vektörler dolunca verilir
 

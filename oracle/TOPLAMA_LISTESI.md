@@ -43,21 +43,21 @@
 
 | ✓ | ID | Type of power analysis | Tail(s) | Effect size dz | α err prob | Total sample size | Not |
 |---|---|---|---|---|---|---|---|
-| [ ] | V27 | Post hoc | Two | 0.5 | 0.05 | 30 | Post hoc standart; tek kuyruk eşi V28 |
-| [ ] | V28 | Post hoc | One | 0.5 | 0.05 | 30 | Tek kuyruk eşi: V27 |
-| [ ] | V29 | Post hoc | Two | 0.5 | 0.05 | 2 | Post hoc N=2 (df=1) |
-| [ ] | V30 | Post hoc | Two | 0.5 | 0.05 | 3 | Post hoc N=3 |
-| [ ] | V31 | Post hoc | Two | 0.1 | 0.05 | 1000 | Post hoc N=1000; tek kuyruk eşi V32 |
-| [ ] | V32 | Post hoc | One | 0.1 | 0.05 | 1000 | Tek kuyruk eşi: V31 |
-| [ ] | V33 | Post hoc | Two | 0.01 | 0.05 | 100 | dz çok küçük (güç ≈ α) |
-| [ ] | V34 | Post hoc | Two | 3 | 0.05 | 5 | dz çok büyük, küçük N |
-| [ ] | V35 | Post hoc | Two | 0.5 | 0.001 | 50 | α alt ucu |
-| [ ] | V36 | Post hoc | Two | 0.5 | 0.2 | 20 | α üst ucu |
-| [ ] | V37 | Post hoc | One | -0.5 | 0.05 | 30 | ⚠ Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek) |
-| [ ] | V38 | Post hoc | Two | 0.2 | 0.05 | 100 | Orta N; tek kuyruk eşi V39 |
-| [ ] | V39 | Post hoc | One | 0.2 | 0.05 | 100 | Tek kuyruk eşi: V38 |
-| [ ] | V40 | Post hoc | Two | 0.5 | 0.05 | 1 | ⚠ GEÇERSİZ GİRDİ (boundary B13): N=1 (df=0); ekran görüntüsü G*Power'ın tepkisini göstermeli |
-| [ ] | V41 | Post hoc | Two | 0 | 0.05 | 30 | ⚠ dz=0 post hoc (G*Power gücü α olarak verebilir ya da hata verebilir; tepki kaydedilecek) |
+| [x] | V27 | Post hoc | Two | 0.5 | 0.05 | 30 | Post hoc standart; tek kuyruk eşi V28 |
+| [x] | V28 | Post hoc | One | 0.5 | 0.05 | 30 | Tek kuyruk eşi: V27 |
+| [x] | V29 | Post hoc | Two | 0.5 | 0.05 | 2 | Post hoc N=2 (df=1) — G*Power Input error: "Total sample size is outside the admissible range (3, 2147483646)" (çıktılar ?) |
+| [x] | V30 | Post hoc | Two | 0.5 | 0.05 | 3 | Post hoc N=3 |
+| [x] | V31 | Post hoc | Two | 0.1 | 0.05 | 1000 | Post hoc N=1000; tek kuyruk eşi V32 |
+| [x] | V32 | Post hoc | One | 0.1 | 0.05 | 1000 | Tek kuyruk eşi: V31 |
+| [x] | V33 | Post hoc | Two | 0.01 | 0.05 | 100 | dz çok küçük (güç ≈ α) |
+| [x] | V34 | Post hoc | Two | 3 | 0.05 | 5 | dz çok büyük, küçük N |
+| [x] | V35 | Post hoc | Two | 0.5 | 0.001 | 50 | α alt ucu |
+| [x] | V36 | Post hoc | Two | 0.5 | 0.2 | 20 | α üst ucu |
+| [x] | V37 | Post hoc | One | -0.5 | 0.05 | 30 | ⚠ Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek) |
+| [x] | V38 | Post hoc | Two | 0.2 | 0.05 | 100 | Orta N; tek kuyruk eşi V39 |
+| [x] | V39 | Post hoc | One | 0.2 | 0.05 | 100 | Tek kuyruk eşi: V38 |
+| [x] | V40 | Post hoc | Two | 0.5 | 0.05 | 1 | ⚠ GEÇERSİZ GİRDİ (boundary B13): N=1 (df=0); ekran görüntüsü G*Power'ın tepkisini göstermeli — G*Power Input error: "Total sample size is outside the admissible range (3, 2147483646)" (çıktılar ?) |
+| [x] | V41 | Post hoc | Two | 0 | 0.05 | 30 | ⚠ dz=0 post hoc (G*Power gücü α olarak verebilir ya da hata verebilir; tepki kaydedilecek) |
 
 ---
 

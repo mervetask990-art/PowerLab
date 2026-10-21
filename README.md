@@ -13,7 +13,7 @@
 ## 1. Proje Durumu ve Katmanlar
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
-- [ ] **Katman 1: Kâhin Vektörleri** (41 planlı vektörden 24'ü dolu: V01–V16, V18–V24, V26; 22'si motorla tam eşleşiyor. Uyuşmazlıklar: V21/V26'da G*Power negatif dz ile hesap yapıyor, motor reddediyor (LEDGER L13); V17'de G*Power hata veriyor, motor vermiyor (L12). V25'te ikisi de hata veriyor (L14). Kalan 15 Post hoc ekran görüntüsü bekleniyor, bkz. `oracle/TOPLAMA_LISTESI.md`)
+- [ ] **Katman 1: Kâhin Vektörleri** (41 planlı vektörün 41'inin de ekran görüntüsü var; 37'sinde beklenen değer dolu, 4'ü G*Power hata kutusu (V17, V25, V29, V40). Diferansiyel test 33/37. Uyuşmazlıklar: motor dz ≤ 0'ı reddediyor, G*Power hesap yapıyor (V21, V26, V37, V41; LEDGER L13, L16); G*Power güç < α'yı (V17, L12) ve post hoc N=2'yi (V29, L15) reddediyor, motor reddetmiyor. Not: `conformance.md` yalnızca a priori N'yi sayıyor, post hoc vektörleri raporda görünmüyor. Bkz. `oracle/TOPLAMA_LISTESI.md`)
 - [x] **Katman 2: Oturum 1 (İnceleme)** (`LEDGER.md` var; ancak henüz hiçbir [REA] kanıtı yok — tüm binary iddiaları [AJAN])
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
 - [ ] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı ölçülmedi: 0 kâhin vektörü; yalnızca self-check var, bkz. `conformance.md`)
@@ -101,7 +101,7 @@ repo/
 │   ├── 02_yazim_oturumu.md
 │   └── NOTLAR.md              # Sonradan alınan kararlar (orijinal prompt'lar değiştirilmez)
 ├── oracle/
-│   ├── gpower_vectors.csv         # G*Power kâhini: 41 vektör (24 dolu, diğerleri bekliyor)
+│   ├── gpower_vectors.csv         # G*Power kâhini: 41 vektör (41'i görüntülü, 37'si dolu)
 │   ├── TOPLAMA_LISTESI.md         # G*Power'da girilecek vektörlerin yazdırılabilir kontrol listesi
 │   ├── generate_toplama_listesi.py
 │   ├── screenshots/               # G*Power ekran görüntüleri (Vxx.png)
@@ -134,7 +134,7 @@ repo/
 
 - **Kâhin yalnızca G*Power'dır.** `oracle/gpower_vectors.csv` içindeki bir beklenen değer, ancak
   `oracle/screenshots/` altında karşılık gelen ekran görüntüsü varsa doldurulur. Şu an 41 vektörden
-  **24'ü** dolu (V01–V16, V18–V24, V26; görüntüler `oracle/screenshots/`). `test_differential.py` dolu vektörleri çalıştırır:
+  **37'si** dolu (V17, V25, V29, V40 G*Power hata kutusu; görüntüler `oracle/screenshots/`). `test_differential.py` dolu vektörleri çalıştırır:
   N ve df tam, diğer alanlar CSV'deki basamak sayısına (V01'de 7) kadar eşleşmelidir. Hiç dolu vektör
   kalmazsa test açıkça **atlanır (skip)**.
 - **`oracle/selfcheck_scipy.csv` kâhin değildir.** Motorla aynı algoritmanın (kesikli N araması +

@@ -25,18 +25,18 @@ V23,t-paired,a-priori,1,0.3,0.1,0.95,,,96,0.9500214,1.2905265,95,2.9393877,V23.p
 V24,t-paired,a-priori,2,0.5,0.05,0.90,,,44,0.9000306,2.0166922,43,3.3166248,V24.png,Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan)
 V25,t-paired,a-priori,2,0,0.05,0.80,,,,,,,,V25.png,"GEÇERSİZ GİRDİ (boundary B07): dz=0; ekran görüntüsü G*Power'ın tepkisini göstermeli — G*Power Input error: ""In an a priori analysis, the absolute value of the effect size be greater than 0.00001."" (çıktılar ?)"
 V26,t-paired,a-priori,2,-0.5,0.05,0.80,,,34,0.8077775,-2.0345153,33,-2.9154759,V26.png,GEÇERSİZ GİRDİ (boundary B06): çift kuyrukta negatif dz; ekran görüntüsü G*Power'ın tepkisini göstermeli
-V27,t-paired,post-hoc,2,0.5,0.05,,30,,,,,,,,Post hoc standart; tek kuyruk eşi V28
-V28,t-paired,post-hoc,1,0.5,0.05,,30,,,,,,,,Tek kuyruk eşi: V27
-V29,t-paired,post-hoc,2,0.5,0.05,,2,,,,,,,,Post hoc N=2 (df=1)
-V30,t-paired,post-hoc,2,0.5,0.05,,3,,,,,,,,Post hoc N=3
-V31,t-paired,post-hoc,2,0.1,0.05,,1000,,,,,,,,Post hoc N=1000; tek kuyruk eşi V32
-V32,t-paired,post-hoc,1,0.1,0.05,,1000,,,,,,,,Tek kuyruk eşi: V31
-V33,t-paired,post-hoc,2,0.01,0.05,,100,,,,,,,,dz çok küçük (güç ≈ α)
-V34,t-paired,post-hoc,2,3,0.05,,5,,,,,,,,"dz çok büyük, küçük N"
-V35,t-paired,post-hoc,2,0.5,0.001,,50,,,,,,,,α alt ucu
-V36,t-paired,post-hoc,2,0.5,0.2,,20,,,,,,,,α üst ucu
-V37,t-paired,post-hoc,1,-0.5,0.05,,30,,,,,,,,Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek)
-V38,t-paired,post-hoc,2,0.2,0.05,,100,,,,,,,,Orta N; tek kuyruk eşi V39
-V39,t-paired,post-hoc,1,0.2,0.05,,100,,,,,,,,Tek kuyruk eşi: V38
-V40,t-paired,post-hoc,2,0.5,0.05,,1,,,,,,,,GEÇERSİZ GİRDİ (boundary B13): N=1 (df=0); ekran görüntüsü G*Power'ın tepkisini göstermeli
-V41,t-paired,post-hoc,2,0,0.05,,30,,,,,,,,dz=0 post hoc (G*Power gücü α olarak verebilir ya da hata verebilir; tepki kaydedilecek)
+V27,t-paired,post-hoc,2,0.5,0.05,,30,,,0.7539647,2.0452296,29,2.7386128,V27.png,Post hoc standart; tek kuyruk eşi V28
+V28,t-paired,post-hoc,1,0.5,0.05,,30,,,0.8482542,1.6991270,29,2.7386128,V28.png,Tek kuyruk eşi: V27
+V29,t-paired,post-hoc,2,0.5,0.05,,2,,,,,,,V29.png,"Post hoc N=2 (df=1) — G*Power Input error: ""Total sample size is outside the admissible range (3, 2147483646)"" (çıktılar ?)"
+V30,t-paired,post-hoc,2,0.5,0.05,,3,,,0.0841071,4.3026527,2,0.8660254,V30.png,Post hoc N=3
+V31,t-paired,post-hoc,2,0.1,0.05,,1000,,,0.8847891,1.9623415,999,3.1622777,V31.png,Post hoc N=1000; tek kuyruk eşi V32
+V32,t-paired,post-hoc,1,0.1,0.05,,1000,,,0.9351495,1.6463803,999,3.1622777,V32.png,Tek kuyruk eşi: V31
+V33,t-paired,post-hoc,2,0.01,0.05,,100,,,0.0511242,1.9842170,99,0.1000000,V33.png,dz çok küçük (güç ≈ α)
+V34,t-paired,post-hoc,2,3,0.05,,5,,,0.9976796,2.7764451,4,6.7082039,V34.png,"dz çok büyük, küçük N"
+V35,t-paired,post-hoc,2,0.5,0.001,,50,,,0.5201451,3.5004429,49,3.5355339,V35.png,α alt ucu
+V36,t-paired,post-hoc,2,0.5,0.2,,20,,,0.8175935,1.3277282,19,2.2360680,V36.png,α üst ucu
+V37,t-paired,post-hoc,1,-0.5,0.05,,30,,,0.8482542,-1.6991270,29,-2.7386128,V37.png,Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek)
+V38,t-paired,post-hoc,2,0.2,0.05,,100,,,0.5082648,1.9842170,99,2.0000000,V38.png,Orta N; tek kuyruk eşi V39
+V39,t-paired,post-hoc,1,0.2,0.05,,100,,,0.6336178,1.6603912,99,2.0000000,V39.png,Tek kuyruk eşi: V38
+V40,t-paired,post-hoc,2,0.5,0.05,,1,,,,,,,V40.png,"GEÇERSİZ GİRDİ (boundary B13): N=1 (df=0); ekran görüntüsü G*Power'ın tepkisini göstermeli — G*Power Input error: ""Total sample size is outside the admissible range (3, 2147483646)"" (çıktılar ?)"
+V41,t-paired,post-hoc,2,0,0.05,,30,,,0.0500000,2.0452296,29,0,V41.png,dz=0 post hoc (G*Power gücü α olarak verebilir ya da hata verebilir; tepki kaydedilecek)
