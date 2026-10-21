@@ -18,8 +18,8 @@ from powerlab.engine.errors import INVALID_VALUE, MISSING_PARAM, UNKNOWN_PARAM, 
 from powerlab.engine.solver import check_supported, run_power_analysis
 
 CONTRACT_VERSION = "1.0.0"
-# --version çıktısındaki takım adı (CONTRACT.md §2.2).
-TEAM_NAME = "<TAKIM_ADI>"
+# --version çıktısındaki takım adı (CONTRACT.md §2.2); bireysel çalışma.
+TEAM_NAME = "Merve Taşkın (bireysel)"
 
 EXIT_OK = 0
 EXIT_INTERNAL_ERROR = 1

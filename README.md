@@ -197,9 +197,9 @@ gpower-clone --test t-paired --mode post-hoc --tails 2 --dz 0.5 --alpha 0.05 --n
 gpower-clone --version
 ```
 ```json
-{"contract_version":"1.0.0","name":"<TAKIM_ADI>","engine":"Python 3.11.9, scipy 1.17.1"}
+{"contract_version":"1.0.0","name":"Merve Ta\u015fk\u0131n (bireysel)","engine":"Python 3.11.9, scipy 1.17.1"}
 ```
-> `name` alanı yer tutucudur (`<TAKIM_ADI>`); takım adı `src/powerlab/engine/contract.py` içindeki `TEAM_NAME` sabitinden gelir.
+> Bireysel çalışma: `name` = "Merve Taşkın (bireysel)" (JSON ASCII kaçışlıdır; `src/powerlab/engine/contract.py` → `TEAM_NAME`).
 
 ### Süre (CONTRACT.md §2.1: < 2 s)
 Motor `scipy.stats` yerine `scipy.special` kullanır (`scipy.stats` içe aktarımı ~1.1 s, `scipy.special` ~0.4 s).
