@@ -1,14 +1,14 @@
 id,family,mode,tails,effect,alpha,power,n_input,predictors,n_expected,actual_power_expected,critical_expected,df_expected,ncp_expected,screenshot,notes
 V01,t-paired,a-priori,2,0.5,0.05,0.95,,,54,0.9502120,2.0057460,53,3.6742346,V01.png,"Standart orta etki çift kuyruk — G*Power 3.1.9.7 Output Parameters paneli, 7 ondalık"
-V02,t-paired,a-priori,1,0.5,0.05,0.95,,,,,,,,,Tek kuyruk eşi: V01
-V03,t-paired,a-priori,2,0.5,0.05,0.80,,,,,,,,,Standart 0.80 güç; tek kuyruk eşi V04
-V04,t-paired,a-priori,1,0.5,0.05,0.80,,,,,,,,,Tek kuyruk eşi: V03
+V02,t-paired,a-priori,1,0.5,0.05,0.95,,,45,0.9512400,1.6802300,44,3.3541020,V02.png,Tek kuyruk eşi: V01
+V03,t-paired,a-priori,2,0.5,0.05,0.80,,,34,0.8077775,2.0345153,33,2.9154759,V03.png,Standart 0.80 güç; tek kuyruk eşi V04
+V04,t-paired,a-priori,1,0.5,0.05,0.80,,,27,0.8118316,1.7056179,26,2.5980762,V04.png,Tek kuyruk eşi: V03
 V05,t-paired,a-priori,2,0.2,0.05,0.80,,,,,,,,,Küçük etki; tek kuyruk eşi V06
-V06,t-paired,a-priori,1,0.2,0.05,0.80,,,,,,,,,Tek kuyruk eşi: V05
-V07,t-paired,a-priori,2,0.01,0.05,0.80,,,,,,,,,dz çok küçük (N on binlerce); boundary B01 ile aynı girdi
-V08,t-paired,a-priori,2,0.05,0.05,0.80,,,,,,,,,dz çok küçük
-V09,t-paired,a-priori,2,0.1,0.05,0.80,,,,,,,,,dz çok küçük
-V10,t-paired,a-priori,2,1.5,0.05,0.80,,,,,,,,,dz çok büyük
+V06,t-paired,a-priori,1,0.2,0.05,0.80,,,156,0.8001673,1.6547438,155,2.4979992,V06.png,Tek kuyruk eşi: V05
+V07,t-paired,a-priori,2,0.01,0.05,0.80,,,78491,0.8000024,1.9599942,78490,2.8016245,V07.png,dz çok küçük (N on binlerce); boundary B01 ile aynı girdi
+V08,t-paired,a-priori,2,0.05,0.05,0.80,,,3142,0.8000668,1.9607195,3141,2.8026773,V08.png,dz çok küçük
+V09,t-paired,a-priori,2,0.1,0.05,0.80,,,787,0.8000954,1.9629867,786,2.8053520,V09.png,dz çok küçük
+V10,t-paired,a-priori,2,1.5,0.05,0.80,,,6,0.8325293,2.5705818,5,3.6742346,V10.png,dz çok büyük
 V11,t-paired,a-priori,2,2,0.05,0.80,,,,,,,,,dz çok büyük
 V12,t-paired,a-priori,2,3,0.05,0.80,,,,,,,,,dz çok büyük
 V13,t-paired,a-priori,2,5,0.05,0.99,,,,,,,,,dz çok büyük (N minimuma iner); boundary B02 ile aynı girdi

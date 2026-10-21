@@ -13,15 +13,15 @@
 | ✓ | ID | Type of power analysis | Tail(s) | Effect size dz | α err prob | Power (1-β err prob) | Not |
 |---|---|---|---|---|---|---|---|
 | [x] | V01 | A priori | Two | 0.5 | 0.05 | 0.95 | Standart orta etki çift kuyruk — G*Power 3.1.9.7 Output Parameters paneli, 7 ondalık |
-| [ ] | V02 | A priori | One | 0.5 | 0.05 | 0.95 | Tek kuyruk eşi: V01 |
-| [ ] | V03 | A priori | Two | 0.5 | 0.05 | 0.80 | Standart 0.80 güç; tek kuyruk eşi V04 |
-| [ ] | V04 | A priori | One | 0.5 | 0.05 | 0.80 | Tek kuyruk eşi: V03 |
+| [x] | V02 | A priori | One | 0.5 | 0.05 | 0.95 | Tek kuyruk eşi: V01 |
+| [x] | V03 | A priori | Two | 0.5 | 0.05 | 0.80 | Standart 0.80 güç; tek kuyruk eşi V04 |
+| [x] | V04 | A priori | One | 0.5 | 0.05 | 0.80 | Tek kuyruk eşi: V03 |
 | [ ] | V05 | A priori | Two | 0.2 | 0.05 | 0.80 | Küçük etki; tek kuyruk eşi V06 |
-| [ ] | V06 | A priori | One | 0.2 | 0.05 | 0.80 | Tek kuyruk eşi: V05 |
-| [ ] | V07 | A priori | Two | 0.01 | 0.05 | 0.80 | dz çok küçük (N on binlerce); boundary B01 ile aynı girdi |
-| [ ] | V08 | A priori | Two | 0.05 | 0.05 | 0.80 | dz çok küçük |
-| [ ] | V09 | A priori | Two | 0.1 | 0.05 | 0.80 | dz çok küçük |
-| [ ] | V10 | A priori | Two | 1.5 | 0.05 | 0.80 | dz çok büyük |
+| [x] | V06 | A priori | One | 0.2 | 0.05 | 0.80 | Tek kuyruk eşi: V05 |
+| [x] | V07 | A priori | Two | 0.01 | 0.05 | 0.80 | dz çok küçük (N on binlerce); boundary B01 ile aynı girdi |
+| [x] | V08 | A priori | Two | 0.05 | 0.05 | 0.80 | dz çok küçük |
+| [x] | V09 | A priori | Two | 0.1 | 0.05 | 0.80 | dz çok küçük |
+| [x] | V10 | A priori | Two | 1.5 | 0.05 | 0.80 | dz çok büyük |
 | [ ] | V11 | A priori | Two | 2 | 0.05 | 0.80 | dz çok büyük |
 | [ ] | V12 | A priori | Two | 3 | 0.05 | 0.80 | dz çok büyük |
 | [ ] | V13 | A priori | Two | 5 | 0.05 | 0.99 | dz çok büyük (N minimuma iner); boundary B02 ile aynı girdi |
