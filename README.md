@@ -13,7 +13,7 @@
 ## 1. Proje Durumu ve Katmanlar
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
-- [ ] **Katman 1: Kâhin Vektörleri** (41 planlı vektörün 41'inin de ekran görüntüsü var; 37'sinde beklenen değer dolu, 4'ü G*Power hata kutusu (V17, V25, V29, V40). Diferansiyel test 33/37. Uyuşmazlıklar: motor dz ≤ 0'ı reddediyor, G*Power hesap yapıyor (V21, V26, V37, V41; LEDGER L13, L16); G*Power güç < α'yı (V17, L12) ve post hoc N=2'yi (V29, L15) reddediyor, motor reddetmiyor. Not: `conformance.md` yalnızca a priori N'yi sayıyor, post hoc vektörleri raporda görünmüyor. Bkz. `oracle/TOPLAMA_LISTESI.md`)
+- [ ] **Katman 1: Kâhin Vektörleri** (41 planlı vektörün 41'inin de ekran görüntüsü var; 37'sinde beklenen değer dolu, 4'ü G*Power hata kutusu (V17, V25, V29, V40). Diferansiyel test 33/37. Uyuşmazlıklar: motor dz ≤ 0'ı reddediyor, G*Power hesap yapıyor (V21, V26, V37, V41; LEDGER L13, L16); G*Power güç < α'yı (V17, L12) ve post hoc N=2'yi (V29, L15) reddediyor, motor reddetmiyor. Bkz. `oracle/TOPLAMA_LISTESI.md`)
 - [x] **Katman 2: Oturum 1 (İnceleme)** (`LEDGER.md` var; ancak henüz hiçbir [REA] kanıtı yok — tüm binary iddiaları [AJAN])
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
 - [ ] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı ölçülmedi: 0 kâhin vektörü; yalnızca self-check var, bkz. `conformance.md`)
