@@ -1,6 +1,6 @@
 # Uyum Raporu (Conformance Report)
 
-**Oluşturulma Tarihi**: 2026-10-21 21:47:28
+**Oluşturulma Tarihi**: 2026-10-21 22:38:37
 **Test Ailesi**: `t-paired`
 **%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ✅ GEÇTİ — 33/34 (%97.06)
 

@@ -39,10 +39,11 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
 - **Merkezsiz t CDF'i ([REA], L29):** G*Power'da df'e bağlı bir yöntem değişikliği yoktur; aynı seri toplamı her df için
   kullanılır (göreli tolerans ≈ 5.55·10⁻¹⁷, en çok 50000 terim). $|\delta| < 10^{-100}$ ise merkezi t'ye geçilir.
   V42 uyuşmazlığının (L17) nedeni bilinmiyor.
-- **G*Power girdi aralıkları ([REA], L32, L33; ekran görüntüsüyle sınanmadı):**
+- **G*Power girdi aralıkları ([REA], L32, L33; ekran görüntüsüyle sınanmadı; motor uygular, 818a9d6, aksi `OUT_OF_RANGE`):**
   - $\alpha$ ve hedef güç $[10^{-7},\ 0.9999999]$ kapalı aralığında olmalıdır.
   - Post hoc'ta $d_z \in [-20,\ 20]$ olmalıdır.
   - A priori'de $d_z$ için yalnızca $|d_z| \ge 0.00001$ kontrolü vardır, üst sınır yoktur.
+  - A priori kontrol sırası: $d_z$ eşiği → $\alpha$ → güç → $\alpha \le$ güç (motor da bu sırayla denetler).
 
   Motor bu aralıkları değil CONTRACT.md §5'i uygular; G*Power'ın kabul edip sözleşmenin reddettiği (ya da tersi)
   değerler kasıtlı sapmadır.
@@ -51,7 +52,7 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
 
 ## 2. A Priori Çözücü Algoritması ve Yuvarlama Davranışı
 
-1. **Arama Aralığı**: $N_{\min} = 2$, $N_{\max} = 100\,000$.
+1. **Arama Aralığı**: $N_{\min} = 2$, **üst sınır yok**. Motor üst ucu 100 000'den başlatır ve güç hedefe ulaşana dek ikiye katlar (V42: N = 78 488 605 096). G*Power aynı amaçla 100'den başlayıp 1.6 ile çarpar ([REA] L34).
 2. **Hedef**: İstenen $\text{target\_power} \le \text{actual\_power}$ eşitsizliğini sağlayan **en küçük pozitif tamsayı $N$** değerini bulmak.
 3. **Kesikli Arama / Tavan Yuvarlama**:
    - $N$ örneklem çift sayısı kesikli bir tamsayıdır ($N \in \mathbb{N}_{\ge 2}$).
@@ -224,6 +225,9 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
       | 2     | 0.5      | 0.05  | -     | 1       | OUT_OF_RANGE | n_total | Post hoc N=1 (§5; G*Power V40)                        |
       | 2     | 0.5      | 0.05  | -     | -5      | OUT_OF_RANGE | n_total | Post hoc negatif N                                    |
       | 2     | 0.5      | 0.05  | -     | 30.5    | INVALID_VALUE| n_total | Tam sayı olması gereken yerde ondalık                 |
+      | 2     | 0.5      | 1e-8  | 0.80  | -       | OUT_OF_RANGE | alpha   | α < 1e-7 ([REA] L32)                                  |
+      | 2     | 0.5      | 0.05  | 0.99999999 | -  | OUT_OF_RANGE | power   | Güç > 0.9999999 ([REA] L32)                           |
+      | 2     | 20.5     | 0.05  | -     | 30      | OUT_OF_RANGE | dz      | Post hoc dz > 20 ([REA] L33)                          |
 
 ---
 
