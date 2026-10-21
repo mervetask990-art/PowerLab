@@ -17,14 +17,14 @@ V15,t-paired,a-priori,2,0.5,0.05,0.999,,,104,0.9990026,1.9832641,103,5.0990195,V
 V16,t-paired,a-priori,2,0.5,0.05,0.05,,,2,0.0619486,12.7062047,1,0.7071068,V16.png,Güç = α; boundary B04 ile aynı girdi
 V17,t-paired,a-priori,2,0.5,0.05,0.03,,,,,,,,V17.png,"Güç < α — G*Power Input error: ""Power must be greater than or equal to alpha."" (çıktılar ?)"
 V18,t-paired,a-priori,2,0.5,0.001,0.80,,,74,0.8025148,3.4288542,73,4.3011626,V18.png,α alt ucu
-V19,t-paired,a-priori,2,0.5,0.2,0.80,,,,,,,,,α üst ucu; tek kuyruk eşi V20
-V20,t-paired,a-priori,1,0.5,0.2,0.80,,,,,,,,,Tek kuyruk eşi: V19
-V21,t-paired,a-priori,1,-0.5,0.05,0.80,,,,,,,,,Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek)
-V22,t-paired,a-priori,1,0.25,0.01,0.90,,,,,,,,,Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan)
-V23,t-paired,a-priori,1,0.3,0.1,0.95,,,,,,,,,Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan)
-V24,t-paired,a-priori,2,0.5,0.05,0.90,,,,,,,,,Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan)
-V25,t-paired,a-priori,2,0,0.05,0.80,,,,,,,,,GEÇERSİZ GİRDİ (boundary B07): dz=0; ekran görüntüsü G*Power'ın tepkisini göstermeli
-V26,t-paired,a-priori,2,-0.5,0.05,0.80,,,,,,,,,GEÇERSİZ GİRDİ (boundary B06): çift kuyrukta negatif dz; ekran görüntüsü G*Power'ın tepkisini göstermeli
+V19,t-paired,a-priori,2,0.5,0.2,0.80,,,19,0.8018783,1.3303909,18,2.1794495,V19.png,α üst ucu; tek kuyruk eşi V20
+V20,t-paired,a-priori,1,0.5,0.2,0.80,,,12,0.8055719,0.8755300,11,1.7320508,V20.png,Tek kuyruk eşi: V19
+V21,t-paired,a-priori,1,-0.5,0.05,0.80,,,27,0.8118316,-1.7056179,26,-2.5980762,V21.png,Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek)
+V22,t-paired,a-priori,1,0.25,0.01,0.90,,,211,0.9000186,2.3442358,210,3.6314598,V22.png,Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan)
+V23,t-paired,a-priori,1,0.3,0.1,0.95,,,96,0.9500214,1.2905265,95,2.9393877,V23.png,Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan)
+V24,t-paired,a-priori,2,0.5,0.05,0.90,,,44,0.9000306,2.0166922,43,3.3166248,V24.png,Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan)
+V25,t-paired,a-priori,2,0,0.05,0.80,,,,,,,,V25.png,"GEÇERSİZ GİRDİ (boundary B07): dz=0; ekran görüntüsü G*Power'ın tepkisini göstermeli — G*Power Input error: ""In an a priori analysis, the absolute value of the effect size be greater than 0.00001."" (çıktılar ?)"
+V26,t-paired,a-priori,2,-0.5,0.05,0.80,,,34,0.8077775,-2.0345153,33,-2.9154759,V26.png,GEÇERSİZ GİRDİ (boundary B06): çift kuyrukta negatif dz; ekran görüntüsü G*Power'ın tepkisini göstermeli
 V27,t-paired,post-hoc,2,0.5,0.05,,30,,,,,,,,Post hoc standart; tek kuyruk eşi V28
 V28,t-paired,post-hoc,1,0.5,0.05,,30,,,,,,,,Tek kuyruk eşi: V27
 V29,t-paired,post-hoc,2,0.5,0.05,,2,,,,,,,,Post hoc N=2 (df=1)

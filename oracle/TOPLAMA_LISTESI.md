@@ -30,14 +30,14 @@
 | [x] | V16 | A priori | Two | 0.5 | 0.05 | 0.05 | Güç = α; boundary B04 ile aynı girdi |
 | [x] | V17 | A priori | Two | 0.5 | 0.05 | 0.03 | Güç < α — G*Power Input error: "Power must be greater than or equal to alpha." (çıktılar ?) |
 | [x] | V18 | A priori | Two | 0.5 | 0.001 | 0.80 | α alt ucu |
-| [ ] | V19 | A priori | Two | 0.5 | 0.2 | 0.80 | α üst ucu; tek kuyruk eşi V20 |
-| [ ] | V20 | A priori | One | 0.5 | 0.2 | 0.80 | Tek kuyruk eşi: V19 |
-| [ ] | V21 | A priori | One | -0.5 | 0.05 | 0.80 | ⚠ Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek) |
-| [ ] | V22 | A priori | One | 0.25 | 0.01 | 0.90 | Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan) |
-| [ ] | V23 | A priori | One | 0.3 | 0.1 | 0.95 | Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan) |
-| [ ] | V24 | A priori | Two | 0.5 | 0.05 | 0.90 | Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan) |
-| [ ] | V25 | A priori | Two | 0 | 0.05 | 0.80 | ⚠ GEÇERSİZ GİRDİ (boundary B07): dz=0; ekran görüntüsü G*Power'ın tepkisini göstermeli |
-| [ ] | V26 | A priori | Two | -0.5 | 0.05 | 0.80 | ⚠ GEÇERSİZ GİRDİ (boundary B06): çift kuyrukta negatif dz; ekran görüntüsü G*Power'ın tepkisini göstermeli |
+| [x] | V19 | A priori | Two | 0.5 | 0.2 | 0.80 | α üst ucu; tek kuyruk eşi V20 |
+| [x] | V20 | A priori | One | 0.5 | 0.2 | 0.80 | Tek kuyruk eşi: V19 |
+| [x] | V21 | A priori | One | -0.5 | 0.05 | 0.80 | ⚠ Tek kuyrukta negatif dz (G*Power tepkisi kaydedilecek) |
+| [x] | V22 | A priori | One | 0.25 | 0.01 | 0.90 | Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan) |
+| [x] | V23 | A priori | One | 0.3 | 0.1 | 0.95 | Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan) |
+| [x] | V24 | A priori | Two | 0.5 | 0.05 | 0.90 | Sınır vakası: güç hedefi çok ince farkla aşıyor (girdi motorla seçildi; beklenen değer G*Power'dan) |
+| [x] | V25 | A priori | Two | 0 | 0.05 | 0.80 | ⚠ GEÇERSİZ GİRDİ (boundary B07): dz=0; ekran görüntüsü G*Power'ın tepkisini göstermeli — G*Power Input error: "In an a priori analysis, the absolute value of the effect size be greater than 0.00001." (çıktılar ?) |
+| [x] | V26 | A priori | Two | -0.5 | 0.05 | 0.80 | ⚠ GEÇERSİZ GİRDİ (boundary B06): çift kuyrukta negatif dz; ekran görüntüsü G*Power'ın tepkisini göstermeli |
 
 ## 2. Post hoc — `Post hoc: Compute achieved power – given α, sample size, and effect size`
 
