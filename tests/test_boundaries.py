@@ -2,9 +2,9 @@
 tests/test_boundaries.py
 oracle/boundary_vectors.csv satırlarını okur.
 
-- expected_behavior == "error": motor ValueError fırlatmalı; CLI stdout'a {"error": ...} yazıp
-  sıfırdan farklı kodla çıkmalı.
-- Diğer satırlar (B01-B05): beklenen değerler kâhinden gelmediği için boştur. Yalnızca SPEC
+- expected_behavior == "error": motor `code` alanı expected_code olan bir ValueError fırlatmalı;
+  CLI stdout'a {"error","code","field"} yazıp çıkış kodu 2 ile çıkmalı (CONTRACT.md §2.4).
+- Diğer satırlar (B01-B05, B17): beklenen değerler kâhinden gelmediği için boştur. Yalnızca SPEC
   kuralları denetlenir: çökme yok, n >= 2, actual_power >= hedef güç, df = n - 1.
   Bir beklenen sütun doluysa (G*Power ekran görüntüsüyle) o da karşılaştırılır.
 """
@@ -46,30 +46,33 @@ def _cli_args(row):
     if row["mode"] == "a-priori":
         args.append(f"--power={row['power']}")
     else:
-        args.append(f"--n={row['n_input']}")
+        args.append(f"--n_total={row['n_input']}")
     return args
 
 
 def test_csv_schema():
     assert ROWS, "boundary_vectors.csv boş"
-    assert len(ROWS[0]) == 17
+    assert len(ROWS[0]) == 18
     assert {r["expected_behavior"] for r in ROWS} <= {"", "error"}
 
 
 @pytest.mark.parametrize("row", ERROR_ROWS, ids=lambda r: r["id"])
 def test_invalid_rows_raise_in_engine(row):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as exc:
         run_power_analysis(test=row["family"], mode=row["mode"], params=_engine_params(row))
+    assert getattr(exc.value, "code", None) == row["expected_code"]
 
 
 @pytest.mark.parametrize("row", ERROR_ROWS, ids=lambda r: r["id"])
 def test_invalid_rows_return_json_error_in_cli(capsys, row):
     with pytest.raises(SystemExit) as exc:
         cli.main(_cli_args(row))
-    assert exc.value.code != 0
+    assert exc.value.code == 2
     out, err = capsys.readouterr()
     assert err == ""
-    assert set(json.loads(out)) == {"error"}
+    payload = json.loads(out)
+    assert list(payload) == ["error", "code", "field"]
+    assert payload["code"] == row["expected_code"]
 
 
 @pytest.mark.parametrize("row", RULE_ROWS, ids=lambda r: r["id"])

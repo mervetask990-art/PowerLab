@@ -1,7 +1,8 @@
 """
 tests/test_cli_errors.py
-CLI hata sözleşmesi: her hata STDOUT'a tek satır {"error": ...} yazar, çıkış kodu sıfırdan
-farklıdır ve stderr boş kalır. --help normal çalışır.
+CLI ayrı süreçte (CONTRACT.md §2.3, §2.4): her hata STDOUT'a tek satır {"error","code","field"}
+yazar, geçersiz girdide çıkış kodu 2'dir ve stderr boş kalır. --help ve --version çalışır.
+Kod/alan eşlemesinin tamamı tests/test_contract_cli.py içindedir.
 """
 
 import json
@@ -24,16 +25,14 @@ def run_cli(*args):
     )
 
 
-def assert_json_error(proc, expected_code=None):
-    assert proc.returncode != 0
-    if expected_code is not None:
-        assert proc.returncode == expected_code
+def assert_json_error(proc, code, field):
+    assert proc.returncode == 2
     assert proc.stderr == "", f"stderr boş olmalı, alınan: {proc.stderr!r}"
     lines = proc.stdout.strip().splitlines()
     assert len(lines) == 1, f"tek satır JSON bekleniyordu: {proc.stdout!r}"
     payload = json.loads(lines[0])
-    assert set(payload) == {"error"}
-    return payload["error"]
+    assert list(payload) == ["error", "code", "field"]
+    assert (payload["code"], payload["field"]) == (code, field)
 
 
 def test_help_still_works():
@@ -44,64 +43,36 @@ def test_help_still_works():
     assert "Kuyruk sayısı" in proc.stdout  # UTF-8 Türkçe karakterler bozulmadan
 
 
+def test_version():
+    proc = run_cli("--version")
+    assert proc.returncode == 0
+    assert proc.stderr == ""
+    assert json.loads(proc.stdout)["contract_version"] == "1.0.0"
+
+
 def test_unknown_parameter():
-    msg = assert_json_error(run_cli(*VALID_APRIORI, "--bilinmeyen", "1"), expected_code=2)
-    assert "--bilinmeyen" in msg
+    assert_json_error(run_cli(*VALID_APRIORI, "--bilinmeyen", "1"), "UNKNOWN_PARAM", "bilinmeyen")
 
 
-@pytest.mark.parametrize("missing", ["--test", "--alpha"])
-def test_missing_required_parameter(missing):
+def test_missing_parameter():
     args = list(VALID_APRIORI)
-    i = args.index(missing)
+    i = args.index("--alpha")
     del args[i:i + 2]
-    msg = assert_json_error(run_cli(*args), expected_code=2)
-    assert missing in msg
-
-
-@pytest.mark.parametrize(
-    "flag, value",
-    [("--tails", "3"), ("--mode", "bayesci")],
-)
-def test_invalid_choice(flag, value):
-    args = list(VALID_APRIORI)
-    args[args.index(flag) + 1] = value
-    msg = assert_json_error(run_cli(*args), expected_code=2)
-    assert flag in msg
-
-
-@pytest.mark.parametrize("value", ["abc", "nan", "30.5"])
-def test_invalid_type_for_n(value):
-    msg = assert_json_error(
-        run_cli("--test", "t-paired", "--mode", "post-hoc", "--dz", "0.5", "--alpha", "0.05", "--n", value),
-        expected_code=2,
-    )
-    assert "--n" in msg
+    assert_json_error(run_cli(*args), "MISSING_PARAM", "alpha")
 
 
 @pytest.mark.parametrize("value", ["nan", "inf", "-inf"])
-@pytest.mark.parametrize("flag", ["--dz", "--alpha", "--power"])
-def test_nonfinite_values(flag, value):
-    # "--dz=-inf" biçimi: argparse "-inf"i ayrı yazıldığında bayrak sanar.
-    args = list(VALID_APRIORI)
-    i = args.index(flag)
-    args[i:i + 2] = [f"{flag}={value}"]
-    msg = assert_json_error(run_cli(*args), expected_code=1)
-    assert "NaN/inf" in msg
-
-
-def test_missing_effect_size():
+def test_nonfinite_values(value):
     args = list(VALID_APRIORI)
     i = args.index("--dz")
-    del args[i:i + 2]
-    msg = assert_json_error(run_cli(*args), expected_code=1)
-    assert "dz" in msg
+    args[i:i + 2] = [f"--dz={value}"]
+    assert_json_error(run_cli(*args), "INVALID_VALUE", "dz")
 
 
 def test_unsupported_family():
     args = list(VALID_APRIORI)
     args[args.index("--test") + 1] = "anova-oneway"
-    msg = assert_json_error(run_cli(*args), expected_code=1)
-    assert "Desteklenmeyen test ailesi" in msg
+    assert_json_error(run_cli(*args), "UNSUPPORTED", "test")
 
 
 def test_success_writes_nothing_to_stderr():
@@ -126,4 +97,4 @@ def test_console_scripts_installed(name):
         pytest.skip(f"{name} konsol komutu kurulu değil (pip install -e . gerekli)")
     proc = subprocess.run([str(script), *VALID_APRIORI], capture_output=True, text=True, encoding="utf-8")
     assert proc.returncode == 0
-    assert json.loads(proc.stdout)["n"] == 54
+    assert json.loads(proc.stdout)["n_total"] == 54

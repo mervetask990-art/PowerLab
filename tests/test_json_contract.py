@@ -1,53 +1,40 @@
 """
 tests/test_json_contract.py
-t-paired JSON çıktısının alanları ve sırası (CONTRACT_ASSUMED.md J1-J3):
-n, n_total, actual_power, critical, df, ncp — fazladan alan yok, n == n_total.
+Motorun istek katmanı (powerlab.engine.contract.handle_request) t-paired çıktısını CONTRACT.md
+§4.2'deki alanlarla, sırayla ve türlerle üretir; ondalıklar yuvarlanmaz (§2.3).
+CLI ve MCP bu katmanı çağırır; aynı sözlük iki arayüzde de aynı JSON olur.
 """
 
-import json
+import math
 
-import pytest
+from powerlab.engine.contract import handle_request
 
-from powerlab import cli
-from powerlab.mcp_server import call_tool
-
-T_PAIRED_FIELDS = ["n", "n_total", "actual_power", "critical", "df", "ncp"]
-
-CASES = {
-    "a-priori": {"mode": "a-priori", "tails": 2, "dz": 0.5, "alpha": 0.05, "power": 0.95},
-    "post-hoc": {"mode": "post-hoc", "tails": 2, "dz": 0.5, "alpha": 0.05, "n": 54},
-}
+APRIORI = {"test": "t-paired", "mode": "a-priori", "tails": 2, "dz": 0.5, "alpha": 0.05, "power": 0.95}
+POSTHOC = {"test": "t-paired", "mode": "post-hoc", "tails": 2, "dz": 0.5, "alpha": 0.05, "n_total": 54}
 
 
-def _cli_args(case):
-    args = ["--test", "t-paired"]
-    for key, value in case.items():
-        args += [f"--{key}", str(value)]
-    return args
+def test_apriori_payload():
+    payload, exit_code = handle_request(APRIORI)
+    assert exit_code == 0
+    assert list(payload) == ["ncp", "critical_t", "df", "n_total", "actual_power"]
+    assert type(payload["df"]) is int and type(payload["n_total"]) is int
+    assert (payload["n_total"], payload["df"]) == (54, 53)
 
 
-@pytest.mark.parametrize("name", CASES)
-def test_cli_field_order(capsys, name):
-    with pytest.raises(SystemExit) as exc:
-        cli.main(_cli_args(CASES[name]))
-    assert exc.value.code == 0
-    data = json.loads(capsys.readouterr().out)
-    assert list(data) == T_PAIRED_FIELDS
-    assert data["n"] == data["n_total"]
+def test_posthoc_payload():
+    payload, exit_code = handle_request(POSTHOC)
+    assert exit_code == 0
+    assert list(payload) == ["ncp", "critical_t", "df", "power"]
+    assert payload["df"] == 53
 
 
-@pytest.mark.parametrize("name", CASES)
-def test_mcp_field_order(name):
-    res = call_tool("power_analysis", {"test": "t-paired", **CASES[name]})
-    data = res["result"]
-    assert list(data) == T_PAIRED_FIELDS
-    assert data["n"] == data["n_total"]
+def test_floats_are_not_rounded():
+    payload, _ = handle_request(POSTHOC)
+    assert payload["ncp"] == 0.5 * math.sqrt(54)
 
 
-def test_float_fields_use_single_decimals_constant():
-    from powerlab.engine.rounding import OUTPUT_DECIMALS
-    from powerlab.engine.solver import run_power_analysis
-
-    res = run_power_analysis("t-paired", "a-priori", {"tails": 2, "dz": 0.5, "alpha": 0.05, "power": 0.95})
-    for key in ("actual_power", "critical", "ncp"):
-        assert res[key] == round(res[key], OUTPUT_DECIMALS)
+def test_error_payload_shape():
+    payload, exit_code = handle_request({**APRIORI, "dz": 0})
+    assert exit_code == 2
+    assert list(payload) == ["error", "code", "field"]
+    assert (payload["code"], payload["field"]) == ("OUT_OF_RANGE", "dz")

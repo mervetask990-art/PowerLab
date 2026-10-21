@@ -5,6 +5,9 @@ Diferansiyel test kiti.
 1) oracle/gpower_vectors.csv: G*Power kâhini. Yalnızca beklenen değeri dolu
    (ekran görüntüsüyle doğrulanmış) satırlar test edilir. Hiç dolu satır yoksa
    test SESSİZCE GEÇMEZ, açıkça atlanır (skip).
+   CONTRACT.md §5 (dz > 0) gereği G*Power'dan kasıtlı olarak sapılan vektörlerde (G*Power negatif
+   dz ve post hoc dz = 0 ile hesap yapar; LEDGER L13, L16) motorun OUT_OF_RANGE vermesi beklenir.
+   Kâhin değerleri değişmez; bu vektörler uyum raporunda ayrı listelenir, %90 kapısına katılmaz.
 2) oracle/selfcheck_scipy.csv: KÂHİN DEĞİLDİR. Motorla aynı algoritmadan
    üretilmiş kendi kendine tutarlılık (self-check) verisidir.
 """
@@ -69,6 +72,9 @@ def _params_from_row(row: dict) -> dict:
 
 GPOWER_VECTORS = load_gpower_vectors()
 
+# CONTRACT.md §5 gereği kasıtlı sapma: G*Power hesaplar, sözleşme dz > 0 ister.
+CONTRACT_DEVIATIONS = {"V21", "V26", "V37", "V41", "V43"}
+
 
 @pytest.mark.skipif(
     not GPOWER_VECTORS,
@@ -76,6 +82,12 @@ GPOWER_VECTORS = load_gpower_vectors()
 )
 @pytest.mark.parametrize("vec", GPOWER_VECTORS, ids=lambda v: v["id"])
 def test_gpower_oracle_vector(vec):
+    if vec["id"] in CONTRACT_DEVIATIONS:
+        with pytest.raises(ValueError) as exc:
+            run_power_analysis(test=vec["family"], mode=vec["mode"], params=_params_from_row(vec))
+        assert (getattr(exc.value, "code", None), getattr(exc.value, "field", None)) == ("OUT_OF_RANGE", "dz")
+        return
+
     res = run_power_analysis(test=vec["family"], mode=vec["mode"], params=_params_from_row(vec))
 
     if vec["n_expected"].strip():
