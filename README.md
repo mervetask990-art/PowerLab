@@ -13,10 +13,10 @@
 ## 1. Proje Durumu ve Katmanlar
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
-- [x] **Katman 1: Kâhin Vektörleri** (43 vektörün hepsinin ekran görüntüsü var; 39'unda beklenen değer dolu, 4'ü G*Power hata kutusu (V17, V25, V29, V40). Motor G*Power sınır davranışlarına uyarlandı (LEDGER L12–L16). Diferansiyel test 38/39; tek uyuşmazlık V42: çok büyük N'de sayısal fark (LEDGER L17). Bkz. `oracle/TOPLAMA_LISTESI.md`)
+- [x] **Katman 1: Kâhin Vektörleri** (G*Power ekran görüntüsü: 43 vektör, 39'unda beklenen değer, 4'ü G*Power hata kutusu. Eğitmen protokolü: `oracle/public_vectors.jsonl`, CONTRACT.md §9'dan 25 vektör, 2'si t-paired. V21, V26, V37, V41, V43 CONTRACT.md §5 gereği kasıtlı sapma (G*Power dz ≤ 0 ile hesap yapar, motor reddeder; LEDGER L13, L16). Bilinen uyuşmazlık: V42 (LEDGER L17, Q7). Bkz. `oracle/TOPLAMA_LISTESI.md`)
 - [x] **Katman 2: Oturum 1 (İnceleme)** (`LEDGER.md` var; ancak henüz hiçbir [REA] kanıtı yok — tüm binary iddiaları [AJAN])
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
-- [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 38/39 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; bkz. `tests/report/conformance.md`)
+- [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 33/34 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; kasıtlı sapmalar kapı dışında; eğitmen protokolünde uygulanan 2/2 uyumlu; bkz. `tests/report/conformance.md`)
 - [ ] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (taslak kod var: `src/powerlab/mcp_server.py`, `src/powerlab/agent/`; gerçek MCP el sıkışması yok, ajan kural tabanlı, benchmark ölçülmedi)
 
 ---
@@ -42,14 +42,16 @@ Protokol: Model Context Protocol (MCP) / JSON-RPC 2.0 (stdio)
 
 | Araç Adı | Parametre | Tip | Zorunlu? | Açıklama |
 |---|---|---|---|---|
-| `power_analysis` | `test` | string | Evet | Test ailesi: şimdilik yalnızca `t-paired` (multireg-r2 eklenince genişletilecek) |
-| `power_analysis` | `mode` | string | Hayır | `a-priori` (varsayılan) veya `post-hoc` |
-| `power_analysis` | `tails` | integer | Hayır | 1 (tek yönlü) veya 2 (çift yönlü, varsayılan: 2) |
-| `power_analysis` | `dz` / `d` | number | Evet | Etki büyüklüğü ($d_z$, işaretli; a priori'de mutlak değeri ≥ 0.00001) |
+| `power_analysis` | `test` | string | Evet | CONTRACT.md test kimliği; uygulanan: `t-paired` (diğerleri `UNSUPPORTED`) |
+| `power_analysis` | `mode` | string | Evet | `a-priori` ya da `post-hoc` (bonus modlar `UNSUPPORTED`) |
+| `power_analysis` | `tails` | integer | Evet | 1 (tek yönlü) ya da 2 (çift yönlü); varsayılan yok |
+| `power_analysis` | `dz` | number | Evet | Etki büyüklüğü $d_z > 0$; a priori'de $\ge 0.00001$ |
 | `power_analysis` | `alpha` | number | Evet | Anlamlılık düzeyi $\alpha \in (0, 1)$ |
-| `power_analysis` | `power` | number | A-priori için | Hedef istatistiksel güç $1 - \beta \in (0, 1)$ |
-| `power_analysis` | `n` | integer | Post-hoc için | Örneklem çift sayısı ($N \ge 2$) |
-| `power_analysis` | `ratio` | number | Hayır | Bağımsız gruplarda $n_2/n_1$ oranı |
+| `power_analysis` | `power` | number | Yalnızca a-priori | Hedef güç $1 - \beta \in (0, 1)$, güç ≥ α |
+| `power_analysis` | `n_total` | integer | Yalnızca post-hoc | Örneklem çift sayısı ($N \ge 3$) |
+
+Alan adları CLI ile birebirdir; çıktı, CLI'nin stdout JSON'u ile aynı metindir (`content[0].text`), hata da aynı
+hata JSON'udur (`isError: true`). 25 referans vektöründe CLI = MCP eşdeğerliği `tests/test_mcp_equivalence.py` ile test edilir.
 
 ---
 
@@ -116,7 +118,8 @@ repo/
 │       ├── engine/                # TEK hesap motoru (saf fonksiyonlar)
 │       │   ├── distributions.py   # nct sarmalayıcıları
 │       │   ├── solver.py          # N arama + durma koşulu
-│       │   ├── rounding.py        # Tamsayı tavan yuvarlama
+│       │   ├── contract.py        # CONTRACT.md istek katmanı (alanlar, hata kodları, çıktı)
+│       │   ├── errors.py          # ContractError (code, field)
 │       │   ├── validation.py      # Geçersiz girdi kuralları
 │       │   └── families/
 │       │       └── t_paired.py    # Eşleştirilmiş t-testi
@@ -150,7 +153,7 @@ repo/
 
 Komut adı: `gpower-clone` (birincil), `powerlab` (ikincil). Kurulum yapılmadan `python -m powerlab.cli` de aynı CLI'yi çalıştırır.
 
-### Çıktı, hata ve takma ad kuralları
+### Çıktı ve hata kuralları
 
 Tüm kurallar tek kaynakta: **[`CONTRACT.md`](CONTRACT.md)** (resmi sözleşme 1.0.0). Önceki varsayımlar arşivde: [`arsiv/CONTRACT_ASSUMED.md`](arsiv/CONTRACT_ASSUMED.md).
 
@@ -160,26 +163,48 @@ gpower-clone --test t-paired --mode a-priori --tails 2 --dz 0.5 --alpha 0.05 --p
 ```
 **Çıktı (Tek satır JSON):**
 ```json
-{"n":54,"n_total":54,"actual_power":0.950212,"critical":2.005746,"df":53,"ncp":3.6742346}
+{"ncp":3.6742346141747673,"critical_t":2.0057459953178687,"df":53,"n_total":54,"actual_power":0.9502120365387465}
 ```
-> Motor çıktısıdır, kâhin değildir; değerler 7 ondalığa yuvarlanır. G*Power aynı girdilerde N=54, Df=53, δ=3.6742346, Critical t=2.0057460, Actual power=0.9502120 gösteriyor (`oracle/screenshots/V01.png`). JSON sondaki sıfırları atar (`2.0057460` → `2.005746`); değer aynıdır (CONTRACT_ASSUMED D3).
+
+### Post Hoc Örnek:
+```bash
+gpower-clone --test t-paired --mode post-hoc --tails 2 --dz 0.5 --alpha 0.05 --n_total 54
+```
+```json
+{"ncp":3.6742346141747673,"critical_t":2.0057459953178687,"df":53,"power":0.9502120365387465}
+```
+> Motor çıktısıdır, kâhin değildir; değerler **tam double** yazılır, yuvarlanmaz (CONTRACT.md §2.3). G*Power aynı girdilerde N=54, Df=53, δ=3.6742346, Critical t=2.0057460, Actual power=0.9502120 gösteriyor (`oracle/screenshots/V01.png`); karşılaştırma CONTRACT.md §6 toleransıyla (1e-6) yapılır.
 
 ### Hata Durumu:
 ```bash
 gpower-clone --test t-paired --mode a-priori --tails 2 --dz 0 --alpha 0.05 --power 0.95
 ```
-**Çıktı (stdout, çıkış kodu 1):**
+**Çıktı (stdout, çıkış kodu 2):**
 ```json
-{"error":"A priori analizde etki b\u00fcy\u00fckl\u00fc\u011f\u00fcn\u00fcn (dz) mutlak de\u011feri en az 0.00001 olmal\u0131d\u0131r, al\u0131nan: 0.0"}
+{"error":"Etki b\u00fcy\u00fckl\u00fc\u011f\u00fc (dz) pozitif olmal\u0131d\u0131r (dz > 0), al\u0131nan: 0.0","code":"OUT_OF_RANGE","field":"dz"}
 ```
 
 ```bash
-gpower-clone --test t-paired --tails 3 --alpha 0.05
+gpower-clone --test t-paired --mode post-hoc --tails 2 --dz 0.5 --alpha 0.05 --n 54
 ```
-**Çıktı (stdout, çıkış kodu 2):**
+**Çıktı (stdout, çıkış kodu 2; eski `--n` takma adı kalktı):**
 ```json
-{"error":"Ge\u00e7ersiz arg\u00fcman: argument --tails: invalid choice: 3 (choose from 1, 2)"}
+{"error":"'n' alan\u0131 t-paired / post-hoc i\u00e7in tan\u0131nm\u0131yor ya da ilgisiz","code":"UNKNOWN_PARAM","field":"n"}
 ```
+
+### Sürüm:
+```bash
+gpower-clone --version
+```
+```json
+{"contract_version":"1.0.0","name":"<TAKIM_ADI>","engine":"Python 3.11.9, scipy 1.17.1"}
+```
+> `name` alanı yer tutucudur (`<TAKIM_ADI>`); takım adı `src/powerlab/engine/contract.py` içindeki `TEAM_NAME` sabitinden gelir.
+
+### Süre (CONTRACT.md §2.1: < 2 s)
+Motor `scipy.stats` yerine `scipy.special` kullanır (`scipy.stats` içe aktarımı ~1.1 s, `scipy.special` ~0.4 s).
+Ölçüm (Windows, Python 3.11.9, her biri yeni süreç, 5 çağrı): a-priori 506–612 ms, post-hoc 494–636 ms,
+a-priori N≈78 milyar (V42) 519–692 ms. Değişiklikten önce: 1232–1929 ms.
 
 ---
 
