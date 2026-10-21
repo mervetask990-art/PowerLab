@@ -1,72 +1,90 @@
 """
 src/powerlab/engine/validation.py
 Parametre sınırlarını ve tiplerini denetleyen girdi doğrulama kuralları.
-Hatalı durumda açıklayıcı ValueError fırlatır.
+Hatalı durumda CONTRACT.md §2.4 kodunu taşıyan ContractError (bir ValueError) fırlatır.
+Aralıklar CONTRACT.md §5; aralık içindeki retler G*Power davranışıdır (LEDGER [REA] satırları).
 """
 
 import math
 from typing import Any
 
+from powerlab.engine.errors import INCONSISTENT, INVALID_VALUE, OUT_OF_RANGE, ContractError
 
-def _require_finite(name: str, value: Any) -> float:
+
+def _require_finite(name: str, field: str, value: Any) -> float:
     """Değerin sayı olduğunu ve NaN/±inf olmadığını doğrular; float olarak döner."""
     if value is None or isinstance(value, bool):
-        raise ValueError(f"{name} değeri bir sayı olmalıdır, alınan: {value}")
+        raise ContractError(INVALID_VALUE, field, f"{name} değeri bir sayı olmalıdır, alınan: {value}")
     try:
         number = float(value)
     except (TypeError, ValueError):
-        raise ValueError(f"{name} değeri bir sayı olmalıdır, alınan: {value}") from None
+        raise ContractError(INVALID_VALUE, field, f"{name} değeri bir sayı olmalıdır, alınan: {value}") from None
     if not math.isfinite(number):
-        raise ValueError(f"{name} değeri sonlu bir sayı olmalıdır (NaN/inf olamaz), alınan: {value}")
+        raise ContractError(INVALID_VALUE, field,
+                            f"{name} değeri sonlu bir sayı olmalıdır (NaN/inf olamaz), alınan: {value}")
     return number
 
 
+def _require_integer(name: str, field: str, value: Any) -> int:
+    number = _require_finite(name, field, value)
+    if number != int(number):
+        raise ContractError(INVALID_VALUE, field, f"{name} tamsayı olmalıdır, alınan: {value}")
+    return int(number)
+
+
 def validate_alpha(alpha: float) -> None:
-    alpha = _require_finite("Alpha", alpha)
+    alpha = _require_finite("Alpha", "alpha", alpha)
     if not (0.0 < alpha < 1.0):
-        raise ValueError(f"Alpha değeri (0, 1) açık aralığında olmalıdır, alınan: {alpha}")
+        raise ContractError(OUT_OF_RANGE, "alpha", f"Alpha değeri (0, 1) açık aralığında olmalıdır, alınan: {alpha}")
 
 
 def validate_power(power: float) -> None:
-    power = _require_finite("Power (güç)", power)
+    power = _require_finite("Power (güç)", "power", power)
     if not (0.0 < power < 1.0):
-        raise ValueError(f"Power (güç) değeri (0, 1) açık aralığında olmalıdır, alınan: {power}")
+        raise ContractError(OUT_OF_RANGE, "power", f"Power (güç) değeri (0, 1) açık aralığında olmalıdır, alınan: {power}")
 
 
-def validate_tails(tails: int) -> None:
+def validate_tails(tails: Any) -> None:
+    tails = _require_integer("Kuyruk sayısı (tails)", "tails", tails)
     if tails not in (1, 2):
-        raise ValueError(f"Kuyruk sayısı (tails) 1 veya 2 olmalıdır, alınan: {tails}")
-
-
-# A priori'de kabul edilen en küçük |dz|. Kanıt: G*Power dz=0.00001'i kabul ediyor (V42),
-# dz=0'ı reddediyor (V25, LEDGER L14). Aradaki değerlerin reddi doğrulanmamış hipotezdir (Q5).
-A_PRIORI_MIN_ABS_DZ = 0.00001
+        raise ContractError(OUT_OF_RANGE, "tails", f"Kuyruk sayısı (tails) 1 veya 2 olmalıdır, alınan: {tails}")
 
 
 def validate_effect_size(dz: float) -> None:
-    """dz işaretli olabilir; post hoc'ta 0 da kabul edilir (G*Power V37, V41, V43; LEDGER L13, L16)."""
-    _require_finite("Etki büyüklüğü (dz)", dz)
+    """CONTRACT.md §5: dz > 0. G*Power negatif dz ve post hoc dz = 0 ile hesap yapar (LEDGER L13, L16);
+    sözleşme bunları reddeder."""
+    dz = _require_finite("Etki büyüklüğü (dz)", "dz", dz)
+    if dz <= 0.0:
+        raise ContractError(OUT_OF_RANGE, "dz", f"Etki büyüklüğü (dz) pozitif olmalıdır (dz > 0), alınan: {dz}")
+
+
+# A priori'de kabul edilen en küçük dz. Kanıt: [REA] 0x4db990 kesin küçük karşılaştırma
+# (LEDGER L18); G*Power dz=0.00001'i kabul ediyor (V42).
+A_PRIORI_MIN_DZ = 0.00001
 
 
 def validate_a_priori_effect_size(dz: float) -> None:
-    dz = _require_finite("Etki büyüklüğü (dz)", dz)
-    if abs(dz) < A_PRIORI_MIN_ABS_DZ:
-        raise ValueError(
-            f"A priori analizde etki büyüklüğünün (dz) mutlak değeri en az {A_PRIORI_MIN_ABS_DZ:.5f} olmalıdır, alınan: {dz}"
+    dz = _require_finite("Etki büyüklüğü (dz)", "dz", dz)
+    if dz < A_PRIORI_MIN_DZ:
+        raise ContractError(
+            OUT_OF_RANGE, "dz",
+            f"A priori analizde etki büyüklüğü (dz) en az {A_PRIORI_MIN_DZ:.5f} olmalıdır, alınan: {dz}",
         )
 
 
 def validate_power_not_below_alpha(power: float, alpha: float) -> None:
-    """Güç = alpha kabul edilir (G*Power V16); güç < alpha hata (V17, LEDGER L12)."""
+    """Güç = alpha kabul edilir (G*Power V16); güç < alpha hata ([REA] 0x4880e0, LEDGER L19)."""
     if power < alpha:
-        raise ValueError(
-            f"Power (güç) alpha değerinden küçük olamaz (power >= alpha olmalıdır), alınan: power={power}, alpha={alpha}"
+        raise ContractError(
+            INCONSISTENT, "power",
+            f"Power (güç) alpha değerinden küçük olamaz (power >= alpha olmalıdır), alınan: power={power}, alpha={alpha}",
         )
 
 
 def validate_sample_size(n: Any, min_n: int = 2) -> None:
-    number = _require_finite("Örneklem büyüklüğü (n)", n)
-    if number != int(number):
-        raise ValueError(f"Örneklem büyüklüğü (n) tamsayı olmalıdır, alınan: {n}")
+    number = _require_integer("Örneklem büyüklüğü (n)", "n_total", n)
     if number < min_n:
-        raise ValueError(f"Örneklem büyüklüğü (n) izin verilen aralığın dışında: en az {min_n} olmalıdır, alınan: {n}")
+        raise ContractError(
+            OUT_OF_RANGE, "n_total",
+            f"Örneklem büyüklüğü (n) izin verilen aralığın dışında: en az {min_n} olmalıdır, alınan: {n}",
+        )

@@ -1,45 +1,43 @@
 """
 src/powerlab/engine/solver.py
 Çözücü yönlendirme ve aile kayıt defteri (Family Registry).
-CLI ve MCP yalnızca buradaki saf fonksiyonları çağırır.
+CLI ve MCP yalnızca buradaki saf fonksiyonları (powerlab.engine.contract üzerinden) çağırır.
+Test ve mod kimlikleri CONTRACT.md §3 ve §4'teki gibi birebirdir; takma ad yoktur.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
+from powerlab.engine.errors import UNSUPPORTED, ContractError
 from powerlab.engine.families import t_paired
 
-FAMILY_REGISTRY = {
-    "t-paired": t_paired,
-    "t_paired": t_paired,
+# Uygulanan (test, mod) çiftleri ve çözücüleri.
+IMPLEMENTED = {
+    ("t-paired", "a-priori"): t_paired.solve_n,
+    ("t-paired", "post-hoc"): t_paired.compute_power,
 }
 
-# Adı tanınan ama motoru henüz yazılmamış aileler (hesap yapılmaz, yalnızca hata döner).
-NOT_IMPLEMENTED_FAMILIES = {"multireg-r2"}
+# CONTRACT.md'de tanımlı ama bu motorda uygulanmamış kimlikler de UNSUPPORTED döner.
+CONTRACT_TESTS = ("t2-indep", "t-paired", "anova-oneway", "chi2-contingency", "multireg-r2")
+CONTRACT_MODES = ("a-priori", "post-hoc", "compromise", "criterion", "sensitivity")
 
 
-def normalize_family(test: str) -> str:
-    """Test ailesi adını kanonik biçime çevirir (küçük harf, '_' -> '-')."""
-    return test.strip().lower().replace("_", "-")
+def check_supported(test: Any, mode: Any) -> None:
+    if test not in CONTRACT_TESTS:
+        raise ContractError(UNSUPPORTED, "test", f"Bilinmeyen test: '{test}'. Geçerli: {list(CONTRACT_TESTS)}")
+    if mode not in CONTRACT_MODES:
+        raise ContractError(UNSUPPORTED, "mode", f"Bilinmeyen mod: '{mode}'. Geçerli: {list(CONTRACT_MODES)}")
+    if not any(t == test for t, _ in IMPLEMENTED):
+        raise ContractError(UNSUPPORTED, "test", f"{test} bu motorda henüz uygulanmadı")
+    if (test, mode) not in IMPLEMENTED:
+        raise ContractError(UNSUPPORTED, "mode", f"{test} için {mode} modu bu motorda henüz uygulanmadı")
 
 
 def run_power_analysis(test: str, mode: str, params: Dict[str, Any]) -> Dict[str, Any]:
     """
     Belirtilen test ailesi ve moda göre hesaplamayı çalıştırır.
-    mode: 'a-priori' (veya 'a_priori') -> solve_n
-          'post-hoc' (veya 'post_hoc') -> compute_power
+    mode: 'a-priori' -> solve_n, 'post-hoc' -> compute_power
+    Dönüş, motorun iç sözlüğüdür (n, df, ncp, critical, actual_power); sözleşme alanlarına
+    powerlab.engine.contract eşler.
     """
-    clean_test = normalize_family(test)
-    if clean_test in NOT_IMPLEMENTED_FAMILIES:
-        raise ValueError(f"{clean_test} henüz uygulanmadı")
-    if clean_test not in FAMILY_REGISTRY:
-        supported = list(FAMILY_REGISTRY.keys())
-        raise ValueError(f"Desteklenmeyen test ailesi: '{test}'. Desteklenenler: {supported}")
-
-    family_module = FAMILY_REGISTRY[clean_test]
-    clean_mode = mode.strip().lower().replace("_", "-")
-
-    if clean_mode in ("a-priori", "apriori"):
-        return family_module.solve_n(params)
-    elif clean_mode in ("post-hoc", "posthoc"):
-        return family_module.compute_power(params)
-    else:
-        raise ValueError(f"Geçersiz analiz modu: '{mode}'. 'a-priori' veya 'post-hoc' bekleniyor.")
+    check_supported(test, mode)
+    return IMPLEMENTED[(test, mode)](params)
