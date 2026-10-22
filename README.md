@@ -14,22 +14,32 @@
 
 - [x] **Katman 0: Repo İskeleti ve Kurulum** (SPEC, LEDGER, CSV şablonları, prompts)
 - [x] **Katman 1: Kâhin Vektörleri** (G*Power ekran görüntüsü: 43 vektör, 39'unda beklenen değer, 4'ü G*Power hata kutusu. Eğitmen protokolü: `oracle/public_vectors.jsonl`, CONTRACT.md §9'dan 25 vektör, 2'si t-paired. V21, V26, V37, V41, V43 CONTRACT.md §5 gereği kasıtlı sapma (G*Power dz ≤ 0 ile hesap yapar, motor reddeder; LEDGER L13, L16). Bilinen uyuşmazlık: V42 (LEDGER L17, Q7). Bkz. `oracle/TOPLAMA_LISTESI.md`)
-- [x] **Katman 2: Oturum 1 (İnceleme)** (`LEDGER.md` var; ancak henüz hiçbir [REA] kanıtı yok — tüm binary iddiaları [AJAN])
+- [x] **Katman 2: İnceleme (G*Power binary, 2 oturum)** (`LEDGER.md`: 36 kanıt satırının 17'si [REA], adres ya da dize kanıtlı; L22'deki okuma L25–L27 ile düzeltildi. Açık sorular: Q2, Q3, Q4, Q5 cevaplandı; Q6'da sınırlar cevaplandı, "neden 3" bilinmiyor; Q7 kısmen: merkezsiz t CDF'inde df'e bağlı dallanma yok, V42 uyuşmazlığının nedeni bilinmiyor; Q1 kısmi)
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
 - [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 33/34 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; kasıtlı sapmalar kapı dışında; eğitmen protokolünde uygulanan 2/2 uyumlu; bkz. `tests/report/conformance.md`)
 - [ ] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (taslak kod var: `src/powerlab/mcp_server.py`, `src/powerlab/agent/`; gerçek MCP el sıkışması yok, ajan kural tabanlı, benchmark ölçülmedi)
+
+**Kapsam (ödev ataması):** `t-paired` zorunlu (`a-priori`, `post-hoc`); `multireg-r2` bonus, henüz uygulanmadı.
+`t2-indep`, `anova-oneway` ve `chi2-contingency` bu ödevin kapsamı dışındadır; CLI bunlar için `UNSUPPORTED` döner.
 
 ---
 
 ## Kurulum (Windows)
 
+Kurulum ve çalıştırma tek komut (PowerShell, repo kökünde; CONTRACT.md §2.1):
+
 ```powershell
-python -m venv .venv
-.venv\Scripts\activate
-pip install -e ".[dev]"
-gpower-clone --help
-pytest
+python -m venv .venv; .\.venv\Scripts\python -m pip install -q -e .; .\.venv\Scripts\gpower-clone --test t-paired --mode a-priori --tails 1 --dz 0.5 --alpha 0.05 --power 0.95
 ```
+
+Windows'ta Smart App Control açıksa pip'in ürettiği imzasız `gpower-clone.exe` engellenebilir
+("Uygulama Denetimi ilkesi bu dosyayı engelledi"). O durumda aynı CLI imzalı Python üzerinden çalışır:
+
+```powershell
+python -m venv .venv; .\.venv\Scripts\python -m pip install -q -e .; .\.venv\Scripts\python -m powerlab.cli --test t-paired --mode a-priori --tails 1 --dz 0.5 --alpha 0.05 --power 0.95
+```
+
+Geliştirme ve testler için: `.\.venv\Scripts\python -m pip install -e ".[dev]"; .\.venv\Scripts\python -m pytest`
 
 Birincil komut `gpower-clone`, ikinci komut `powerlab`; ikisi de aynı CLI'yi çalıştırır (bkz. `prompts/NOTLAR.md`).
 
@@ -62,7 +72,7 @@ Benchmark çalıştırıcısı: `python eval/evaluate_agent.py`
 
 ### Benchmark Sonuçları (10 Klinik Soru):
 - **Henüz ölçülmedi.** Beklenen etiketler ve `expected_n` değerleri ajanla aynı oturumda yazıldı ve hiçbir kâhinle doğrulanmadı.
-- **Ajan Çağrı Günlüğü**: `eval/agent_calls.jsonl` (eski, geçersiz çalıştırma: `eval/_eski/`)
+- **Ajan Çağrı Günlüğü**: henüz yok; ajan çalıştırılmadı. Ajan çalışınca `eval/agent_calls.jsonl` dosyasına yazar (CONTRACT.md §8 `logs/agent_calls.jsonl` ister). Eski, geçersiz çalıştırma: `eval/_eski/agent_calls.jsonl`.
 
 ### Token / Süre / Doğruluk Karşılaştırması: MCP Yolu vs. GUI Yolu
 
