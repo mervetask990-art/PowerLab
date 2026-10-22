@@ -124,3 +124,31 @@ kontrolün yakaladığını belgeler.
   okunması (L27). Kâhinle de tutarlı: dz = 0 pozitif dala düşüyor ve güç = α çıkıyor (V41, V43).
 - **Düzeltme**: L22'nin başına "'ncp olduğu kesin değil' kısmı yanlış okumaydı" notu eklendi. Doğru okuma
   L27'de: yön, etki büyüklüğünün işaretiyle seçiliyor. Q5 (yön) L27 ile cevaplandı.
+
+### H09: Geçmiş temizliğinde "her commit kendi zamanındaki bilgiyle kalır" sözü tutmadı
+- **Ne iddia edildi**: Decompile alıntılarını git geçmişinden temizleme planında (2026-10-22) ajan, eski LEDGER
+  sürümlerinin temiz karşılıklarının df4eccf metninden sonradan eklenen ifadeler çıkarılarak türetileceğini
+  ve böylece "her commit kendi zamanındaki bilgiyle kalır, sonradan gelen bilgi geçmişe taşınmaz" denileceğini
+  söyledi.
+- **Nasıl fark edildi**: H07 yazılırken `c5b7bad:LEDGER.md` L22 okundu; satırda "(L25'te yapıldı)" ve
+  "(yarıya bölünen değer N, L26)" ifadeleri vardı, oysa o commit'te son satır L24'tü. Ardından her commit'teki
+  LEDGER sürümünde, o sürümün son satırından büyük numaralı satırlara verilen referanslar (ileri satır
+  referansı) tarandı. Aynı tarama yedekteki orijinal geçmişte sıfır sonuç verdi.
+- **Hangi kontrol yakaladı**: Yeniden yazılmış geçmişte ileri satır referansı taraması. Yeniden yazımdan sonraki
+  doğrulamalar (pseudocode araması, son ağacın df4eccf ile karşılaştırılması, testler) bunu yakalayamazdı,
+  çünkü hiçbiri ara commit'lerin tarihsel doğruluğunu ölçmüyordu.
+- **Neden oldu**: df4eccf, pseudocode alıntılarının **yerine** yazdığı açıklamalara inceleme oturumu 2'nin
+  bilgisini de koymuştu. Türetme yalnızca iki kirli sürüm arasında eklenen ifadeleri çıkardığı için,
+  alıntının yerine geçen bu açıklamalardaki sonradan bilgi eski commit'lere taşındı.
+- **Etkilenen commit'ler**: `c5b7bad` … `a16b1de` (9 commit: c5b7bad, dff800c, e8a7bb0, 323698d, 7aa5b30,
+  095f284, 7291984, f6000ec, a16b1de; yeniden yazımdan önceki 2aa063d … 23cc046). L22 satırı L25 ve L26'ya
+  atıf yapıyor.
+- **Kapsam sınırı**: Tarama yalnızca satır numarası içeren ileri referansları bulur; satır numarası içermeyen
+  sonradan bilgi bu yolla yakalanamaz. Aynı dönemde L18, L19, L20, L21 ve L24 de df4eccf metniyle değişti;
+  bunlarda da sonradan bilgi bulunup bulunmadığı denetlenmedi.
+- **Neden düzeltilmedi**: Düzeltmek `c5b7bad`'den sonraki 18 commit'in yeniden yazılmasını gerektirir; hash'ler
+  yeniden değişir ve yeni bir hata riski doğar. Kullanıcı kararıyla geçmiş olduğu gibi bırakıldı; güncel ağaç
+  ve testler etkilenmez.
+- **Orijinal metin**: Yeniden yazımdan önceki geçmiş `C:\Tools\yedek\rea_test_oncesi.bundle` içindedir (repo
+  dışında; decompile alıntılarını içerdiği için repoya alınmaz). Eski→yeni hash eşlemesi:
+  `C:\Tools\yedek\hash_esleme.txt`.
