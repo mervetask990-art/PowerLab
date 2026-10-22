@@ -32,7 +32,8 @@ Bu belge, sprint boyunca kullanılan yapay zeka ajanının oturum sürelerini, t
 - 2026-10-20 denetim ve temizlik turları: **ölçülmedi** (`/cost` çıktısı alınmadı).
 - İnceleme oturumları (G*Power binary, oturum 1 ve 2): **ölçülmedi**.
 - 2026-10-22 Claude Code oturumu (yazım oturumu: durum raporu, git geçmişi temizliği, README, statsmodels
-  çapraz kontrolü, xfail işaretleri, HALLUCINATIONS H07–H09). Kullanıcının yapıştırdığı çıktı, aynen:
+  çapraz kontrolü, xfail işaretleri, HALLUCINATIONS H07–H09). Kullanıcının yapıştırdığı çıktının "Session"
+  bloğu, aynen:
 
 ```text
 Session
@@ -45,47 +46,22 @@ Usage by model:
     claude-haiku-5-5:  1.4k input, 30 output, 0 cache read, 0 cache write ($0.0002)
      claude-opus-5-5:  2.8k input, 98.5k output, 13.5m cache read, 224.6k cache write ($6.48)
 Prompt cache (main):   81 requests · 98% of input tokens from cache · no misses · warm (1h TTL, last activity 50s ago)
-
-Current session · Resets 2:30pm (Europe/Istanbul)
-████████████████████▉                                 
-36% used
-
-Current week (all models) · Resets Oct 29, 4am (Europe/Istanbul)
-██▉                                                   
-5% used
-
-What's contributing to your limits usage?
-Approximate · sessions on this machine only
-
-Last 24h · shares overlap
-
-89%  Start fresh when you switch tasks · run /clear
-14%  See what fills your context · run /context
-11%  Run /reverse-engineer-anything on a cheaper model
-
-Skills                  % of usage
-/reverse-engineer-anything     11%
-
-MCP servers             % of usage
-rea                             7%
-
-f to fix 1 of 3 · d to day · w to week
-
-Usage credits
-Usage credits are off · /usage-credits to turn them on
-
-Esc to cancel
 ```
 
-> "Last 24h" bölümü bu makinedeki tüm oturumların kullanım payıdır (/reverse-engineer-anything ve rea
-> satırları inceleme oturumlarından gelebilir); bir maliyet ölçümü değildir, inceleme maliyeti buradan
-> türetilmedi.
+> Aynı ekrandaki "Last 24h" kullanım paneli bu makinedeki tüm oturumların payını gösterir; maliyet ölçümü
+> değildir, inceleme maliyeti ondan türetilmedi.
 
 ---
 
 ## Token ve Maliyet Özeti
-- **Toplam Oturum**: 4 / 5 tamamlandı
+- **Oturumlar**: yukarıdaki Gemini tablosu (tahmini, önceki araç); 2026-10-20 denetim ve temizlik turları;
+  inceleme oturumu 1 (`c5b7bad`) ve 2 (`0f99cf1`); 2026-10-22 yazım oturumu. Bonus (MCP sunucusu, ajan)
+  tamamlanmadı (README, Katman 5).
 - **Toplam Token Harcaması**: ~69,000 token (tahmini, önceki araç: yalnızca Gemini satırlarının toplamı)
 - **Birim Maliyet Referansı**: Gemini 1.5 Flash tarifesi (tahmini, önceki araç)
 - **Ölçülen maliyet**: yalnızca 2026-10-22 Claude Code oturumu, $6.48 (yukarıdaki `/cost` çıktısı)
-- **Maliyet Verimliliği Notu**: REA incelemesi ile kod yazımı tamamen birbirinden ayrılmış ("Clean Room"), sayısal uç anomaliler (sol kuyruk NaN tuzağı) hızla izole edilerek context kirliliği engellenmiştir.
+- **İnceleme ile yazımın ayrılığı (git ile doğrulanabilir)**: İnceleme oturumları ayrı oturumlardı ve yalnızca
+  `LEDGER.md` ile `SPEC.md`'ye dokundu (`git show --stat c5b7bad 0f99cf1`). Motoru yazım oturumu bu [REA]
+  satırlarına göre değiştirdi: L18–L21 kuralları `095f284`'te kodda kanıtlarıyla anıldı; L32/L33 girdi
+  aralıkları önce kırmızı test (`063075d`), sonra motor (`818a9d6`) olarak eklendi. Eski Gemini dönemi notu
+  kanıtsız olduğu için kaldırıldı.
