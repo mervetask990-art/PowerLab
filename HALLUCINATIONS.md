@@ -90,3 +90,37 @@ kontrolün yakaladığını belgeler.
 - **Hangi kontrol yakaladı**: Denetimde kod yorumlarının LEDGER kanıtlarıyla çapraz kontrolü.
 - **Düzeltme**: Yorum, kuralın varsayım olduğunu ve LEDGER L06'ya bağlı olduğunu söyleyecek şekilde
   değiştirildi.
+
+> H07 ve sonrası G*Power binary inceleme oturumlarından gelir. Commit referansları geçmiş yeniden
+> yazıldıktan sonraki hash'lerdir (eşleme: `C:\Tools\yedek\hash_esleme.txt`; `c5b7bad` = inceleme oturumu 1,
+> `0f99cf1` = inceleme oturumu 2).
+
+### H07: `0x4bdee0`'da yarıya bölünen değerin α sanılması (LEDGER L22)
+- **Ne iddia edildi**: İnceleme oturumu 1, LEDGER L22'yi [REA] olarak yazdı: "Çift kuyrukta güç
+  fonksiyonu α'yı iki kuyruğa **α/2, α/2** olarak böler" (`c5b7bad`, Q3 cevabı). Kanıt, `0x4bdee0`'ın
+  vtable `+0x34`'ü üçüncü argümanın yarısını iki kez geçirerek çağırmasıydı. Aynı okuma L08'e "[REA]
+  incelemesi (L22): kısmen doğrulandı — çift kuyrukta α/2 + α/2 ... görüldü" diye taşındı.
+- **Nasıl fark edildi**: Oturum 1, L22'de okumasının şüpheli olduğunu kendisi işaretlemişti: decompiler
+  çıktısında yazmaç artıkları olduğunu ve doğru okuma için assembly incelenmesi gerektiğini yazdı.
+  Oturum 2 (`0f99cf1`) `0x4d38b0`'ı ve dağıtıcıyı assembly düzeyinde okudu. α'nın kuyruklara bölünmesi
+  `0x4d38b0` içinde yapılıyor: kritik değer olasılığı 1 − α / (1 + [çift kuyruk]). `0x4bdee0`'ın 0.5 ile
+  çarptığı değer ise **N** (iki grup boyutu n1 = n2 = N/2; toplamları `+0xe8` = N).
+- **Hangi kontrol yakaladı**: Oturumun kendi işaretlediği şüphenin assembly ile yeniden okunması (L25, L26).
+  Bu yanlış okuma bir testle yakalanamazdı: kuyruklara α/2 düşmesi doğru, yanlış olan yalnızca bunun
+  yapıldığı yerdi. Motorun formülü (SPEC: çift kuyrukta t_{1−α/2}) bu yüzden değişmedi.
+- **Düzeltme**: L22 "DÜZELTİLDİ (L25, L26, L27)" olarak işaretlendi ve yanlış cümlenin üstü çizildi.
+  Doğru okuma L26'da yazıldı. L08 ve Q3'e "α'nın yarıya bölünmesi `0x4bdee0`'da değil `0x4d38b0`'da (L26)"
+  notu eklendi. SPEC.md'de L22 okumasının yanlış olduğu belirtildi.
+
+### H08: Kuyruk yönünü seçen değerin ncp olabileceği (LEDGER L22)
+- **Ne iddia edildi**: L22 (`c5b7bad`) tek kuyruk dalının "saklanan bir değerle karşılaştırmaya göre
+  `1 - F` ya da `F`" döndürdüğünü, bu yön seçiminin negatif dz'de testin sola dönmesiyle tutarlı
+  olduğunu ama "karşılaştırılan değerin ncp olduğu kesin değil" olduğunu yazdı. Yani karşılaştırılan
+  değerin ncp olduğu, belirsiz olduğu belirtilerek öne sürüldü.
+- **Nasıl fark edildi**: Oturum 2 (`0f99cf1`) karşılaştırmanın assembly'sini okudu (`0x4d3956`: dz ile
+  0.0 karşılaştırılıyor). Karşılaştırılan değer, güç fonksiyonunun 1. argümanı olan **dz**. δ ise bu
+  karşılaştırmadan sonra `0x4dbdc0` ile dz'den hesaplanıyor.
+- **Hangi kontrol yakaladı**: Oturum 1'in "kesin değil" diye işaretlediği noktanın assembly ile yeniden
+  okunması (L27). Kâhinle de tutarlı: dz = 0 pozitif dala düşüyor ve güç = α çıkıyor (V41, V43).
+- **Düzeltme**: L22'nin başına "'ncp olduğu kesin değil' kısmı yanlış okumaydı" notu eklendi. Doğru okuma
+  L27'de: yön, etki büyüklüğünün işaretiyle seçiliyor. Q5 (yön) L27 ile cevaplandı.
