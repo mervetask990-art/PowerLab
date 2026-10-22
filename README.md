@@ -118,6 +118,9 @@ repo/
 │   ├── TOPLAMA_LISTESI.md         # G*Power'da girilecek vektörlerin yazdırılabilir kontrol listesi
 │   ├── generate_toplama_listesi.py
 │   ├── screenshots/               # G*Power ekran görüntüleri (Vxx.png)
+│   ├── README.md                  # oracle/ dosyalarının kâhin statüsü
+│   ├── reference_statsmodels.csv  # KÂHİN DEĞİL: statsmodels TTestPower ile çapraz kontrol
+│   ├── generate_reference_statsmodels.py
 │   ├── selfcheck_scipy.csv        # KÂHİN DEĞİL: motorun kendi kendine tutarlılık verisi
 │   ├── generate_selfcheck_scipy.py
 │   ├── boundary_vectors.csv       # Sınır değerler
@@ -141,6 +144,7 @@ repo/
     ├── test_boundaries.py
     ├── test_cli_contract.py
     ├── test_cli_mcp_parity.py
+    ├── test_reference_statsmodels.py  # statsmodels çapraz kontrolü (kâhin değil)
     └── report/conformance.md      # Otomatik üretilen uyum raporu
 ```
 
@@ -154,6 +158,13 @@ repo/
 - **`oracle/selfcheck_scipy.csv` kâhin değildir.** Motorla aynı algoritmanın (kesikli N araması +
   `scipy.stats.nct`) ayrı bir kopyasından üretilmiştir; yalnızca motorun kendi kendine tutarlılığını
   sınar. Buradaki eşleşme oranı G*Power uyumu hakkında bilgi vermez.
+- **`oracle/reference_statsmodels.csv` kâhin değildir.** `statsmodels.stats.power.TTestPower` ile
+  bağımsız bir kütüphaneyle çapraz kontroldür (34 vektör: `gpower_vectors.csv`'deki dz > 0 ve G*Power'ın
+  değer ürettiği t-paired girdileri). statsmodels kesirli N verir, G*Power tavanını alır (LEDGER L09);
+  `tests/test_reference_statsmodels.py` a priori'de tavan(kesirli N) = motor N, post hoc'ta güç farkı ≤ 1e-6
+  ister ve yalnızca CSV'yi okur. Sürümler: statsmodels 0.15.0, scipy 1.17.1, numpy 2.4.6, pandas 2.2.3
+  (Smart App Control pandas 3.0.6'yı engellediği için ayrı geçici venv'de üretildi). Bilinen uyuşmazlıklar
+  V13 ve V16 statsmodels çözücüsünden kaynaklanıyor; ayrıntı: [`oracle/README.md`](oracle/README.md).
 - `oracle/_dogrulanmamis/legacy_vectors.csv`: önceki sürümde "G*Power değeri" olarak yazılmış ama
   ekran görüntüsü olmayan V01–V04 değerleri. Hiçbir testte kullanılmaz.
 
