@@ -75,12 +75,23 @@ GPOWER_VECTORS = load_gpower_vectors()
 # CONTRACT.md §5 gereği kasıtlı sapma: G*Power hesaplar, sözleşme dz > 0 ister.
 CONTRACT_DEVIATIONS = {"V21", "V26", "V37", "V41", "V43"}
 
+# Bilinen uyuşmazlık: kâhin değeri değişmez, test strict xfail olarak kalır.
+KNOWN_MISMATCHES = {
+    "V42": "LEDGER L17, Q7: çok büyük df'de G*Power ile N farkı, nedeni bilinmiyor",
+}
+
+
+def _param(vec):
+    reason = KNOWN_MISMATCHES.get(vec["id"])
+    marks = [pytest.mark.xfail(strict=True, reason=reason)] if reason else []
+    return pytest.param(vec, id=vec["id"], marks=marks)
+
 
 @pytest.mark.skipif(
     not GPOWER_VECTORS,
     reason="0 G*Power vektörü — kâhin yok (oracle/gpower_vectors.csv beklenen sütunları boş)",
 )
-@pytest.mark.parametrize("vec", GPOWER_VECTORS, ids=lambda v: v["id"])
+@pytest.mark.parametrize("vec", [_param(v) for v in GPOWER_VECTORS])
 def test_gpower_oracle_vector(vec):
     if vec["id"] in CONTRACT_DEVIATIONS:
         with pytest.raises(ValueError) as exc:

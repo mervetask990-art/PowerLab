@@ -29,9 +29,22 @@ def load_reference():
 
 REFERENCE = load_reference()
 
+# Bilinen uyuşmazlıklar (oracle/README.md): statsmodels çözücüsünden; G*Power ve motor aynı N'yi veriyor.
+KNOWN_STATSMODELS_FAILURES = {
+    "V13": "statsmodels solve_power kök olmayan bir değer döndürüyor (2.72; o N'de güç 0.913 < 0.99); "
+           "G*Power ve motor N=4",
+    "V16": "statsmodels solve_power yakınsamıyor (güç = α, ConvergenceWarning, NaN); G*Power ve motor N=2",
+}
+
+
+def _param(ref):
+    reason = KNOWN_STATSMODELS_FAILURES.get(ref["id"])
+    marks = [pytest.mark.xfail(strict=True, reason=reason)] if reason else []
+    return pytest.param(ref, id=ref["id"], marks=marks)
+
 
 @pytest.mark.skipif(not REFERENCE, reason="oracle/reference_statsmodels.csv yok ya da boş")
-@pytest.mark.parametrize("ref", REFERENCE, ids=lambda r: r["id"])
+@pytest.mark.parametrize("ref", [_param(r) for r in REFERENCE])
 def test_engine_matches_statsmodels(ref):
     params = {"tails": int(ref["tails"]), "dz": float(ref["dz"]), "alpha": float(ref["alpha"])}
     if ref["mode"] == "a-priori":

@@ -31,5 +31,7 @@
     N=4'te 0.99997 veriyor; tavan 3 ≠ motor 4. G*Power da N=4 (V13.png). statsmodels çözücüsünün sorunu.
   - **V16** (iki kuyruk, dz=0.5, α=0.05, güç=0.05 = α): `solve_power` yakınsamıyor (ConvergenceWarning, NaN).
     G*Power N=2 (V16.png).
+  - İkisi de testte `pytest.mark.xfail(strict=True)` ile işaretlidir; CSV ve test ölçütü değişmedi. statsmodels
+    bir gün doğru sonucu verirse test XPASS olur ve strict olduğu için kırmızıya döner.
 - **Not:** V42'de (dz=0.00001) statsmodels motorla aynı N'yi (78488605096) veriyor, G*Power'dan farklı
   (LEDGER L17, Q7). İkisi de scipy'nin merkezsiz t'sini kullandığı için bu bağımsız bir doğrulama sayılmaz.
