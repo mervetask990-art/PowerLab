@@ -138,6 +138,7 @@ repo/
 │       │       └── t_paired.py    # Eşleştirilmiş t-testi
 │       ├── cli.py                 # İnce katman: argparse -> engine -> JSON
 │       ├── mcp_server.py          # İnce katman (bonus MCP)
+│       ├── ui/                    # İsteğe bağlı yerel web arayüzü (gpower-clone-ui; ödev kapsamı dışında)
 │       └── agent/                 # Bonus Türkçe klinik soru ajanı
 └── tests/
     ├── test_differential.py       # Oracle CSV'lerini koşar
@@ -226,6 +227,29 @@ gpower-clone --version
 Motor `scipy.stats` yerine `scipy.special` kullanır (`scipy.stats` içe aktarımı ~1.1 s, `scipy.special` ~0.4 s).
 Ölçüm (Windows, Python 3.11.9, her biri yeni süreç, 5 çağrı): a-priori 506–612 ms, post-hoc 494–636 ms,
 a-priori N≈78 milyar (V42) 519–692 ms. Değişiklikten önce: 1232–1929 ms.
+
+---
+
+## Yerel web arayüzü (isteğe bağlı ek, ödev kapsamı dışında)
+
+> Bu bölüm ödevde istenmez ve puanlanmaz. Teknik bilgisi olmayan kullanıcılar için eklenmiştir.
+> CLI, CONTRACT.md ve mevcut testler bu ekle değişmedi.
+
+```powershell
+.\.venv\Scripts\gpower-clone-ui
+```
+Komut boş bir port seçer, yalnızca `127.0.0.1`'e bağlanır ve tarayıcıyı açar (kapatmak için Ctrl+C).
+Seçenekler: `--port 8765`, `--no-browser`. Komut tanınmıyorsa bir kez `pip install -e .` çalıştırın.
+
+- **İki sekme:** "Kaç katılımcıya ihtiyacım var?" (a priori) ve "Çalışmamın gücü ne?" (post hoc).
+- **Her alanın yanında** CONTRACT.md §10'daki klinik açıklama; dz için Cohen eşikleri hazır seçenek
+  olarak sunulur, ama hiçbir alanın varsayılan değeri yoktur.
+- **Sonuç** sade bir cümleyle verilir (ör. "54 katılımcı… yakalama olasılığınız %95,02"); "Teknik
+  ayrıntılar" altında δ, kritik t ve df tam değerleriyle görünür. Hatalar sade Türkçeyle açıklanır.
+- **Hesap yapmaz:** her istek `powerlab.engine.contract.handle_request`'e gider; sonuç aynı girdide CLI'ın
+  verdiğiyle birebir aynıdır (`tests/test_ui.py`).
+- **Güvenlik:** yalnızca `127.0.0.1`; yabancı `Host` başlığı reddedilir; dış kaynak yüklenmez (CSP).
+  Yalnızca Python standart kütüphanesi (`http.server`) ve tek HTML dosyası (`src/powerlab/ui/`).
 
 ---
 
