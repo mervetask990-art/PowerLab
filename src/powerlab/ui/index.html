@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Örneklem ve Güç Hesaplayıcı</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #f3f5fa;
+    --bg-accent: #e8edf8;
+    --card: #ffffff;
+    --text: #1b2236;
+    --muted: #5d6680;
+    --line: #e1e6f0;
+    --primary: #3f51d8;
+    --primary-strong: #3243c2;
+    --primary-soft: #eef0fd;
+    --teal: #0f8f83;
+    --teal-soft: #e6f6f4;
+    --amber: #a8650b;
+    --amber-soft: #fdf3e2;
+    --red: #c23b3b;
+    --red-soft: #fdeeee;
+    --shadow: 0 1px 2px rgba(23, 32, 63, .05), 0 12px 32px -12px rgba(23, 32, 63, .18);
+    --radius: 18px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10131c;
+      --bg-accent: #161b29;
+      --card: #191e2d;
+      --text: #e8ebf4;
+      --muted: #a2a9be;
+      --line: #2b3247;
+      --primary: #8794ff;
+      --primary-strong: #a0abff;
+      --primary-soft: #23294a;
+      --teal: #3cc7b8;
+      --teal-soft: #15302f;
+      --amber: #f0b45a;
+      --amber-soft: #352a17;
+      --red: #ff8a8a;
+      --red-soft: #3a1f24;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 16px 40px -16px rgba(0, 0, 0, .6);
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 500px at 10% -10%, var(--bg-accent), transparent 70%),
+      radial-gradient(900px 420px at 110% 0%, var(--bg-accent), transparent 65%),
+      var(--bg);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 32px 18px 48px; }
+
+  header.top { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .logo {
+    width: 52px; height: 52px; flex: none; border-radius: 14px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--primary), var(--teal));
+    box-shadow: 0 10px 24px -10px var(--primary);
+    color: #fff;
+  }
+  h1 { font-size: 24px; line-height: 1.25; margin: 0; letter-spacing: -.01em; }
+  .subtitle { margin: 2px 0 0; color: var(--muted); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; border-bottom: 1px solid var(--line); }
+  .tab {
+    appearance: none; border: 1px solid transparent; background: transparent; color: var(--muted);
+    border-radius: 12px; padding: 14px 16px; text-align: left; cursor: pointer; font: inherit;
+    display: flex; gap: 12px; align-items: flex-start; transition: background .15s, color .15s, border-color .15s;
+  }
+  .tab:hover { background: var(--primary-soft); color: var(--text); }
+  .tab[aria-selected="true"] { background: var(--primary-soft); border-color: color-mix(in srgb, var(--primary) 35%, transparent); color: var(--text); }
+  .tab .ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; background: var(--card); color: var(--primary); border: 1px solid var(--line); }
+  .tab[aria-selected="true"] .ic { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .tab strong { display: block; font-size: 15.5px; color: inherit; }
+  .tab span.d { display: block; font-size: 13px; color: var(--muted); }
+
+  form { padding: 22px 24px 8px; }
+  .intro {
+    display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px;
+    background: var(--teal-soft); color: var(--text); font-size: 14px; margin-bottom: 18px;
+  }
+  .intro svg { color: var(--teal); flex: none; margin-top: 2px; }
+
+  .step { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .step:first-of-type { border-top: 0; }
+  .step[hidden] { display: none; }
+  .num {
+    width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px;
+    background: var(--primary-soft); color: var(--primary);
+  }
+  .step h2 { font-size: 16px; margin: 4px 0 2px; }
+  .help { margin: 0 0 10px; color: var(--muted); font-size: 13.5px; }
+  .help b { color: var(--text); font-weight: 600; }
+
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice { position: relative; }
+  .choice input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .choice label {
+    display: block; height: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .choice label strong { display: block; font-size: 14.5px; }
+  .choice label span { display: block; font-size: 13px; color: var(--muted); }
+  .choice input:checked + label { border-color: var(--primary); background: var(--primary-soft); }
+  .choice input:focus-visible + label { outline: 3px solid color-mix(in srgb, var(--primary) 40%, transparent); outline-offset: 2px; }
+
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  input.num-in {
+    font: inherit; font-size: 17px; font-weight: 600; width: 150px; padding: 10px 14px; border-radius: 12px;
+    border: 1.5px solid var(--line); background: var(--card); color: var(--text); transition: border-color .15s, box-shadow .15s;
+  }
+  input.num-in::placeholder { font-weight: 400; color: var(--muted); }
+  input.num-in:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent); }
+  .field-error input.num-in, .field-error .choice label { border-color: var(--red); }
+  .chip {
+    appearance: none; font: inherit; font-size: 13px; cursor: pointer; border-radius: 999px; padding: 7px 12px;
+    border: 1px solid var(--line); background: var(--card); color: var(--text); transition: border-color .15s, background .15s;
+  }
+  .chip:hover { border-color: var(--primary); }
+  .chip.on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-strong); }
+  .chip small { color: var(--muted); margin-left: 4px; }
+  .note { font-size: 12.5px; color: var(--muted); margin-top: 6px; min-height: 1em; }
+  .note.warn { color: var(--amber); }
+
+  .actions { padding: 6px 24px 24px 70px; }
+  button.go {
+    appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 650; font-size: 16px;
+    color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+    padding: 13px 26px; border-radius: 12px; box-shadow: 0 10px 22px -12px var(--primary);
+    display: inline-flex; align-items: center; gap: 10px; transition: transform .08s, filter .15s;
+  }
+  button.go:hover { filter: brightness(1.06); }
+  button.go:active { transform: translateY(1px); }
+  button.go[disabled] { opacity: .65; cursor: progress; }
+
+  .result { margin-top: 18px; overflow: hidden; }
+  .result[hidden] { display: none; }
+  .res-head { display: flex; gap: 22px; align-items: center; padding: 24px; flex-wrap: wrap; }
+  .big {
+    font-size: 54px; font-weight: 750; line-height: 1; letter-spacing: -.02em;
+    background: linear-gradient(135deg, var(--primary), var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .big-label { font-size: 13px; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: .06em; }
+  .res-text { flex: 1 1 320px; font-size: 15.5px; }
+  .res-text p { margin: 0 0 10px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 999px; }
+  .badge.ok { background: var(--teal-soft); color: var(--teal); }
+  .badge.low { background: var(--amber-soft); color: var(--amber); }
+  details { border-top: 1px solid var(--line); padding: 12px 24px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 13.5px; }
+  .tech { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; margin-top: 12px; }
+  .tech div { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .tech span { display: block; font-size: 12px; color: var(--muted); }
+  .tech b { font-variant-numeric: tabular-nums; }
+
+  .error { margin-top: 18px; display: flex; gap: 12px; align-items: flex-start; padding: 16px 20px; background: var(--red-soft); color: var(--red); border-color: color-mix(in srgb, var(--red) 30%, transparent); }
+  .error[hidden] { display: none; }
+  .error p { margin: 0; color: var(--text); }
+  .error strong { color: var(--red); display: block; margin-bottom: 2px; }
+
+  footer { margin-top: 26px; text-align: center; color: var(--muted); font-size: 12.5px; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 20px 12px 36px; }
+    form { padding: 18px 16px 4px; }
+    .tabs, .choices { grid-template-columns: minmax(0, 1fr); }
+    .step { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
+    input.num-in { width: 120px; }
+    .res-head { padding: 20px 16px; }
+    details { padding: 12px 16px; }
+    .actions { padding-left: 24px; }
+    .big { font-size: 44px; }
+    h1 { font-size: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+    </div>
+    <div>
+      <h1>Örneklem ve Güç Hesaplayıcı</h1>
+      <p class="subtitle">Aynı kişilerde iki ölçüm (önce–sonra) yapılan çalışmalar için</p>
+    </div>
+  </header>
+
+  <main class="card">
+    <div class="tabs" role="tablist" aria-label="Hesap türü">
+      <button class="tab" role="tab" id="tab-a" aria-selected="true" aria-controls="form" data-mode="a-priori" type="button">
+        <span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M17 8v6M14 11h6"/></svg></span>
+        <span><strong>Kaç katılımcıya ihtiyacım var?</strong><span class="d">Çalışmayı planlarken gereken kişi sayısı</span></span>
+      </button>
+      <button class="tab" role="tab" id="tab-p" aria-selected="false" aria-controls="form" data-mode="post-hoc" type="button">
+        <span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 12l6-6"/><path d="M15 3h6v6"/></svg></span>
+        <span><strong>Çalışmamın gücü ne?</strong><span class="d">Elimdeki kişi sayısıyla farkı yakalama olasılığı</span></span>
+      </button>
+    </div>
+
+    <form id="form" novalidate>
+      <div class="intro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+        <span id="intro-text">Dört soruyu yanıtlayın ve <b>Hesapla</b>'ya basın. Emin olmadığınız değerler için kutuların yanındaki hazır seçenekleri kullanabilirsiniz.</span>
+      </div>
+
+      <section class="step" id="f-tails">
+        <div class="num">1</div>
+        <div>
+          <h2>Hipotezin yönü</h2>
+          <p class="help">Bu karar veriden önce, etik kurula sunulan hipotezde verilir.</p>
+          <div class="choices" role="radiogroup" aria-label="Hipotezin yönü">
+            <div class="choice">
+              <input type="radio" name="tails" id="t1" value="1">
+              <label for="t1"><strong>Tek yönlü</strong><span>Yön iddia ediyorum: “yeni tedavi <b>daha iyi</b>”</span></label>
+            </div>
+            <div class="choice">
+              <input type="radio" name="tails" id="t2" value="2">
+              <label for="t2"><strong>Çift yönlü</strong><span>Yalnızca “<b>fark var</b>” diyorum</span></label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="step" id="f-dz">
+        <div class="num">2</div>
+        <div>
+          <h2><label for="dz">Beklenen etki büyüklüğü (dz)</label></h2>
+          <p class="help">Önce ve sonra ölçümleri arasındaki farkın standartlaştırılmış büyüklüğü. Genellikle literatürden alınır. <b>Büyüdükçe gereken kişi sayısı küçülür.</b></p>
+          <div class="row">
+            <input class="num-in" id="dz" inputmode="decimal" autocomplete="off" placeholder="örn. 0.5">
+            <button type="button" class="chip" data-for="dz" data-v="0.2">Küçük <small>0.2</small></button>
+            <button type="button" class="chip" data-for="dz" data-v="0.5">Orta <small>0.5</small></button>
+            <button type="button" class="chip" data-for="dz" data-v="0.8">Büyük <small>0.8</small></button>
+          </div>
+          <div class="note" id="n-dz">Küçük / orta / büyük, Cohen'in (1988) geleneksel eşikleridir; bir kategoridir, sizin çalışmanız için doğru değer değildir. Mümkünse kendi alanınızdaki çalışmalardan alın.</div>
+        </div>
+      </section>
+
+      <section class="step" id="f-alpha">
+        <div class="num">3</div>
+        <div>
+          <h2><label for="alpha">Yanılma payı (α)</label></h2>
+          <p class="help">Gerçekte fark yokken “fark var” deme riski. Genellikle <b>0.05</b> ya da <b>0.01</b>; araştırmacı belirler.</p>
+          <div class="row">
+            <input class="num-in" id="alpha" inputmode="decimal" autocomplete="off" placeholder="örn. 0.05">
+            <button type="button" class="chip" data-for="alpha" data-v="0.05">0.05</button>
+            <button type="button" class="chip" data-for="alpha" data-v="0.01">0.01</button>
+          </div>
+          <div class="note" id="n-alpha"></div>
+        </div>
+      </section>
+
+      <section class="step" id="f-power">
+        <div class="num">4</div>
+        <div>
+          <h2><label for="power">İstenen güç (1 − β)</label></h2>
+          <p class="help">Gerçekte fark varken onu yakalama olasılığı. Genellikle <b>0.80</b> ve üzeri.</p>
+          <div class="row">
+            <input class="num-in" id="power" inputmode="decimal" autocomplete="off" placeholder="örn. 0.80">
+            <button type="button" class="chip" data-for="power" data-v="0.80">0.80</button>
+            <button type="button" class="chip" data-for="power" data-v="0.90">0.90</button>
+            <button type="button" class="chip" data-for="power" data-v="0.95">0.95</button>
+          </div>
+          <div class="note" id="n-power"></div>
+        </div>
+      </section>
+
+      <section class="step" id="f-n_total" hidden>
+        <div class="num">4</div>
+        <div>
+          <h2><label for="n_total">Kaç katılımcınız (çiftiniz) var?</label></h2>
+          <p class="help">Her katılımcı iki ölçüm verir (önce ve sonra), yani bir <b>çift</b> oluşturur. En az 3 çift gerekir.</p>
+          <div class="row">
+            <input class="num-in" id="n_total" inputmode="numeric" autocomplete="off" placeholder="örn. 30">
+          </div>
+          <div class="note" id="n-n_total"></div>
+        </div>
+      </section>
+    </form>
+
+    <div class="actions">
+      <button class="go" id="go" type="submit" form="form">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h2M12 18h4"/></svg>
+        <span>Hesapla</span>
+      </button>
+    </div>
+  </main>
+
+  <section class="card error" id="error" role="alert" hidden>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></svg>
+    <div><strong>Hesaplanamadı</strong><p id="error-text"></p></div>
+  </section>
+
+  <section class="card result" id="result" aria-live="polite" hidden>
+    <div class="res-head">
+      <div>
+        <div class="big" id="big"></div>
+        <div class="big-label" id="big-label"></div>
+      </div>
+      <div class="res-text" id="res-text"></div>
+    </div>
+    <details>
+      <summary>Teknik ayrıntılar</summary>
+      <div class="tech" id="tech"></div>
+    </details>
+  </section>
+
+  <footer>
+    G*Power 3.1.9.7 davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir.<br>
+    Sonuçlar planlamaya yardımcı olmak içindir; çalışma tasarımınızı bir istatistikçiyle birlikte gözden geçirin.
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var mode = "a-priori";
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (x, d) {
+    return Number(x).toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d });
+  };
+  var pct = function (p) { return "%" + fmt(p * 100, 2); };
+  // Girilen değeri gereksiz sıfır olmadan, kesmeden gösterir (0.001 -> "0,001").
+  var plain = function (x) { return Number(x).toLocaleString("tr-TR", { maximumFractionDigits: 8 }); };
+  var esc = function (s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  };
+
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.setAttribute("aria-selected", String(t.dataset.mode === m));
+    });
+    $("f-power").hidden = m !== "a-priori";
+    $("f-n_total").hidden = m !== "post-hoc";
+    hide();
+  }
+
+  function hide() {
+    $("result").hidden = true;
+    $("error").hidden = true;
+    document.querySelectorAll(".field-error").forEach(function (e) { e.classList.remove("field-error"); });
+  }
+
+  function syncChips(id) {
+    var v = $(id).value.trim().replace(",", ".");
+    document.querySelectorAll('.chip[data-for="' + id + '"]').forEach(function (c) {
+      c.classList.toggle("on", c.dataset.v === v || Number(c.dataset.v) === Number(v) && v !== "");
+    });
+  }
+
+  // Ondalık virgül kabul edilir, noktaya çevrilip kullanıcıya gösterilir.
+  function read(id) {
+    var raw = $(id).value.trim();
+    if (raw === "") return null;
+    var v = raw.replace(",", ".");
+    var note = $("n-" + id);
+    if (note && id !== "dz") {
+      note.textContent = v !== raw ? v + " olarak kullanıldı (ondalık ayırıcı nokta)." : "";
+      note.classList.toggle("warn", v !== raw);
+    }
+    return v;
+  }
+
+  function collect() {
+    var data = { mode: mode };
+    var t = document.querySelector('input[name="tails"]:checked');
+    if (t) data.tails = t.value;
+    var ids = ["dz", "alpha", mode === "a-priori" ? "power" : "n_total"];
+    ids.forEach(function (id) { var v = read(id); if (v !== null) data[id] = v; });
+    return data;
+  }
+
+  function showError(msg, field) {
+    $("result").hidden = true;
+    $("error-text").textContent = msg;
+    $("error").hidden = false;
+    var box = field && $("f-" + field);
+    if (box) {
+      box.classList.add("field-error");
+      var input = box.querySelector("input");
+      if (input) input.focus();
+    }
+  }
+
+  function tile(label, value) {
+    return "<div><span>" + esc(label) + "</span><b>" + esc(value) + "</b></div>";
+  }
+
+  function showResult(r, data) {
+    $("error").hidden = true;
+    var dz = plain(data.dz);
+    var yon = data.tails === "1" ? "tek yönlü" : "çift yönlü";
+    var power = mode === "a-priori" ? r.actual_power : r.power;
+    var ok = power >= 0.8;
+    var badge = ok
+      ? '<span class="badge ok">✓ Genellikle yeterli kabul edilir (≥ %80)</span>'
+      : '<span class="badge low">! Önerilen %80\'in altında</span>';
+
+    if (mode === "a-priori") {
+      $("big").textContent = r.n_total.toLocaleString("tr-TR");
+      $("big-label").textContent = "katılımcı (ölçüm çifti)";
+      $("res-text").innerHTML =
+        "<p>Bu çalışmada en az <b>" + esc(r.n_total.toLocaleString("tr-TR")) + " katılımcıya</b> ihtiyacınız var. " +
+        "Her katılımcı önce ve sonra olmak üzere iki ölçüm verir.</p>" +
+        "<p>Bu sayıyla, gerçekte dz = " + esc(dz) + " büyüklüğünde bir fark varsa onu yakalama olasılığınız <b>" +
+        esc(pct(power)) + "</b> olur (" + esc(yon) + ", α = " + esc(plain(data.alpha)) + ").</p>" + badge;
+    } else {
+      $("big").textContent = pct(power);
+      $("big-label").textContent = "çalışmanızın gücü";
+      $("res-text").innerHTML =
+        "<p><b>" + esc(Number(data.n_total).toLocaleString("tr-TR")) + " katılımcıyla</b>, gerçekte dz = " + esc(dz) +
+        " büyüklüğünde bir fark varsa onu yakalama olasılığınız <b>" + esc(pct(power)) + "</b> (" + esc(yon) + ").</p>" +
+        (ok ? "" : "<p>Gücü artırmak için daha fazla katılımcı gerekir. Kaç kişi gerektiğini “Kaç katılımcıya ihtiyacım var?” sekmesinden hesaplayabilirsiniz.</p>") +
+        badge;
+    }
+
+    var tech = tile("Merkezsizlik parametresi (δ)", fmt(r.ncp, 7)) +
+               tile("Kritik t", fmt(r.critical_t, 7)) +
+               tile("Serbestlik derecesi (df)", r.df.toLocaleString("tr-TR"));
+    tech += mode === "a-priori"
+      ? tile("Toplam örneklem (çift)", r.n_total.toLocaleString("tr-TR")) + tile("Ulaşılan güç", fmt(power, 7))
+      : tile("Güç (1 − β)", fmt(power, 7));
+    $("tech").innerHTML = tech;
+    $("result").hidden = false;
+    $("result").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () { setMode(t.dataset.mode); });
+  });
+  document.querySelectorAll(".chip").forEach(function (c) {
+    c.addEventListener("click", function () {
+      $(c.dataset.for).value = c.dataset.v;
+      syncChips(c.dataset.for);
+      hide();
+    });
+  });
+  ["dz", "alpha", "power"].forEach(function (id) {
+    $(id).addEventListener("input", function () { syncChips(id); });
+  });
+  document.querySelectorAll("input").forEach(function (i) {
+    i.addEventListener("input", function () {
+      var box = i.closest(".step");
+      if (box) box.classList.remove("field-error");
+    });
+  });
+
+  $("form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    hide();
+    var data = collect();
+    var go = $("go");
+    go.disabled = true;
+    fetch("/api/hesapla", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (body) {
+        if (body.ok) showResult(body.sonuc, data);
+        else showError(body.mesaj, body.sonuc && body.sonuc.field);
+      })
+      .catch(function () { showError("Hesaplayıcıya ulaşılamadı. Arayüzü başlatan pencerenin açık olduğundan emin olun."); })
+      .finally(function () { go.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
