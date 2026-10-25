@@ -14,7 +14,7 @@ from powerlab import cli
 
 PUBLIC = Path(__file__).parent.parent / "oracle" / "public_vectors.jsonl"
 VECTORS = [json.loads(line) for line in PUBLIC.read_text(encoding="utf-8").splitlines() if line.strip()]
-IMPLEMENTED = {("t-paired", "a-priori"), ("t-paired", "post-hoc")}
+IMPLEMENTED = {("t-paired", mode) for mode in ("a-priori", "post-hoc", "compromise", "criterion", "sensitivity")}
 
 
 def is_implemented(vec):

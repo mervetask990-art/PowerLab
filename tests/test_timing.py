@@ -20,6 +20,12 @@ CASES = {
                  "--dz", "0.5", "--alpha", "0.05", "--n_total", "45"],
     "a-priori-buyuk-N": ["--test", "t-paired", "--mode", "a-priori", "--tails", "2",
                          "--dz", "0.00001", "--alpha", "0.05", "--power", "0.80"],
+    "compromise": ["--test", "t-paired", "--mode", "compromise", "--tails", "2",
+                   "--dz", "0.5", "--beta_alpha_ratio", "1", "--n_total", "54"],
+    "criterion": ["--test", "t-paired", "--mode", "criterion", "--tails", "2",
+                  "--dz", "0.5", "--power", "0.95", "--n_total", "54"],
+    "sensitivity": ["--test", "t-paired", "--mode", "sensitivity", "--tails", "2",
+                    "--alpha", "0.05", "--power", "0.95", "--n_total", "54"],
 }
 
 
