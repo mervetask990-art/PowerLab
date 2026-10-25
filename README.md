@@ -16,11 +16,12 @@
 - [x] **Katman 1: Kâhin Vektörleri** (G*Power ekran görüntüsü: 43 vektör, 39'unda beklenen değer, 4'ü G*Power hata kutusu. Eğitmen protokolü: `oracle/public_vectors.jsonl`, CONTRACT.md §9'dan 25 vektör, 2'si t-paired. V21, V26, V37, V41, V43 CONTRACT.md §5 gereği kasıtlı sapma (G*Power dz ≤ 0 ile hesap yapar, motor reddeder; LEDGER L13, L16). Bilinen uyuşmazlık: V42 (LEDGER L17, Q7). Bkz. `oracle/TOPLAMA_LISTESI.md`)
 - [x] **Katman 2: İnceleme (G*Power binary, 2 oturum)** (`LEDGER.md`: 36 kanıt satırının 17'si [REA], adres ya da dize kanıtlı; L22'deki okuma L25–L27 ile düzeltildi. Açık sorular: Q2, Q3, Q4, Q5 cevaplandı; Q6'da sınırlar cevaplandı, "neden 3" bilinmiyor; Q7 kısmen: merkezsiz t CDF'inde df'e bağlı dallanma yok, V42 uyuşmazlığının nedeni bilinmiyor; Q1 kısmi)
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
-- [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 33/34 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; kasıtlı sapmalar kapı dışında; eğitmen protokolünde uygulanan 5/5 uyumlu (t-paired a-priori, post-hoc ve üç bonus mod); bkz. `tests/report/conformance.md`)
+- [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 33/34 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; kasıtlı sapmalar kapı dışında; eğitmen protokolünde uygulanan 10/10 uyumlu (t-paired ve multireg-r2, beşer mod); bkz. `tests/report/conformance.md`)
+- [x] **Bonus aile multireg-r2** (G*Power ekran görüntüleri M01–M28, `oracle/gpower_multireg.csv`: 22/22 sayısal uyumlu, 5 G*Power hatası kodlu hata, M25 kasıtlı sapma; eğitmen vektörlerinden 5/5 uyumlu; beş modun hepsi; LEDGER L41–L45)
 - [x] **Bonus modlar (t-paired): compromise, criterion, sensitivity** (G*Power ekran görüntüleri K01–K09, `oracle/gpower_bonus_modes.csv`: 9/9 uyumlu; eğitmen vektörlerinden 3/3 uyumlu; LEDGER L37–L40)
 - [ ] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (taslak kod var: `src/powerlab/mcp_server.py`, `src/powerlab/agent/`; gerçek MCP el sıkışması yok, ajan kural tabanlı, benchmark ölçülmedi)
 
-**Kapsam (ödev ataması):** `t-paired` zorunlu (`a-priori`, `post-hoc`); `multireg-r2` bonus, henüz uygulanmadı.
+**Kapsam (ödev ataması):** `t-paired` zorunlu (`a-priori`, `post-hoc`); `multireg-r2` bonus (uygulandı, beş mod).
 `t2-indep`, `anova-oneway` ve `chi2-contingency` bu ödevin kapsamı dışındadır; CLI bunlar için `UNSUPPORTED` döner.
 
 ---
@@ -223,6 +224,15 @@ gpower-clone --version
 {"contract_version":"1.0.0","name":"Merve Ta\u015fk\u0131n (bireysel)","engine":"Python 3.11.9, scipy 1.17.1"}
 ```
 > Bireysel çalışma: `name` = "Merve Taşkın (bireysel)" (JSON ASCII kaçışlıdır; `src/powerlab/engine/contract.py` → `TEAM_NAME`).
+
+### Bonus aile: multireg-r2
+```bash
+gpower-clone --test multireg-r2 --mode a-priori --f2 0.15 --alpha 0.05 --power 0.95 --predictors 2
+gpower-clone --test multireg-r2 --mode post-hoc --f2 0.15 --alpha 0.05 --n_total 100 --predictors 2
+```
+Çıktı alanları CONTRACT.md §4.5: a-priori `ncp, critical_f, df1, df2, n_total, actual_power`; post-hoc
+`ncp, critical_f, df1, df2, power` (compromise/criterion/sensitivity de var). `--tails` bu ailede yoktur.
+N en az yordayıcı + 2'dir (M26/M27); f² = 0 sözleşme gereği reddedilir (G*Power post hoc'ta kabul eder, M25).
 
 ### Bonus modlar (t-paired)
 ```bash

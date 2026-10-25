@@ -24,6 +24,7 @@ GPOWER_CSV = WORKSPACE / "oracle" / "gpower_vectors.csv"
 SELFCHECK_CSV = WORKSPACE / "oracle" / "selfcheck_scipy.csv"
 PUBLIC_JSONL = WORKSPACE / "oracle" / "public_vectors.jsonl"
 BONUS_CSV = WORKSPACE / "oracle" / "gpower_bonus_modes.csv"
+MULTIREG_CSV = WORKSPACE / "oracle" / "gpower_multireg.csv"
 REPORT_MD = WORKSPACE / "tests" / "report" / "conformance.md"
 
 EXPECTED_COLUMNS = ("n_expected", "actual_power_expected", "critical_expected", "df_expected", "ncp_expected")
@@ -286,6 +287,56 @@ def run_bonus_modes():
     return rows
 
 
+MULTIREG_ERRORS = {"M14", "M15", "M16", "M26", "M28"}
+MULTIREG_DEVIATIONS = {"M25"}
+
+
+def run_multireg():
+    """multireg-r2 (M01–M28): sayısal satırlar tüm alanlar; hata ve sapma satırları sözleşme koduyla."""
+    rows = []
+    if not MULTIREG_CSV.exists():
+        return rows
+    with open(MULTIREG_CSV, "r", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            mode = row["mode"]
+            request = {"test": "multireg-r2", "mode": mode, "f2": row["effect"], "alpha": row["alpha"],
+                       "predictors": row["predictors"]}
+            if mode == "a-priori":
+                request["power"] = row["power"]
+            else:
+                request["n_total"] = row["n_input"]
+            payload, code = handle_request(request)
+            if row["id"] in MULTIREG_ERRORS:
+                ok = code == 2
+                rows.append((row["id"], mode, "UYUMLU" if ok else "UYUŞMAZ",
+                             f"G*Power hata verdi; motor {payload.get('code')}"))
+                continue
+            if row["id"] in MULTIREG_DEVIATIONS:
+                rows.append((row["id"], mode, "KASITLI SAPMA",
+                             f"G*Power hesaplar (f² = 0); motor {payload.get('code')} (CONTRACT.md §5 f2 > 0)"))
+                continue
+            power_name = "actual_power" if mode == "a-priori" else "power"
+            checks = [("ncp", "ncp_expected"), ("critical_f", "critical_expected"), ("df1", "df1_expected"),
+                      ("df2", "df2_expected"), (power_name, "power_expected")]
+            if mode == "a-priori":
+                checks.append(("n_total", "n_expected"))
+            bad = []
+            if code != 0:
+                bad.append(f"hata: {payload.get('code')}")
+            else:
+                for name, column in checks:
+                    text = row[column]
+                    if name in ("df1", "df2", "n_total"):
+                        if payload[name] != int(text):
+                            bad.append(f"{name} {payload[name]} ≠ {text}")
+                        continue
+                    places = len(text.split(".", 1)[1]) if "." in text else 0
+                    if abs(payload[name] - float(text)) > 0.5 * 10 ** -places + 1e-12:
+                        bad.append(f"{name} {payload[name]!r} ≠ {text}")
+            rows.append((row["id"], mode, "UYUMLU" if not bad else "UYUŞMAZ", "; ".join(bad) or "tüm alanlar"))
+    return rows
+
+
 def _bonus_table(rows):
     if not rows:
         return "Yok.\n"
@@ -310,6 +361,11 @@ def main():
     public_implemented = sum(1 for _, status, _ in public if status != "UNSUPPORTED")
     s_total, s_match, s_mis = run_selfcheck()
     bonus = run_bonus_modes()
+    multireg = run_multireg()
+    multireg_numeric = [r for r in multireg if r[0] not in MULTIREG_ERRORS | MULTIREG_DEVIATIONS]
+    multireg_ok = sum(1 for r in multireg_numeric if r[2] == "UYUMLU")
+    multireg_apriori = [r for r in multireg_numeric if r[1] == "a-priori"]
+    multireg_apriori_ok = sum(1 for r in multireg_apriori if r[2] == "UYUMLU")
     bonus_ok = sum(1 for _, _, status, _ in bonus if status == "UYUMLU")
     planned = count_planned_vectors()
 
@@ -326,7 +382,7 @@ def main():
     report = f"""# Uyum Raporu (Conformance Report)
 
 **Oluşturulma Tarihi**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-**Test Ailesi**: `t-paired`
+**Test Aileleri**: `t-paired` (zorunlu), `multireg-r2` (bonus)
 **%90 Kapısı (yalnızca G*Power kâhinine karşı)**: {gate}
 
 ---
@@ -365,7 +421,7 @@ bu vektörler %90 kapısına katılmaz.
 ## 2. Eğitmen Protokolü (`oracle/public_vectors.jsonl`, CONTRACT.md §9)
 
 Karşılaştırma CONTRACT.md §6: tam sayılar tam eşleşme; ondalıklar |fark| ≤ 1e-6 ya da göreli ≤ 1e-6.
-Uygulanan: t-paired a-priori, post-hoc, compromise, criterion ve sensitivity; diğer aileler `UNSUPPORTED` döner.
+Uygulanan: t-paired ve multireg-r2, beş modun hepsi; diğer aileler `UNSUPPORTED` döner.
 **Uyumlu: {public_ok}/{public_implemented} uygulanan vektör** ({len(public)} vektörün {len(public) - public_implemented}'i `UNSUPPORTED`).
 
 {_public_table(public)}
@@ -378,6 +434,16 @@ df tam eşleşme. %90 kapısı yalnızca a-priori N için tanımlıdır (CONTRAC
 **Uyumlu: {bonus_ok}/{len(bonus)}**
 
 {_bonus_table(bonus)}
+---
+
+## 2c. multireg-r2 (`oracle/gpower_multireg.csv`, G*Power ekran görüntüleri M01–M28)
+
+Bonus aile, CONTRACT.md §4.5. Sayısal satırlarda λ, Critical F, df1, df2, güç (a priori'de N de) CSV'deki
+basamak sayısına kadar karşılaştırılır. **Sayısal: {multireg_ok}/{len(multireg_numeric)} uyumlu**
+(a priori N: {multireg_apriori_ok}/{len(multireg_apriori)}). G*Power'ın hata verdiği 5 satırda motor kodlu hata
+döner; M25 (post hoc f² = 0) sözleşme gereği kasıtlı sapmadır.
+
+{_bonus_table(multireg)}
 ---
 
 ## 3. Self-check (`oracle/selfcheck_scipy.csv`) — KÂHİN DEĞİLDİR

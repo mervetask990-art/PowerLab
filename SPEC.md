@@ -268,6 +268,45 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
       | compromise  | --power verildi (ilgisiz alan)  | UNKNOWN_PARAM | power            |
       | sensitivity | güç = 0.03 < α ([REA] L19)      | INCONSISTENT  | power            |
 
+
+  # -------------------------------------------------------------
+  # BONUS AİLE: multireg-r2 (CONTRACT.md §4.5) — kâhin: oracle/gpower_multireg.csv (M01–M28)
+  # -------------------------------------------------------------
+  Scenario: Çoklu regresyon a priori (M01)
+    Given test ailesi "multireg-r2" ve analiz modu "a-priori"
+    And f² = 0.15, α = 0.05, güç = 0.80, yordayıcı sayısı = 5
+    When analiz çalıştırıldığında
+    Then N = 92, df1 = 5, df2 = 86 olmalıdır
+    And λ 7 ondalıkta 13.8000000, kritik F 7 ondalıkta 2.3205293, ulaşılan güç 7 ondalıkta 0.8041921 olmalıdır
+
+  Scenario: Çoklu regresyon post hoc (M17)
+    Given test ailesi "multireg-r2" ve analiz modu "post-hoc"
+    And f² = 0.15, α = 0.05, N = 100, yordayıcı sayısı = 5
+    When analiz çalıştırıldığında
+    Then df1 = 5, df2 = 94 olmalıdır
+    And λ 7 ondalıkta 15.0000000, güç 7 ondalıkta 0.8429603 olmalıdır
+
+  Scenario: En küçük örneklem yordayıcı + 2'dir (M13, M27)
+    Given test ailesi "multireg-r2" ve yordayıcı sayısı = 5
+    When a priori'de hedef güç α'ya eşit verildiğinde ya da post hoc'ta N = 7 verildiğinde
+    Then N = 7 ve df2 = 1 olmalıdır
+
+  Scenario Outline: multireg-r2'de geçersiz girdi
+    Given test ailesi "multireg-r2" ve analiz modu "<mod>"
+    And girdi: <girdi>
+    When analiz çalıştırıldığında
+    Then hata kodu "<kod>" ve alan "<alan>" olmalıdır
+
+    Examples:
+      | mod      | girdi                               | kod           | alan       |
+      | a-priori | güç 0.03 < α (M14)                  | INCONSISTENT  | power      |
+      | a-priori | f² = 0 (M15)                        | OUT_OF_RANGE  | f2         |
+      | a-priori | yordayıcı = 0 (M16)                 | OUT_OF_RANGE  | predictors |
+      | post-hoc | N = 6, yordayıcı = 5 (M26)          | OUT_OF_RANGE  | n_total    |
+      | post-hoc | f² = 0 (M25, kasıtlı sapma)         | OUT_OF_RANGE  | f2         |
+      | post-hoc | f² = −0.1 (M28)                     | OUT_OF_RANGE  | f2         |
+      | a-priori | --tails verildi (ilgisiz alan)      | UNKNOWN_PARAM | tails      |
+
 ---
 
 ## 4. Arayüz (CONTRACT.md 1.0.0)

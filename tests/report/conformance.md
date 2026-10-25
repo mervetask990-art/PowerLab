@@ -1,7 +1,7 @@
 # Uyum Raporu (Conformance Report)
 
-**Oluşturulma Tarihi**: 2026-10-25 18:27:31
-**Test Ailesi**: `t-paired`
+**Oluşturulma Tarihi**: 2026-10-25 19:12:06
+**Test Aileleri**: `t-paired` (zorunlu), `multireg-r2` (bonus)
 **%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ✅ GEÇTİ — 33/34 (%97.06)
 
 ---
@@ -59,8 +59,8 @@ bu vektörler %90 kapısına katılmaz.
 ## 2. Eğitmen Protokolü (`oracle/public_vectors.jsonl`, CONTRACT.md §9)
 
 Karşılaştırma CONTRACT.md §6: tam sayılar tam eşleşme; ondalıklar |fark| ≤ 1e-6 ya da göreli ≤ 1e-6.
-Uygulanan: t-paired a-priori, post-hoc, compromise, criterion ve sensitivity; diğer aileler `UNSUPPORTED` döner.
-**Uyumlu: 5/5 uygulanan vektör** (25 vektörün 20'i `UNSUPPORTED`).
+Uygulanan: t-paired ve multireg-r2, beş modun hepsi; diğer aileler `UNSUPPORTED` döner.
+**Uyumlu: 10/10 uygulanan vektör** (25 vektörün 15'i `UNSUPPORTED`).
 
 | Vektör ID | Durum | Ayrıntı |
 |---|---|---|
@@ -84,11 +84,11 @@ Uygulanan: t-paired a-priori, post-hoc, compromise, criterion ve sensitivity; di
 | chi2-contingency/compromise | UNSUPPORTED | chi2-contingency bu motorda henüz uygulanmadı |
 | chi2-contingency/criterion | UNSUPPORTED | chi2-contingency bu motorda henüz uygulanmadı |
 | chi2-contingency/sensitivity | UNSUPPORTED | chi2-contingency bu motorda henüz uygulanmadı |
-| multireg-r2/a-priori | UNSUPPORTED | multireg-r2 bu motorda henüz uygulanmadı |
-| multireg-r2/post-hoc | UNSUPPORTED | multireg-r2 bu motorda henüz uygulanmadı |
-| multireg-r2/compromise | UNSUPPORTED | multireg-r2 bu motorda henüz uygulanmadı |
-| multireg-r2/criterion | UNSUPPORTED | multireg-r2 bu motorda henüz uygulanmadı |
-| multireg-r2/sensitivity | UNSUPPORTED | multireg-r2 bu motorda henüz uygulanmadı |
+| multireg-r2/a-priori | UYUMLU | tüm alanlar §6 toleransında |
+| multireg-r2/post-hoc | UYUMLU | tüm alanlar §6 toleransında |
+| multireg-r2/compromise | UYUMLU | tüm alanlar §6 toleransında |
+| multireg-r2/criterion | UYUMLU | tüm alanlar §6 toleransında |
+| multireg-r2/sensitivity | UYUMLU | tüm alanlar §6 toleransında |
 
 ---
 
@@ -109,6 +109,46 @@ df tam eşleşme. %90 kapısı yalnızca a-priori N için tanımlıdır (CONTRAC
 | K07 | sensitivity | UYUMLU | tüm alanlar |
 | K08 | sensitivity | UYUMLU | tüm alanlar |
 | K09 | sensitivity | UYUMLU | tüm alanlar |
+
+---
+
+## 2c. multireg-r2 (`oracle/gpower_multireg.csv`, G*Power ekran görüntüleri M01–M28)
+
+Bonus aile, CONTRACT.md §4.5. Sayısal satırlarda λ, Critical F, df1, df2, güç (a priori'de N de) CSV'deki
+basamak sayısına kadar karşılaştırılır. **Sayısal: 22/22 uyumlu**
+(a priori N: 13/13). G*Power'ın hata verdiği 5 satırda motor kodlu hata
+döner; M25 (post hoc f² = 0) sözleşme gereği kasıtlı sapmadır.
+
+| Vektör ID | Mod | Durum | Ayrıntı |
+|---|---|---|---|
+| M01 | a-priori | UYUMLU | tüm alanlar |
+| M02 | a-priori | UYUMLU | tüm alanlar |
+| M03 | a-priori | UYUMLU | tüm alanlar |
+| M04 | a-priori | UYUMLU | tüm alanlar |
+| M05 | a-priori | UYUMLU | tüm alanlar |
+| M06 | a-priori | UYUMLU | tüm alanlar |
+| M07 | a-priori | UYUMLU | tüm alanlar |
+| M08 | a-priori | UYUMLU | tüm alanlar |
+| M09 | a-priori | UYUMLU | tüm alanlar |
+| M10 | a-priori | UYUMLU | tüm alanlar |
+| M11 | a-priori | UYUMLU | tüm alanlar |
+| M12 | a-priori | UYUMLU | tüm alanlar |
+| M13 | a-priori | UYUMLU | tüm alanlar |
+| M14 | a-priori | UYUMLU | G*Power hata verdi; motor INCONSISTENT |
+| M15 | a-priori | UYUMLU | G*Power hata verdi; motor OUT_OF_RANGE |
+| M16 | a-priori | UYUMLU | G*Power hata verdi; motor OUT_OF_RANGE |
+| M17 | post-hoc | UYUMLU | tüm alanlar |
+| M18 | post-hoc | UYUMLU | tüm alanlar |
+| M19 | post-hoc | UYUMLU | tüm alanlar |
+| M20 | post-hoc | UYUMLU | tüm alanlar |
+| M21 | post-hoc | UYUMLU | tüm alanlar |
+| M22 | post-hoc | UYUMLU | tüm alanlar |
+| M23 | post-hoc | UYUMLU | tüm alanlar |
+| M24 | post-hoc | UYUMLU | tüm alanlar |
+| M25 | post-hoc | KASITLI SAPMA | G*Power hesaplar (f² = 0); motor OUT_OF_RANGE (CONTRACT.md §5 f2 > 0) |
+| M26 | post-hoc | UYUMLU | G*Power hata verdi; motor OUT_OF_RANGE |
+| M27 | post-hoc | UYUMLU | tüm alanlar |
+| M28 | post-hoc | UYUMLU | G*Power hata verdi; motor OUT_OF_RANGE |
 
 ---
 
