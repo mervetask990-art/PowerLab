@@ -7,13 +7,16 @@ Hesap mantığı KOPYALANMAZ.
 
 import json
 import sys
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from powerlab.engine.contract import dumps, error_payload, handle_request
+from powerlab.engine.contract import CONTRACT_VERSION, dumps, error_payload, handle_request
 from powerlab.engine.errors import UNSUPPORTED
 from powerlab.engine.solver import CONTRACT_MODES, CONTRACT_TESTS
 
 TOOL_NAME = "power_analysis"
+# MCP protokol sürümleri (en yenisi başta); istemci bunlardan birini isterse aynısıyla yanıt verilir.
+SUPPORTED_PROTOCOL_VERSIONS = ("2025-06-18", "2025-03-26", "2024-11-05")
+LATEST_PROTOCOL_VERSION = SUPPORTED_PROTOCOL_VERSIONS[0]
 
 # MCP araç şeması: alan adları CLI ile birebir aynıdır (CONTRACT.md §7, §4.2).
 POWER_ANALYSIS_TOOL_SCHEMA = {
@@ -57,15 +60,33 @@ def call_tool_text(name: str, arguments: Dict[str, Any]) -> str:
     return dumps(call_tool(name, arguments))
 
 
-def handle_jsonrpc_request(request: Dict[str, Any]) -> Dict[str, Any]:
+def _initialize_result(params: Dict[str, Any]) -> Dict[str, Any]:
+    """El sıkışma: istemcinin sürümü destekleniyorsa aynısı, değilse en yenisi önerilir (MCP yaşam döngüsü)."""
+    requested = params.get("protocolVersion")
+    version = requested if requested in SUPPORTED_PROTOCOL_VERSIONS else LATEST_PROTOCOL_VERSION
+    return {
+        "protocolVersion": version,
+        "capabilities": {"tools": {"listChanged": False}},
+        "serverInfo": {"name": "powerlab", "version": CONTRACT_VERSION},
+    }
+
+
+def handle_jsonrpc_request(request: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Standart JSON-RPC 2.0 / MCP protokol yönlendiricisi.
+    Bildirimlere (id'siz mesajlar) yanıt verilmez; None döner.
     """
+    if "id" not in request:
+        return None
     req_id = request.get("id")
     method = request.get("method")
-    params = request.get("params", {})
+    params = request.get("params") or {}
 
-    if method == "tools/list":
+    if method == "initialize":
+        return {"jsonrpc": "2.0", "id": req_id, "result": _initialize_result(params)}
+    elif method == "ping":
+        return {"jsonrpc": "2.0", "id": req_id, "result": {}}
+    elif method == "tools/list":
         return {"jsonrpc": "2.0", "id": req_id, "result": {"tools": [POWER_ANALYSIS_TOOL_SCHEMA]}}
     elif method == "tools/call":
         payload = call_tool(params.get("name"), params.get("arguments", {}))
@@ -88,26 +109,39 @@ def handle_jsonrpc_request(request: Dict[str, Any]) -> Dict[str, Any]:
         }
 
 
+def _send(message: Dict[str, Any]) -> None:
+    # json.dumps ASCII yazar; Windows konsol kod sayfasından bağımsızdır. stdout'a yalnızca JSON-RPC gider.
+    sys.stdout.write(json.dumps(message) + "\n")
+    sys.stdout.flush()
+
+
 def run_stdio_server():
-    """Stdio üzerinden çalışan MCP sunucu döngüsü."""
-    for line in sys.stdin:
-        line = line.strip()
+    """Stdio üzerinden çalışan MCP sunucu döngüsü (satır başına bir JSON-RPC mesajı, UTF-8)."""
+    for raw in sys.stdin.buffer:
+        line = raw.decode("utf-8", errors="replace").strip()
         if not line:
             continue
         try:
             req = json.loads(line)
+        except ValueError as e:
+            _send({"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": f"Parse error: {e}"}})
+            continue
+        if not isinstance(req, dict):
+            _send({"jsonrpc": "2.0", "id": None, "error": {"code": -32600, "message": "Invalid Request"}})
+            continue
+        try:
             resp = handle_jsonrpc_request(req)
-            sys.stdout.write(json.dumps(resp) + "\n")
-            sys.stdout.flush()
-        except Exception as e:
-            err_resp = {
-                "jsonrpc": "2.0",
-                "id": None,
-                "error": {"code": -32700, "message": f"Parse error: {str(e)}"}
-            }
-            sys.stdout.write(json.dumps(err_resp) + "\n")
-            sys.stdout.flush()
+        except Exception as e:  # Beklenmeyen durum; sunucu kapanmaz.
+            resp = {"jsonrpc": "2.0", "id": req.get("id"),
+                    "error": {"code": -32603, "message": f"Internal error: {e}"}}
+        if resp is not None:
+            _send(resp)
+
+
+def main():
+    """gpower-clone-mcp komutu: MCP istemcileri (Claude Code, Claude Desktop) bu süreci başlatır."""
+    run_stdio_server()
 
 
 if __name__ == "__main__":
-    run_stdio_server()
+    main()
