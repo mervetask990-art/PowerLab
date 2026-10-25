@@ -16,7 +16,8 @@
 - [x] **Katman 1: Kâhin Vektörleri** (G*Power ekran görüntüsü: 43 vektör, 39'unda beklenen değer, 4'ü G*Power hata kutusu. Eğitmen protokolü: `oracle/public_vectors.jsonl`, CONTRACT.md §9'dan 25 vektör, 2'si t-paired. V21, V26, V37, V41, V43 CONTRACT.md §5 gereği kasıtlı sapma (G*Power dz ≤ 0 ile hesap yapar, motor reddeder; LEDGER L13, L16). Bilinen uyuşmazlık: V42 (LEDGER L17, Q7). Bkz. `oracle/TOPLAMA_LISTESI.md`)
 - [x] **Katman 2: İnceleme (G*Power binary, 2 oturum)** (`LEDGER.md`: 36 kanıt satırının 17'si [REA], adres ya da dize kanıtlı; L22'deki okuma L25–L27 ile düzeltildi. Açık sorular: Q2, Q3, Q4, Q5 cevaplandı; Q6'da sınırlar cevaplandı, "neden 3" bilinmiyor; Q7 kısmen: merkezsiz t CDF'inde df'e bağlı dallanma yok, V42 uyuşmazlığının nedeni bilinmiyor; Q1 kısmi)
 - [x] **Katman 3: Oturum 2 (Hesap Motoru & CLI)** (`src/powerlab/engine/`, `src/powerlab/cli.py`)
-- [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 33/34 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; kasıtlı sapmalar kapı dışında; eğitmen protokolünde uygulanan 2/2 uyumlu; bkz. `tests/report/conformance.md`)
+- [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 33/34 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; kasıtlı sapmalar kapı dışında; eğitmen protokolünde uygulanan 5/5 uyumlu (t-paired a-priori, post-hoc ve üç bonus mod); bkz. `tests/report/conformance.md`)
+- [x] **Bonus modlar (t-paired): compromise, criterion, sensitivity** (G*Power ekran görüntüleri K01–K09, `oracle/gpower_bonus_modes.csv`: 9/9 uyumlu; eğitmen vektörlerinden 3/3 uyumlu; LEDGER L37–L40)
 - [ ] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (taslak kod var: `src/powerlab/mcp_server.py`, `src/powerlab/agent/`; gerçek MCP el sıkışması yok, ajan kural tabanlı, benchmark ölçülmedi)
 
 **Kapsam (ödev ataması):** `t-paired` zorunlu (`a-priori`, `post-hoc`); `multireg-r2` bonus, henüz uygulanmadı.
@@ -222,6 +223,16 @@ gpower-clone --version
 {"contract_version":"1.0.0","name":"Merve Ta\u015fk\u0131n (bireysel)","engine":"Python 3.11.9, scipy 1.17.1"}
 ```
 > Bireysel çalışma: `name` = "Merve Taşkın (bireysel)" (JSON ASCII kaçışlıdır; `src/powerlab/engine/contract.py` → `TEAM_NAME`).
+
+### Bonus modlar (t-paired)
+```bash
+gpower-clone --test t-paired --mode compromise --tails 2 --dz 0.5 --beta_alpha_ratio 1 --n_total 54
+gpower-clone --test t-paired --mode criterion --tails 2 --dz 0.5 --power 0.95 --n_total 54
+gpower-clone --test t-paired --mode sensitivity --tails 2 --alpha 0.05 --power 0.95 --n_total 54
+```
+Çıktı alanları CONTRACT.md §4.2: compromise `ncp, critical_t, df, alpha, beta, power`; criterion
+`ncp, critical_t, df, alpha`; sensitivity `ncp, critical_t, df, dz`. Değerler G*Power ekranlarıyla (K01, K04, K07)
+7 basamakta aynıdır. Bu modlarda N en az 3'tür ([REA] L20).
 
 ### Süre (CONTRACT.md §2.1: < 2 s)
 Motor `scipy.stats` yerine `scipy.special` kullanır (`scipy.stats` içe aktarımı ~1.1 s, `scipy.special` ~0.4 s).

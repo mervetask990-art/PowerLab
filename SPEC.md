@@ -229,6 +229,45 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
       | 2     | 0.5      | 0.05  | 0.99999999 | -  | OUT_OF_RANGE | power   | Güç > 0.9999999 ([REA] L32)                           |
       | 2     | 20.5     | 0.05  | -     | 30      | OUT_OF_RANGE | dz      | Post hoc dz > 20 ([REA] L33)                          |
 
+
+  # -------------------------------------------------------------
+  # BONUS MODLAR (CONTRACT.md §3) — kâhin: oracle/gpower_bonus_modes.csv (K01–K09)
+  # -------------------------------------------------------------
+  Scenario: Compromise analizinde α ve β, β/α oranına göre birlikte seçilir (K01)
+    Given test ailesi "t-paired" ve analiz modu "compromise"
+    And kuyruk sayısı 2, dz = 0.5, β/α oranı = 1, N = 54
+    When analiz çalıştırıldığında
+    Then df = 53 olmalıdır
+    And δ 7 ondalıkta 3.6742346, kritik t 7 ondalıkta 2.0067386 olmalıdır
+    And α ve β 7 ondalıkta 0.0498908, güç 7 ondalıkta 0.9501092 olmalıdır
+
+  Scenario: Criterion analizi gücü sağlayan α'yı bulur (K04)
+    Given test ailesi "t-paired" ve analiz modu "criterion"
+    And kuyruk sayısı 2, dz = 0.5, güç = 0.95, N = 54
+    When analiz çalıştırıldığında
+    Then df = 53 olmalıdır
+    And kritik t 7 ondalıkta 2.0077915, α 7 ondalıkta 0.0497751 olmalıdır
+
+  Scenario: Sensitivity analizi saptanabilecek en küçük dz'yi bulur (K07)
+    Given test ailesi "t-paired" ve analiz modu "sensitivity"
+    And kuyruk sayısı 2, α = 0.05, güç = 0.95, N = 54
+    When analiz çalıştırıldığında
+    Then df = 53 olmalıdır
+    And δ 7 ondalıkta 3.6721359, dz 7 ondalıkta 0.4997144 olmalıdır
+
+  Scenario Outline: Bonus modlarda geçersiz girdi
+    Given test ailesi "t-paired" ve analiz modu "<mod>"
+    And girdi: <girdi>
+    When analiz çalıştırıldığında
+    Then hata kodu "<kod>" ve alan "<alan>" olmalıdır
+
+    Examples:
+      | mod         | girdi                          | kod           | alan             |
+      | compromise  | β/α oranı = 0                   | OUT_OF_RANGE  | beta_alpha_ratio |
+      | compromise  | N = 2 ([REA] L20)               | OUT_OF_RANGE  | n_total          |
+      | compromise  | --power verildi (ilgisiz alan)  | UNKNOWN_PARAM | power            |
+      | sensitivity | güç = 0.03 < α ([REA] L19)      | INCONSISTENT  | power            |
+
 ---
 
 ## 4. Arayüz (CONTRACT.md 1.0.0)
@@ -238,6 +277,9 @@ Bu belge, `powerlab` kütüphanesinin **t-paired** (eşleştirilmiş iki bağım
 - **Çıktı (stdout, tek satır JSON, tam double, yuvarlama yok):**
   - a-priori: `ncp`, `critical_t`, `df`, `n_total`, `actual_power`
   - post-hoc: `ncp`, `critical_t`, `df`, `power`
+  - compromise (girdi `--beta_alpha_ratio`, `--n_total`): `ncp`, `critical_t`, `df`, `alpha`, `beta`, `power`
+  - criterion (girdi `--power`, `--n_total`): `ncp`, `critical_t`, `df`, `alpha`
+  - sensitivity (girdi `--alpha`, `--power`, `--n_total`): `ncp`, `critical_t`, `df`, `dz`
 - **Hata:** `{"error","code","field"}`; kodlar `MISSING_PARAM`, `UNKNOWN_PARAM` (tanınmayan ya da modla ilgisiz alan),
   `INVALID_VALUE`, `OUT_OF_RANGE`, `INCONSISTENT`, `UNSUPPORTED` (bilinmeyen ya da uygulanmamış test/mod).
   Çıkış kodu 2 geçersiz girdi, 1 iç hata. Öncelik: test/mode eksik → desteklenmiyor → tanınmayan alan → eksik alan

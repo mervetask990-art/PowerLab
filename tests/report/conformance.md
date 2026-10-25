@@ -1,6 +1,6 @@
 # Uyum Raporu (Conformance Report)
 
-**Oluşturulma Tarihi**: 2026-10-21 22:38:37
+**Oluşturulma Tarihi**: 2026-10-25 18:27:31
 **Test Ailesi**: `t-paired`
 **%90 Kapısı (yalnızca G*Power kâhinine karşı)**: ✅ GEÇTİ — 33/34 (%97.06)
 
@@ -59,8 +59,8 @@ bu vektörler %90 kapısına katılmaz.
 ## 2. Eğitmen Protokolü (`oracle/public_vectors.jsonl`, CONTRACT.md §9)
 
 Karşılaştırma CONTRACT.md §6: tam sayılar tam eşleşme; ondalıklar |fark| ≤ 1e-6 ya da göreli ≤ 1e-6.
-Uygulanan: t-paired a-priori ve post-hoc; diğer aile ve modlar `UNSUPPORTED` döner.
-**Uyumlu: 2/2 uygulanan vektör** (25 vektörün 23'i `UNSUPPORTED`).
+Uygulanan: t-paired a-priori, post-hoc, compromise, criterion ve sensitivity; diğer aileler `UNSUPPORTED` döner.
+**Uyumlu: 5/5 uygulanan vektör** (25 vektörün 20'i `UNSUPPORTED`).
 
 | Vektör ID | Durum | Ayrıntı |
 |---|---|---|
@@ -71,9 +71,9 @@ Uygulanan: t-paired a-priori ve post-hoc; diğer aile ve modlar `UNSUPPORTED` d�
 | t2-indep/sensitivity | UNSUPPORTED | t2-indep bu motorda henüz uygulanmadı |
 | t-paired/a-priori | UYUMLU | tüm alanlar §6 toleransında |
 | t-paired/post-hoc | UYUMLU | tüm alanlar §6 toleransında |
-| t-paired/compromise | UNSUPPORTED | t-paired için compromise modu bu motorda henüz uygulanmadı |
-| t-paired/criterion | UNSUPPORTED | t-paired için criterion modu bu motorda henüz uygulanmadı |
-| t-paired/sensitivity | UNSUPPORTED | t-paired için sensitivity modu bu motorda henüz uygulanmadı |
+| t-paired/compromise | UYUMLU | tüm alanlar §6 toleransında |
+| t-paired/criterion | UYUMLU | tüm alanlar §6 toleransında |
+| t-paired/sensitivity | UYUMLU | tüm alanlar §6 toleransında |
 | anova-oneway/a-priori | UNSUPPORTED | anova-oneway bu motorda henüz uygulanmadı |
 | anova-oneway/post-hoc | UNSUPPORTED | anova-oneway bu motorda henüz uygulanmadı |
 | anova-oneway/compromise | UNSUPPORTED | anova-oneway bu motorda henüz uygulanmadı |
@@ -89,6 +89,26 @@ Uygulanan: t-paired a-priori ve post-hoc; diğer aile ve modlar `UNSUPPORTED` d�
 | multireg-r2/compromise | UNSUPPORTED | multireg-r2 bu motorda henüz uygulanmadı |
 | multireg-r2/criterion | UNSUPPORTED | multireg-r2 bu motorda henüz uygulanmadı |
 | multireg-r2/sensitivity | UNSUPPORTED | multireg-r2 bu motorda henüz uygulanmadı |
+
+---
+
+## 2b. Bonus modlar (`oracle/gpower_bonus_modes.csv`, G*Power ekran görüntüleri K01–K09)
+
+t-paired compromise, criterion ve sensitivity (CONTRACT.md §3). Ondalıklar CSV'deki basamak sayısına kadar,
+df tam eşleşme. %90 kapısı yalnızca a-priori N için tanımlıdır (CONTRACT.md §6); bu bölüm kapıya katılmaz.
+**Uyumlu: 9/9**
+
+| Vektör ID | Mod | Durum | Ayrıntı |
+|---|---|---|---|
+| K01 | compromise | UYUMLU | tüm alanlar |
+| K02 | compromise | UYUMLU | tüm alanlar |
+| K03 | compromise | UYUMLU | tüm alanlar |
+| K04 | criterion | UYUMLU | tüm alanlar |
+| K05 | criterion | UYUMLU | tüm alanlar |
+| K06 | criterion | UYUMLU | tüm alanlar |
+| K07 | sensitivity | UYUMLU | tüm alanlar |
+| K08 | sensitivity | UYUMLU | tüm alanlar |
+| K09 | sensitivity | UYUMLU | tüm alanlar |
 
 ---
 

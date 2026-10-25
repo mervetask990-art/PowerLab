@@ -23,6 +23,7 @@ WORKSPACE = Path(__file__).parent.parent
 GPOWER_CSV = WORKSPACE / "oracle" / "gpower_vectors.csv"
 SELFCHECK_CSV = WORKSPACE / "oracle" / "selfcheck_scipy.csv"
 PUBLIC_JSONL = WORKSPACE / "oracle" / "public_vectors.jsonl"
+BONUS_CSV = WORKSPACE / "oracle" / "gpower_bonus_modes.csv"
 REPORT_MD = WORKSPACE / "tests" / "report" / "conformance.md"
 
 EXPECTED_COLUMNS = ("n_expected", "actual_power_expected", "critical_expected", "df_expected", "ncp_expected")
@@ -243,6 +244,57 @@ def _deviation_table(deviations):
     return out
 
 
+BONUS_INPUTS = {
+    "compromise": [("tails", "tails"), ("dz", "effect"), ("beta_alpha_ratio", "beta_alpha_ratio"), ("n_total", "n_input")],
+    "criterion": [("tails", "tails"), ("dz", "effect"), ("power", "power"), ("n_total", "n_input")],
+    "sensitivity": [("tails", "tails"), ("alpha", "alpha"), ("power", "power"), ("n_total", "n_input")],
+}
+BONUS_OUTPUTS = {
+    "compromise": [("ncp", "ncp_expected"), ("critical_t", "critical_expected"), ("df", "df_expected"),
+                   ("alpha", "alpha_expected"), ("beta", "beta_expected"), ("power", "power_expected")],
+    "criterion": [("ncp", "ncp_expected"), ("critical_t", "critical_expected"), ("df", "df_expected"),
+                  ("alpha", "alpha_expected")],
+    "sensitivity": [("ncp", "ncp_expected"), ("critical_t", "critical_expected"), ("df", "df_expected"),
+                    ("dz", "effect_expected")],
+}
+
+
+def run_bonus_modes():
+    """t-paired bonus modları (K01–K09): her alan CSV'deki basamak sayısına kadar."""
+    rows = []
+    if not BONUS_CSV.exists():
+        return rows
+    with open(BONUS_CSV, "r", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            mode = row["mode"]
+            request = {"test": "t-paired", "mode": mode, **{k: row[c] for k, c in BONUS_INPUTS[mode]}}
+            payload, code = handle_request(request)
+            bad = []
+            if code != 0:
+                bad.append(f"hata: {payload.get('code')}")
+            else:
+                for name, column in BONUS_OUTPUTS[mode]:
+                    text = row[column]
+                    if name == "df":
+                        if payload[name] != int(text):
+                            bad.append(f"df {payload[name]} ≠ {text}")
+                        continue
+                    places = len(text.split(".", 1)[1]) if "." in text else 0
+                    if abs(payload[name] - float(text)) > 0.5 * 10 ** -places + 1e-12:
+                        bad.append(f"{name} {payload[name]!r} ≠ {text}")
+            rows.append((row["id"], mode, "UYUMLU" if not bad else "UYUŞMAZ", "; ".join(bad) or "tüm alanlar"))
+    return rows
+
+
+def _bonus_table(rows):
+    if not rows:
+        return "Yok.\n"
+    out = "| Vektör ID | Mod | Durum | Ayrıntı |\n|---|---|---|---|\n"
+    for vid, mode, status, detail in rows:
+        out += f"| {vid} | {mode} | {status} | {detail} |\n"
+    return out
+
+
 def _public_table(rows):
     out = "| Vektör ID | Durum | Ayrıntı |\n|---|---|---|\n"
     for vid, status, detail in rows:
@@ -257,6 +309,8 @@ def main():
     public_ok = sum(1 for _, status, _ in public if status == "UYUMLU")
     public_implemented = sum(1 for _, status, _ in public if status != "UNSUPPORTED")
     s_total, s_match, s_mis = run_selfcheck()
+    bonus = run_bonus_modes()
+    bonus_ok = sum(1 for _, _, status, _ in bonus if status == "UYUMLU")
     planned = count_planned_vectors()
 
     if g_total == 0:
@@ -311,10 +365,19 @@ bu vektörler %90 kapısına katılmaz.
 ## 2. Eğitmen Protokolü (`oracle/public_vectors.jsonl`, CONTRACT.md §9)
 
 Karşılaştırma CONTRACT.md §6: tam sayılar tam eşleşme; ondalıklar |fark| ≤ 1e-6 ya da göreli ≤ 1e-6.
-Uygulanan: t-paired a-priori ve post-hoc; diğer aile ve modlar `UNSUPPORTED` döner.
+Uygulanan: t-paired a-priori, post-hoc, compromise, criterion ve sensitivity; diğer aileler `UNSUPPORTED` döner.
 **Uyumlu: {public_ok}/{public_implemented} uygulanan vektör** ({len(public)} vektörün {len(public) - public_implemented}'i `UNSUPPORTED`).
 
 {_public_table(public)}
+---
+
+## 2b. Bonus modlar (`oracle/gpower_bonus_modes.csv`, G*Power ekran görüntüleri K01–K09)
+
+t-paired compromise, criterion ve sensitivity (CONTRACT.md §3). Ondalıklar CSV'deki basamak sayısına kadar,
+df tam eşleşme. %90 kapısı yalnızca a-priori N için tanımlıdır (CONTRACT.md §6); bu bölüm kapıya katılmaz.
+**Uyumlu: {bonus_ok}/{len(bonus)}**
+
+{_bonus_table(bonus)}
 ---
 
 ## 3. Self-check (`oracle/selfcheck_scipy.csv`) — KÂHİN DEĞİLDİR
