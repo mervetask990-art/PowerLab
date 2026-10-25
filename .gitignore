@@ -45,3 +45,8 @@ htmlcov/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Gizli anahtarlar (Gemini API anahtarı .env içinde; asla commit edilmez)
+.env
+.env.*
+!.env.example

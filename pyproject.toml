@@ -24,6 +24,8 @@ gpower-clone = "powerlab.cli:main"
 powerlab = "powerlab.cli:main"
 # MCP sunucusu (bonus, CONTRACT.md §7): stdio üzerinden JSON-RPC.
 gpower-clone-mcp = "powerlab.mcp_server:main"
+# AI ajanı (bonus, CONTRACT.md §8): Gemini + MCP; anahtar .env içinde.
+gpower-clone-agent = "powerlab.agent.agent:main"
 # İsteğe bağlı yerel web arayüzü (ödev kapsamı dışında).
 gpower-clone-ui = "powerlab.ui.server:main"
 
