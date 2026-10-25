@@ -4,10 +4,14 @@ CONTRACT.md §8 AI ajanı: soruyu modele verir, model power_analysis MCP aracın
 hesaplamaz. Araca ulaşan her çağrı logs/agent_calls.jsonl dosyasına tek satır yazılır:
 {"ts", "question", "tool_input", "tool_output", "tokens_in", "tokens_out"}.
 
+Sistem 1 (yönerge, isteğe bağlı): ilk mesajda classifier.FamilyClassifier test ailesini seçer; güven < 0.75,
+ambiguous / unsupported ya da uygulanmamış bir aile ise ajan hesaba geçmeden araştırmacıya sorar. Güvenle
+seçilen aile modele bildirilir ve başka bir aileyle yapılan çağrı araca gitmez (WRONG_TEST).
+
 §10: Kullanıcının söylemediği bir değer (ör. yalnızca "orta etki" dendiğinde dz = 0.5) araca gitmez;
 grounding.ungrounded_fields çağrıyı durdurur ve modele NOT_STATED döner, model kullanıcıya sorar.
-tokens_in / tokens_out, çağrıyı üreten model yanıtının token sayılarıdır (aynı yanıttaki ikinci ve sonraki
-çağrılarda 0).
+tokens_in / tokens_out, çağrıyı üreten model yanıtının (ve henüz yazılmamış sınıflandırıcı çağrısının) token
+sayılarıdır; aynı yanıttaki ikinci ve sonraki çağrılarda 0.
 """
 
 import argparse
@@ -17,6 +21,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from powerlab.agent.classifier import IMPLEMENTED
 from powerlab.agent.grounding import is_affirmative, ungrounded_fields
 from powerlab.engine.contract import INTEGER_FIELDS
 from powerlab.mcp_server import TOOL_NAME
@@ -46,14 +51,21 @@ Sen istatistiksel güç analizi için bir araştırma asistanısın. Kurallar:
 
 
 class Agent:
-    def __init__(self, model, tools, log_path: Path = DEFAULT_LOG, max_steps: int = MAX_STEPS):
+    def __init__(self, model, tools, log_path: Path = DEFAULT_LOG, max_steps: int = MAX_STEPS,
+                 classifier=None):
         self.model = model
         self.tools = tools
         self.log_path = Path(log_path)
         self.max_steps = max_steps
+        self.classifier = classifier
+        self.label: Optional[str] = None  # sınıflandırıcının güvenle seçtiği aile
+        self.classifications: List[Any] = []
         self.history: List[Dict[str, Any]] = []
         self.user_messages: List[str] = []
         self.grounding_sources: List[str] = []
+        self.tokens_in = 0   # bu ajanın bütün model çağrılarının toplamı (sınıflandırıcı dahil)
+        self.tokens_out = 0
+        self._pending = (0, 0)  # henüz bir log satırına yazılmamış sınıflandırıcı tokenları
         self._last_answer = ""
         self._declarations = tools.list_tools()
 
@@ -66,30 +78,67 @@ class Agent:
             self.grounding_sources.append(self._last_answer)
         self.history.append({"role": "user", "parts": [{"text": message}]})
 
+        if self.classifier is not None and self.label is None:
+            question = self._classify()
+            if question:
+                self._last_answer = question
+                return question
+
+        system = SYSTEM_PROMPT
+        if self.label:
+            system += f"\nSınıflandırıcı bu sorunun test ailesini {self.label} olarak seçti; aracı test={self.label} ile çağır.\n"
         for _ in range(self.max_steps):
-            reply = self.model.generate(SYSTEM_PROMPT, self.history, self._declarations)
+            reply = self.model.generate(system, self.history, self._declarations)
+            self._count(reply.tokens_in, reply.tokens_out)
             self.history.append(reply.content or _content_from(reply))
             if not reply.calls:
                 self._last_answer = reply.text
                 return reply.text
 
             responses = []
-            tokens = (reply.tokens_in, reply.tokens_out)
+            tokens = (reply.tokens_in + self._pending[0], reply.tokens_out + self._pending[1])
             for call in reply.calls:
                 output = self._run(call.name, call.args, tokens)
-                if output.get("code") != "NOT_STATED" and call.name == TOOL_NAME:
-                    tokens = (0, 0)
+                if "fields" not in output and output.get("code") not in ("UNKNOWN_TOOL", "WRONG_TEST"):
+                    tokens, self._pending = (0, 0), (0, 0)
                 responses.append({"functionResponse": {"name": call.name, "response": output}})
             self.history.append({"role": "user", "parts": responses})
 
         self._last_answer = ""
         return f"Ajan {self.max_steps} adımda yanıt üretemedi; soruyu daha açık yazıp yeniden deneyin."
 
+    def _classify(self) -> str:
+        """Sistem 1: aileyi seç; araştırmacıya sorulması gerekiyorsa soruyu döndür, değilse boş metin."""
+        result = self.classifier.classify("\n".join(self.user_messages))
+        self.classifications.append(result)
+        self._count(result.tokens_in, result.tokens_out)
+        self._pending = (self._pending[0] + result.tokens_in, self._pending[1] + result.tokens_out)
+        tag = f"(etiket: {result.label}, güven: {result.confidence:.2f})"
+        if result.label == "unsupported":
+            return (f"Bu soru desteklenen test ailelerinin hiçbirine uymuyor {tag}; hesap yapmıyorum. "
+                    "Parametrik bir eşdeğerle (ör. eşleştirilmiş t testi) çalışmak isterseniz tasarımı ona göre yazın.")
+        if result.needs_researcher:
+            return (f"Sorudan test ailesini güvenle seçemedim {tag}. Aynı deneklerde önce-sonra gibi eşleştirilmiş "
+                    "iki ölçüm mü (t-paired), birden çok yordayıcılı bir regresyon mu (multireg-r2), yoksa başka "
+                    "bir tasarım mı? Çalışmanın tasarımını biraz daha anlatır mısınız?")
+        if result.label not in IMPLEMENTED:
+            return (f"Soru {result.label} ailesine ait görünüyor {tag}. Bu motor yalnızca t-paired ve multireg-r2 "
+                    "ailelerini uyguluyor; bu aile kapsam dışı olduğu için hesap yapmıyorum.")
+        self.label = result.label
+        return ""
+
+    def _count(self, tokens_in: int, tokens_out: int) -> None:
+        self.tokens_in += tokens_in
+        self.tokens_out += tokens_out
+
     def _run(self, name: str, args: Dict[str, Any], tokens) -> Dict[str, Any]:
         if name != TOOL_NAME:
             return {"error": f"Bilinmeyen araç: '{name}'. Yalnızca {TOOL_NAME} kullanılabilir.",
                     "code": "UNKNOWN_TOOL", "field": None}
         arguments = _normalize(args)
+        if self.label and arguments.get("test") != self.label:
+            return {"error": f"Sınıflandırıcı test ailesini {self.label} olarak seçti; test={self.label} kullan "
+                             "ya da kullanıcıya tasarımı sor.", "code": "WRONG_TEST", "field": "test"}
         missing = ungrounded_fields(arguments, self.grounding_sources)
         if missing:
             return {"error": "Bu değerleri kullanıcı yazmadı ya da onaylamadı; varsayma, kullanıcıya sor.",
@@ -133,6 +182,7 @@ EXIT_WORDS = {"çıkış", "cikis", "q", "quit", "exit"}
 
 def main(argv: Optional[List[str]] = None) -> int:
     """gpower-clone-agent: Türkçe soru-cevap; ajan sorarsa yanıt yazılır, 'çıkış' ile biter."""
+    from powerlab.agent.classifier import FamilyClassifier
     from powerlab.agent.config import ConfigError, load_settings
     from powerlab.agent.gemini import GeminiModel, ModelError
     from powerlab.agent.mcp_client import MCPClient, MCPError
@@ -155,7 +205,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     print(f"Güç analizi ajanı (model: {settings.model}). Çıkmak için 'çıkış' yazın.")
     try:
         with MCPClient() as tools:
-            agent = Agent(GeminiModel(settings.api_key, settings.model), tools, Path(args.log))
+            model = GeminiModel(settings.api_key, settings.model)
+            agent = Agent(model, tools, Path(args.log), classifier=FamilyClassifier(model))
             while True:
                 if pending:
                     message = pending.pop(0)

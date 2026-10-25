@@ -7,6 +7,7 @@ Modelin döndürdüğü içerik geçmişe aynen eklenir (thoughtSignature gibi a
 """
 
 import json
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -53,35 +54,56 @@ def to_declaration(tool: Dict[str, Any]) -> Dict[str, Any]:
             "parameters": _gemini_schema(tool["inputSchema"])}
 
 
+# Ücretsiz katmanın hız sınırı (429) ve geçici sunucu hataları için bekleme süreleri (saniye).
+RETRY_STATUS = {429, 500, 503}
+RETRY_DELAYS = (5.0, 15.0, 30.0)
+
+
 class GeminiModel:
     def __init__(self, api_key: str, model: str, timeout: float = 60.0,
-                 opener: Callable = urllib.request.urlopen):
+                 opener: Callable = urllib.request.urlopen, sleep: Callable = time.sleep):
         self._api_key = api_key
         self.model = model
         self.timeout = timeout
         self._opener = opener
+        self._sleep = sleep
 
     def __repr__(self) -> str:
         return f"GeminiModel(model={self.model!r})"
 
     def generate(self, system: str, contents: List[Dict[str, Any]], tools: List[Dict[str, Any]]) -> ModelReply:
+        body = {"systemInstruction": {"parts": [{"text": system}]}, "contents": contents}
+        if tools:
+            body["tools"] = [{"functionDeclarations": [to_declaration(t) for t in tools]}]
+        return _parse(self._post(body))
+
+    def generate_json(self, system: str, text: str, schema: Dict[str, Any]) -> ModelReply:
+        """Yanıtı şemaya kısıtlı JSON olarak ister (etiket sınıflandırması); ModelReply.text JSON metnidir."""
         body = {
             "systemInstruction": {"parts": [{"text": system}]},
-            "contents": contents,
-            "tools": [{"functionDeclarations": [to_declaration(t) for t in tools]}],
+            "contents": [{"role": "user", "parts": [{"text": text}]}],
+            "generationConfig": {"responseMimeType": "application/json", "responseSchema": schema},
         }
+        return _parse(self._post(body))
+
+    def _post(self, body: Dict[str, Any]) -> Dict[str, Any]:
         url = f"{API_ROOT}/models/{urllib.parse.quote(self.model, safe='-._')}:generateContent"
-        request = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"), method="POST",
-                                         headers={"Content-Type": "application/json",
-                                                  "x-goog-api-key": self._api_key})
-        try:
-            with self._opener(request, timeout=self.timeout) as response:
-                data = json.loads(response.read())
-        except urllib.error.HTTPError as err:
-            raise ModelError(f"Gemini HTTP {err.code}: {_error_message(err)}") from None
-        except urllib.error.URLError as err:
-            raise ModelError(f"Gemini'ye bağlanılamadı: {err.reason}") from None
-        return _parse(data)
+        payload = json.dumps(body).encode("utf-8")
+        for attempt in range(len(RETRY_DELAYS) + 1):
+            request = urllib.request.Request(url, data=payload, method="POST",
+                                             headers={"Content-Type": "application/json",
+                                                      "x-goog-api-key": self._api_key})
+            try:
+                with self._opener(request, timeout=self.timeout) as response:
+                    return json.loads(response.read())
+            except urllib.error.HTTPError as err:
+                if err.code in RETRY_STATUS and attempt < len(RETRY_DELAYS):
+                    self._sleep(RETRY_DELAYS[attempt])
+                    continue
+                raise ModelError(f"Gemini HTTP {err.code}: {_error_message(err)}") from None
+            except urllib.error.URLError as err:
+                raise ModelError(f"Gemini'ye bağlanılamadı: {err.reason}") from None
+        raise AssertionError("ulaşılamaz")
 
 
 def _error_message(err: urllib.error.HTTPError) -> str:
