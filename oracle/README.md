@@ -4,9 +4,10 @@
 |---|---|---|
 | `gpower_vectors.csv` + `screenshots/` | **KÂHİN** | G*Power 3.1.9.7 ekran görüntüleri (CLAUDE.md "Kâhin") |
 | `gpower_bonus_modes.csv` + `screenshots/K01–K09.png` | **KÂHİN** | t-paired bonus modları (CONTRACT.md §3): compromise (K01–K03), criterion (K04–K06), sensitivity (K07–K09). Çıktı alanları farklı olduğu için ayrı dosya; değerler ekrandaki metin aynen. |
-| `gpower_multireg.csv` + `screenshots/M01–M28.png` | **KÂHİN** | multireg-r2 (bonus aile, CONTRACT.md §4.5): a priori M01–M16, post hoc M17–M28. G*Power'ın hata verdiği satırlarda mesaj `gpower_error` sütununda aynen. Motor henüz yok. |
+| `gpower_multireg.csv` + `screenshots/M01–M28.png` | **KÂHİN** | multireg-r2 (bonus aile, CONTRACT.md §4.5): a priori M01–M16, post hoc M17–M28. G*Power'ın hata verdiği satırlarda mesaj `gpower_error` sütununda aynen. |
 | `public_vectors.jsonl` | **KÂHİN** | Eğitmen protokolü, CONTRACT.md §9'dan birebir; bkz. `public_vectors.README.md` |
 | `reference_statsmodels.csv` | **KÂHİN DEĞİL** | statsmodels ile bağımsız çapraz kontrol (aşağıda) |
+| `reference_grid.csv` | **KÂHİN DEĞİL** | Ölçek: statsmodels ile 516 vektörlük ağ (t-paired ve multireg-r2, a priori ve post hoc). Üretici `generate_reference_grid.py`, test `tests/test_reference_grid.py`, rapor `tests/report/reference_grid.md`: karşılaştırılabilen 499 vektörün 499'u uyumlu; 17 satırda statsmodels NaN döndürür. Not: statsmodels `FTestPower` sınıfında `df_num` ile `df_denom` yer değiştirmiştir; ağ `FTestPowerF2` ile üretildi. |
 | `selfcheck_scipy.csv` | **KÂHİN DEĞİL** | Motorla aynı algoritmanın kopyası; yalnızca kendi kendine tutarlılık |
 | `boundary_vectors.csv` | — | Sınır değer senaryoları |
 | `_dogrulanmamis/legacy_vectors.csv` | **KÂHİN DEĞİL** | Ekran görüntüsü olmayan eski değerler; hiçbir testte kullanılmaz |
