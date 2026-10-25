@@ -152,3 +152,39 @@ kontrolün yakaladığını belgeler.
 - **Orijinal metin**: Yeniden yazımdan önceki geçmiş `C:\Tools\yedek\rea_test_oncesi.bundle` içindedir (repo
   dışında; decompile alıntılarını içerdiği için repoya alınmaz). Eski→yeni hash eşlemesi:
   `C:\Tools\yedek\hash_esleme.txt`.
+
+> H10 ve sonrası 2026-10-25 bonus oturumundan (MCP sunucusu, ajan, statsmodels referans ağı) gelir.
+
+### H10: README'deki MCP bağlama komutu Windows PowerShell'de çalışmıyordu
+- **Ne iddia edildi**: Ajan, README'ye MCP sunucusunu Claude Code'a bağlamak için
+  `claude mcp add powerlab -- "$PWD\.venv\Scripts\python.exe" -m powerlab.mcp_server` komutunu yazdı (`451467b`)
+  ve kullanıcıya "Added stdio MCP server" mesajını göreceğini söyledi. Komut denenmeden yazılmıştı.
+- **Nasıl fark edildi**: Kullanıcının çektiği MCP demo videosunda komut `error: unknown option '-m'` verdi ve
+  sunucu eklenmedi. PowerShell'de `claude` komutu `claude.ps1` betiğine gidiyor; PowerShell betiklere giden `--`
+  ayıracını siliyor, bu yüzden `claude` `-m`'yi kendi seçeneği sandı.
+- **Hangi kontrol yakaladı**: Gerçek istemciyle canlı deneme (demo videosu). Birim testler sunucuyu doğrudan
+  çağırdığı için yakalayamazdı. Ajanın sonraki adımında, araç yokken Claude'un sayı uydurmadığı da görüldü.
+- **Düzeltme**: README'de `claude.cmd mcp add ...` (`e152c15`); `claude.cmd mcp get powerlab` ile "Connected"
+  doğrulandı ve bir araç çağrısı gerçek istemciyle denendi.
+
+### H11: MCP sunucusunun Windows'ta ilk mesajı okuyamaması (UTF-8 BOM)
+- **Ne iddia edildi**: El sıkışma eklendikten sonra (`b0c59dc`) ajan sunucunun "gerçek istemcilerle
+  bağlanabildiğini" söyledi; ayrı süreçte stdio testi geçiyordu.
+- **Nasıl fark edildi**: Demo script'i hazırlanırken mesajlar PowerShell boru hattıyla sunucuya verildi; ilk
+  yanıt `Parse error: Unexpected UTF-8 BOM` oldu. Windows PowerShell boru hattı ilk satırın başına BOM ekliyor;
+  el sıkışma (ilk mesaj) bu yüzden okunamıyordu. Test, girdiyi Python'dan BOM'suz bayt olarak verdiği için
+  geçiyordu.
+- **Hangi kontrol yakaladı**: Gerçek kabukla elle deneme. Ardından `tests/test_mcp_protocol.py::test_stdio_tolerates_utf8_bom`
+  testi önce kırmızı olarak yazıldı.
+- **Düzeltme**: Sunucu girdiyi `utf-8-sig` ile çözüyor (`c8de899`).
+
+### H12: statsmodels FTestPower'ın G*Power'la aynı modeli verdiği varsayımı
+- **Ne iddia edildi**: 500'den fazla vektörlük referans ağı yazılırken ajan, `FTestPower(effect_size=√f², df_num=k,
+  df_denom=N−k−1)` çağrısının G*Power'ın modelini (λ = f²·N) verdiğini varsaydı ve üretici betiği buna göre yazdı.
+- **Nasıl fark edildi**: Ağı üretmeden önce çağrı üç kâhin vektörüyle denendi: M17 için 0.0678 çıktı, G*Power
+  0.8429603 diyor. `df_num` ile `df_denom` yer değiştirince ve `FTestPowerF2` ile değer kâhinle 7 ondalık aynı
+  çıktı: statsmodels'ın eski `FTestPower` sınıfında iki serbestlik derecesi yer değiştirmiş durumda.
+- **Hangi kontrol yakaladı**: Bağımsız kütüphaneyi kullanmadan önce kâhin vektörleriyle sınama. Sınama yapılmasaydı
+  multireg-r2 ağının 168 satırının hepsi motorla "uyuşmaz" görünecekti; hata motorda aranacaktı.
+- **Düzeltme**: Ağ `FTestPowerF2` ile üretildi (`oracle/generate_reference_grid.py`); not `oracle/README.md` ve
+  `tests/report/reference_grid.md`'de.
