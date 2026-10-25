@@ -98,7 +98,7 @@ ERRORS = [
     ("mod-takma-adi", replaced(APRIORI, "--mode", "a_priori"), "UNSUPPORTED", "mode"),
     ("bilinmeyen-mod", replaced(APRIORI, "--mode", "bayesci"), "UNSUPPORTED", "mode"),
     ("bonus-mod-ilgisiz-alan", replaced(APRIORI, "--mode", "compromise"), "UNKNOWN_PARAM", "alpha"),
-    ("bonus-aile", replaced(APRIORI, "--test", "multireg-r2"), "UNSUPPORTED", "test"),
+    ("kapsam-disi-aile", replaced(APRIORI, "--test", "chi2-contingency"), "UNSUPPORTED", "test"),
     ("diger-aile", replaced(APRIORI, "--test", "t2-indep"), "UNSUPPORTED", "test"),
     ("bilinmeyen-aile", replaced(APRIORI, "--test", "bayes"), "UNSUPPORTED", "test"),
     ("tails-3", replaced(APRIORI, "--tails", "3"), "OUT_OF_RANGE", "tails"),

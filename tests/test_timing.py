@@ -26,6 +26,10 @@ CASES = {
                   "--dz", "0.5", "--power", "0.95", "--n_total", "54"],
     "sensitivity": ["--test", "t-paired", "--mode", "sensitivity", "--tails", "2",
                     "--alpha", "0.05", "--power", "0.95", "--n_total", "54"],
+    "multireg-a-priori-buyuk-N": ["--test", "multireg-r2", "--mode", "a-priori", "--f2", "0.001",
+                                  "--alpha", "0.05", "--power", "0.80", "--predictors", "5"],
+    "multireg-compromise": ["--test", "multireg-r2", "--mode", "compromise", "--f2", "0.15",
+                            "--beta_alpha_ratio", "1", "--n_total", "100", "--predictors", "2"],
 }
 
 
