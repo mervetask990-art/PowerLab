@@ -9,7 +9,7 @@ M07,multireg-r2,a-priori,0.15,0.05,0.80,,20,23.5500000,1.6482584,20,136,157,0.80
 M08,multireg-r2,a-priori,0.001,0.05,0.80,,5,12.8340000,2.2147961,5,12828,12834,0.8000307,,M08.png,f² çok küçük
 M09,multireg-r2,a-priori,1,0.05,0.80,,5,20.0000000,2.9582489,5,14,20,0.8277432,,M09.png,f² çok büyük
 M10,multireg-r2,a-priori,0.15,0.001,0.80,,5,26.1000000,4.3235784,5,168,174,0.8025687,,M10.png,α alt ucu
-M11,multireg-r2,a-priori,0.15,0.2,0.80,,5,,,,,,,,,α üst ucu — görüntü bekleniyor (ilk görüntüde α 0.02 girilmişti; doldurulmadı)
+M11,multireg-r2,a-priori,0.15,0.2,0.80,,5,8.5500000,1.5202853,5,51,57,0.8058598,,M11.png,α üst ucu (ilk görüntüde α 0.02 girilmişti; doğru girdiyle yeniden alındı)
 M12,multireg-r2,a-priori,0.15,0.05,0.99,,5,27.6000000,2.2648804,5,178,184,0.9900686,,M12.png,Güç çok yüksek
 M13,multireg-r2,a-priori,0.15,0.05,0.05,,5,1.0500000,230.1619,5,1,7,0.0550542,,M13.png,Güç = α; N = yordayıcı + 2 (df2 = 1); Critical F ekranda 4 ondalık
 M14,multireg-r2,a-priori,0.15,0.05,0.03,,5,,,,,,,Power must be greater than or equal to alpha.,M14.png,Güç < α
