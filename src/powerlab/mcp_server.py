@@ -118,7 +118,8 @@ def _send(message: Dict[str, Any]) -> None:
 def run_stdio_server():
     """Stdio üzerinden çalışan MCP sunucu döngüsü (satır başına bir JSON-RPC mesajı, UTF-8)."""
     for raw in sys.stdin.buffer:
-        line = raw.decode("utf-8", errors="replace").strip()
+        # utf-8-sig: Windows PowerShell boru hattının eklediği BOM atlanır.
+        line = raw.decode("utf-8-sig", errors="replace").strip()
         if not line:
             continue
         try:

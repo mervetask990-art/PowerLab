@@ -50,6 +50,15 @@ def test_unknown_method_is_method_not_found():
     assert resp["error"]["code"] == -32601
 
 
+def test_stdio_tolerates_utf8_bom():
+    """Windows PowerShell boru hattı ilk satırın başına UTF-8 BOM ekler; el sıkışma yine okunmalı."""
+    request = {"jsonrpc": "2.0", "id": 1, "method": "ping"}
+    stdin = b"\xef\xbb\xbf" + json.dumps(request).encode("utf-8") + b"\n"
+    proc = subprocess.run([sys.executable, "-m", "powerlab.mcp_server"], input=stdin,
+                          capture_output=True, timeout=30)
+    assert json.loads(proc.stdout) == {"jsonrpc": "2.0", "id": 1, "result": {}}
+
+
 def test_stdio_session_end_to_end():
     """Sunucu ayrı süreçte; stdout'ta yalnızca JSON-RPC yanıtları olur, stderr boştur."""
     messages = [
