@@ -1,0 +1,10 @@
+id,family,mode,tails,effect,alpha,power,beta_alpha_ratio,n_input,ncp_expected,critical_expected,df_expected,alpha_expected,beta_expected,power_expected,effect_expected,screenshot,notes
+K01,t-paired,compromise,2,0.5,,,1,54,3.6742346,2.0067386,53,0.0498908,0.0498908,0.9501092,,K01.png,β/α = 1 olduğu için α = β
+K02,t-paired,compromise,1,0.5,,,4,30,2.7386128,1.7794820,29,0.0428221,0.1712884,0.8287116,,K02.png,Tek kuyruk; β = 4α
+K03,t-paired,compromise,2,0.2,,,2,100,2.0000000,1.4609870,99,0.1471856,0.2943713,0.7056287,,K03.png,Küçük etki; β = 2α
+K04,t-paired,criterion,2,0.5,,0.95,,54,3.6742346,2.0077915,53,0.0497751,,,,K04.png,V01 ile aynı N ve dz; gerekli α
+K05,t-paired,criterion,1,0.5,,0.80,,30,2.7386128,1.8880297,29,0.0345321,,,,K05.png,Tek kuyruk
+K06,t-paired,criterion,2,0.3,,0.90,,100,3.0000000,1.7133233,99,0.0897830,,,,K06.png,
+K07,t-paired,sensitivity,2,,0.05,0.95,,54,3.6721359,2.0057460,53,,,,0.4997144,K07.png,V01 ile aynı α/güç/N; dz ≈ 0.5
+K08,t-paired,sensitivity,1,,0.05,0.80,,30,2.5466112,1.6991270,29,,,,0.4649455,K08.png,Tek kuyruk
+K09,t-paired,sensitivity,2,,0.01,0.90,,100,3.9234579,2.6264055,99,,,,0.3923458,K09.png,
