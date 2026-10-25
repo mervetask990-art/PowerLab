@@ -97,6 +97,14 @@ def validate_post_hoc_effect_size(dz: float) -> None:
         )
 
 
+def validate_beta_alpha_ratio(ratio: Any) -> None:
+    """CONTRACT.md §5: beta_alpha_ratio > 0."""
+    ratio = _require_finite("β/α oranı", "beta_alpha_ratio", ratio)
+    if ratio <= 0.0:
+        raise ContractError(OUT_OF_RANGE, "beta_alpha_ratio",
+                            f"β/α oranı pozitif olmalıdır (> 0), alınan: {ratio}")
+
+
 def validate_power_not_below_alpha(power: float, alpha: float) -> None:
     """Güç = alpha kabul edilir (G*Power V16); güç < alpha hata ([REA] 0x4880e0, LEDGER L19)."""
     if power < alpha:

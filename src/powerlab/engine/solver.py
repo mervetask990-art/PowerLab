@@ -14,6 +14,9 @@ from powerlab.engine.families import t_paired
 IMPLEMENTED = {
     ("t-paired", "a-priori"): t_paired.solve_n,
     ("t-paired", "post-hoc"): t_paired.compute_power,
+    ("t-paired", "compromise"): t_paired.compromise,
+    ("t-paired", "criterion"): t_paired.criterion,
+    ("t-paired", "sensitivity"): t_paired.sensitivity,
 }
 
 # CONTRACT.md'de tanımlı ama bu motorda uygulanmamış kimlikler de UNSUPPORTED döner.

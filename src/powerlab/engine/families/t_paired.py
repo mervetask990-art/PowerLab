@@ -12,10 +12,11 @@ verir (LEDGER L13); sözleşme bunu reddeder. Varsayılan değer yoktur (CONTRAC
 import math
 from typing import Dict, Any
 
-from powerlab.engine.distributions import t_critical_value, nct_power
-from powerlab.engine.errors import MISSING_PARAM, ContractError
+from powerlab.engine.distributions import central_alpha, find_root, nct_power, t_critical_value
+from powerlab.engine.errors import MISSING_PARAM, NO_SOLUTION, ContractError
 from powerlab.engine.validation import (
     validate_alpha,
+    validate_beta_alpha_ratio,
     validate_power,
     validate_tails,
     validate_effect_size,
@@ -117,3 +118,105 @@ def solve_n(params: Dict[str, Any]) -> Dict[str, Any]:
     actual_power = nct_power(critical_t=t_crit, df=df, ncp=ncp, tails=tails)
 
     return {"n": best_n, "actual_power": actual_power, "critical": t_crit, "df": df, "ncp": ncp}
+
+
+# --- Bonus modlar (CONTRACT.md §3): compromise, criterion, sensitivity -------------------------------
+# Formüller G*Power yöntem makalesindeki tanımlardır (Faul et al., 2007; LEDGER [DOK]). Kökler motorun
+# kendi ikiye bölme çözücüsüyle bulunur; G*Power'ın bu modlardaki çözücü toleransı bilinmiyor ([AJAN]).
+# A priori dışındaki modlarda N alt sınırı 3'tür ([REA] 0x4dc2a0 dallar 1–4, LEDGER L20).
+
+_BRACKET_LIMIT = 1e6
+
+
+def _expand_upper(func, start: float, want_positive: bool) -> float:
+    """Kök aralığının üst ucunu, fonksiyon istenen işarete geçene kadar ikiye katlayarak büyütür."""
+    high = start
+    while (func(high) > 0.0) != want_positive:
+        high *= 2.0
+        if high > _BRACKET_LIMIT:
+            raise ContractError(NO_SOLUTION, None, "Bu girdilerle çözüm bulunamadı (kök aralığı aşıldı).")
+    return high
+
+
+def compromise(params: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Compromise: β/α oranı q, N ve dz verildiğinde β = q·α eşitliğini sağlayan kritik t'yi bulur;
+    α, β ve gücü (1 − β) raporlar.
+    """
+    tails = _require(params, "tails")
+    dz = _require(params, "dz")
+    ratio = _require(params, "beta_alpha_ratio")
+    n = _require(params, "n")
+
+    validate_tails(tails)
+    validate_effect_size(dz)
+    validate_beta_alpha_ratio(ratio)
+    validate_sample_size(n, min_n=3)
+    tails, dz, ratio, n = int(tails), float(dz), float(ratio), int(n)
+
+    df = n - 1
+    ncp = dz * math.sqrt(n)
+
+    def excess_beta(critical: float) -> float:
+        return (1.0 - nct_power(critical, df, ncp, tails)) - ratio * central_alpha(critical, df, tails)
+
+    if excess_beta(0.0) >= 0.0:
+        raise ContractError(NO_SOLUTION, None, "Bu β/α oranı ve etki büyüklüğü için uzlaşma noktası bulunamadı.")
+    critical = find_root(excess_beta, 0.0, _expand_upper(excess_beta, 10.0, want_positive=True))
+    power = nct_power(critical, df, ncp, tails)
+
+    return {"n": n, "df": df, "ncp": ncp, "critical": critical,
+            "alpha": central_alpha(critical, df, tails), "beta": 1.0 - power, "actual_power": power}
+
+
+def criterion(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Criterion: güç, N ve dz verildiğinde gücü hedefe eşitleyen kritik t'yi ve buna karşılık gelen α'yı bulur."""
+    tails = _require(params, "tails")
+    dz = _require(params, "dz")
+    target_power = _require(params, "power")
+    n = _require(params, "n")
+
+    validate_tails(tails)
+    validate_effect_size(dz)
+    validate_power(target_power)
+    validate_sample_size(n, min_n=3)
+    tails, dz, target_power, n = int(tails), float(dz), float(target_power), int(n)
+
+    df = n - 1
+    ncp = dz * math.sqrt(n)
+
+    def power_gap(critical: float) -> float:
+        return nct_power(critical, df, ncp, tails) - target_power
+
+    if power_gap(0.0) < 0.0:
+        raise ContractError(NO_SOLUTION, None, "Bu güç hedefine hiçbir α ile ulaşılamıyor.")
+    critical = find_root(power_gap, 0.0, _expand_upper(power_gap, 10.0, want_positive=False))
+
+    return {"n": n, "df": df, "ncp": ncp, "critical": critical, "alpha": central_alpha(critical, df, tails)}
+
+
+def sensitivity(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Sensitivity: α, güç ve N verildiğinde gücü hedefe eşitleyen en küçük dz'yi bulur."""
+    tails = _require(params, "tails")
+    alpha = _require(params, "alpha")
+    target_power = _require(params, "power")
+    n = _require(params, "n")
+
+    validate_tails(tails)
+    validate_alpha(alpha)
+    validate_power(target_power)
+    validate_sample_size(n, min_n=3)
+    tails, alpha, target_power, n = int(tails), float(alpha), float(target_power), int(n)
+    # Güç < α reddedilir ([REA] 0x4880e0, LEDGER L19: dal 1'de de çağrılır).
+    validate_power_not_below_alpha(target_power, alpha)
+
+    df = n - 1
+    root_n = math.sqrt(n)
+    critical = t_critical_value(alpha=alpha, df=df, tails=tails)
+
+    def power_gap(dz: float) -> float:
+        return nct_power(critical, df, dz * root_n, tails) - target_power
+
+    dz = find_root(power_gap, 0.0, _expand_upper(power_gap, 1.0, want_positive=True))
+
+    return {"n": n, "df": df, "ncp": dz * root_n, "critical": critical, "dz": dz}

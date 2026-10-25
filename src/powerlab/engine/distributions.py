@@ -9,6 +9,7 @@ scipy.stats.nct.cdf aynı özel fonksiyonları çağırır, ama scipy.stats'ın 
 """
 
 import math
+from typing import Callable
 
 from scipy import special
 
@@ -60,3 +61,29 @@ def nct_power(critical_t: float, df: int, ncp: float, tails: int = 2) -> float:
 
     # Sayısal taşmaları [0, 1] aralığına kırp
     return float(min(max(power, 0.0), 1.0))
+
+
+def central_alpha(critical_t: float, df: int, tails: int) -> float:
+    """Merkezi t altında, kritik değeri aşma olasılığı: tails * (1 - F(t_crit; df))."""
+    return float(tails * (1.0 - special.stdtr(df, critical_t)))
+
+
+def find_root(func: Callable[[float], float], low: float, high: float,
+              tolerance: float = 1e-14, max_iter: int = 500) -> float:
+    """
+    [low, high] aralığında işaret değiştiren monoton bir fonksiyonun kökünü ikiye bölmeyle bulur.
+    scipy.optimize kullanılmaz: içe aktarımı CONTRACT.md §2.1'deki 2 saniye sınırını zorlar.
+    """
+    f_low = func(low)
+    if f_low == 0.0:
+        return low
+    for _ in range(max_iter):
+        mid = 0.5 * (low + high)
+        f_mid = func(mid)
+        if f_mid == 0.0 or (high - low) <= tolerance * max(1.0, abs(mid)):
+            return mid
+        if (f_mid < 0.0) == (f_low < 0.0):
+            low, f_low = mid, f_mid
+        else:
+            high = mid
+    return 0.5 * (low + high)

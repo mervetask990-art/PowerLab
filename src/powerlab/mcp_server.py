@@ -20,7 +20,7 @@ POWER_ANALYSIS_TOOL_SCHEMA = {
     "name": TOOL_NAME,
     "description": "İstatistiksel güç ve örneklem büyüklüğü analizi (CONTRACT.md 1.0.0). G*Power 3.1.9.7 "
                    "davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir. Şu an uygulanan: "
-                   "t-paired a-priori ve post-hoc; diğerleri UNSUPPORTED döner.",
+                   "t-paired a-priori, post-hoc, compromise, criterion ve sensitivity; diğerleri UNSUPPORTED döner.",
     "inputSchema": {
         "type": "object",
         "properties": {
@@ -29,8 +29,10 @@ POWER_ANALYSIS_TOOL_SCHEMA = {
             "tails": {"type": "integer", "enum": [1, 2], "description": "Kuyruk sayısı (t testleri)"},
             "dz": {"type": "number", "description": "Etki büyüklüğü dz (> 0)"},
             "alpha": {"type": "number", "description": "I. tip hata olasılığı (0 < α < 1)"},
-            "power": {"type": "number", "description": "Hedef güç 1-β (a-priori)"},
-            "n_total": {"type": "integer", "description": "Toplam örneklem büyüklüğü, çift sayısı (post-hoc)"},
+            "power": {"type": "number", "description": "Hedef güç 1-β (a-priori, criterion, sensitivity)"},
+            "n_total": {"type": "integer",
+                        "description": "Toplam örneklem büyüklüğü, çift sayısı (post-hoc, compromise, criterion, sensitivity)"},
+            "beta_alpha_ratio": {"type": "number", "description": "β/α oranı (> 0; yalnızca compromise)"},
         },
         "required": ["test", "mode"],
     },

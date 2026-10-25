@@ -31,6 +31,12 @@ FIELDS = {
                                ("ncp", "critical_t", "df", "n_total", "actual_power")),
     ("t-paired", "post-hoc"): (("tails", "dz", "alpha", "n_total"),
                                ("ncp", "critical_t", "df", "power")),
+    ("t-paired", "compromise"): (("tails", "dz", "beta_alpha_ratio", "n_total"),
+                                 ("ncp", "critical_t", "df", "alpha", "beta", "power")),
+    ("t-paired", "criterion"): (("tails", "dz", "power", "n_total"),
+                                ("ncp", "critical_t", "df", "alpha")),
+    ("t-paired", "sensitivity"): (("tails", "alpha", "power", "n_total"),
+                                  ("ncp", "critical_t", "df", "dz")),
 }
 INTEGER_FIELDS = {"tails", "n_total", "n1", "n2", "groups", "df", "predictors"}
 
@@ -38,7 +44,8 @@ INTEGER_FIELDS = {"tails", "n_total", "n1", "n2", "groups", "df", "predictors"}
 ENGINE_PARAM = {"n_total": "n"}
 # Sözleşme çıktı alanı -> motorun iç sonuç anahtarı.
 OUTPUT_SOURCE = {"ncp": "ncp", "critical_t": "critical", "df": "df", "n_total": "n",
-                 "actual_power": "actual_power", "power": "actual_power"}
+                 "actual_power": "actual_power", "power": "actual_power",
+                 "alpha": "alpha", "beta": "beta", "dz": "dz"}
 
 # Ondalık ayırıcı her zaman nokta; Python'a özgü "1_000" ve "nan"/"inf" metinleri geçersiz.
 INTEGER_TEXT = re.compile(r"[+-]?\d+")
