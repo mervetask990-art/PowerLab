@@ -1,0 +1,29 @@
+id,family,mode,effect,alpha,power,n_input,predictors,ncp_expected,critical_expected,df1_expected,df2_expected,n_expected,power_expected,gpower_error,screenshot,notes
+M01,multireg-r2,a-priori,0.15,0.05,0.80,,5,13.8000000,2.3205293,5,86,92,0.8041921,,M01.png,Standart (Cohen orta f²)
+M02,multireg-r2,a-priori,0.15,0.05,0.95,,5,20.7000000,2.2828562,5,132,138,0.9507643,,M02.png,Yüksek güç
+M03,multireg-r2,a-priori,0.02,0.05,0.80,,5,12.9400000,2.2280828,5,641,647,0.8000445,,M03.png,Küçük etki
+M04,multireg-r2,a-priori,0.35,0.05,0.80,,5,15.0500000,2.4696496,5,37,43,0.8057222,,M04.png,Büyük etki
+M05,multireg-r2,a-priori,0.15,0.05,0.80,,1,8.2500000,4.0230170,1,53,55,0.8050826,,M05.png,Tek yordayıcı
+M06,multireg-r2,a-priori,0.15,0.05,0.80,,10,17.7000000,1.9203099,10,107,118,0.8012597,,M06.png,
+M07,multireg-r2,a-priori,0.15,0.05,0.80,,20,23.5500000,1.6482584,20,136,157,0.8034480,,M07.png,Çok yordayıcı
+M08,multireg-r2,a-priori,0.001,0.05,0.80,,5,12.8340000,2.2147961,5,12828,12834,0.8000307,,M08.png,f² çok küçük
+M09,multireg-r2,a-priori,1,0.05,0.80,,5,20.0000000,2.9582489,5,14,20,0.8277432,,M09.png,f² çok büyük
+M10,multireg-r2,a-priori,0.15,0.001,0.80,,5,26.1000000,4.3235784,5,168,174,0.8025687,,M10.png,α alt ucu
+M11,multireg-r2,a-priori,0.15,0.2,0.80,,5,,,,,,,,,α üst ucu — görüntü bekleniyor (ilk görüntüde α 0.02 girilmişti; doldurulmadı)
+M12,multireg-r2,a-priori,0.15,0.05,0.99,,5,27.6000000,2.2648804,5,178,184,0.9900686,,M12.png,Güç çok yüksek
+M13,multireg-r2,a-priori,0.15,0.05,0.05,,5,1.0500000,230.1619,5,1,7,0.0550542,,M13.png,Güç = α; N = yordayıcı + 2 (df2 = 1); Critical F ekranda 4 ondalık
+M14,multireg-r2,a-priori,0.15,0.05,0.03,,5,,,,,,,Power must be greater than or equal to alpha.,M14.png,Güç < α
+M15,multireg-r2,a-priori,0,0.05,0.80,,5,,,,,,,"Effect size f² is outside the admissible range (1e-06, 50).",M15.png,f² = 0 a priori'de reddediliyor
+M16,multireg-r2,a-priori,0.15,0.05,0.80,,0,,,,,,,There must be at least 1 predictor.,M16.png,Yordayıcı = 0
+M17,multireg-r2,post-hoc,0.15,0.05,,100,5,15.0000000,2.3112702,5,94,,0.8429603,,M17.png,Post hoc standart
+M18,multireg-r2,post-hoc,0.02,0.05,,100,5,2.0000000,2.3112702,5,94,,0.1500336,,M18.png,Küçük etki
+M19,multireg-r2,post-hoc,0.35,0.05,,50,5,17.5000000,2.4270401,5,44,,0.8776229,,M19.png,Büyük etki
+M20,multireg-r2,post-hoc,0.15,0.05,,30,10,4.5000000,2.3779337,10,19,,0.1660743,,M20.png,
+M21,multireg-r2,post-hoc,0.15,0.05,,200,20,30.0000000,1.6295196,20,179,,0.9188539,,M21.png,
+M22,multireg-r2,post-hoc,0.15,0.05,,1000,1,150,3.8507934,1,998,,1.0000000,,M22.png,λ ekranda ondalıksız (150)
+M23,multireg-r2,post-hoc,0.15,0.001,,100,5,15.0000000,4.5070225,5,94,,0.3569078,,M23.png,α alt ucu
+M24,multireg-r2,post-hoc,0.15,0.2,,50,5,7.5000000,1.5304307,5,44,,0.7569492,,M24.png,α üst ucu
+M25,multireg-r2,post-hoc,0,0.05,,100,5,0,2.3112702,5,94,,0.0500000,,M25.png,f² = 0 post hoc'ta kabul ediliyor (güç = α); CONTRACT §5 f2 > 0 ister — kasıtlı sapma
+M26,multireg-r2,post-hoc,0.15,0.05,,6,5,,,,,,,Sample size must be greater than the number of predictors (5) + 2.,M26.png,N = yordayıcı + 1
+M27,multireg-r2,post-hoc,0.15,0.05,,7,5,1.0500000,230.1619,5,1,,0.0550542,,M27.png,N = yordayıcı + 2 kabul ediliyor (M26 mesajı "greater than" dese de); Critical F ekranda 4 ondalık
+M28,multireg-r2,post-hoc,-0.1,0.05,,100,5,,,,,,,"Effect size f² is outside the admissible range (0, 50).",M28.png,Negatif f²
