@@ -121,3 +121,38 @@ def validate_sample_size(n: Any, min_n: int = 2) -> None:
             OUT_OF_RANGE, "n_total",
             f"Örneklem büyüklüğü (n) izin verilen aralığın dışında: en az {min_n} olmalıdır, alınan: {n}",
         )
+
+
+# --- multireg-r2 (CONTRACT.md §4.5) ---------------------------------------------------------------
+# f² aralığı: CONTRACT.md §5 f2 > 0. G*Power'ın kabul ettiği üst sınır 50; a priori'de alt sınır 1e-06
+# (kâhin gözlemi: M15/M28 hata mesajları, oracle/gpower_multireg.csv). Post hoc'ta G*Power f² = 0'ı
+# kabul eder (M25); sözleşme reddeder.
+F2_MAX = 50.0
+A_PRIORI_MIN_F2 = 1e-06
+
+
+def validate_f2(f2: Any, a_priori: bool) -> None:
+    f2 = _require_finite("Etki büyüklüğü (f²)", "f2", f2)
+    if f2 <= 0.0:
+        raise ContractError(OUT_OF_RANGE, "f2", f"Etki büyüklüğü (f²) pozitif olmalıdır (f2 > 0), alınan: {f2}")
+    if a_priori and f2 < A_PRIORI_MIN_F2:
+        raise ContractError(OUT_OF_RANGE, "f2", f"A priori analizde f² en az {A_PRIORI_MIN_F2:g} olmalıdır, alınan: {f2}")
+    if f2 > F2_MAX:
+        raise ContractError(OUT_OF_RANGE, "f2", f"Etki büyüklüğü (f²) en çok {F2_MAX:g} olabilir, alınan: {f2}")
+
+
+def validate_predictors(predictors: Any) -> None:
+    """CONTRACT.md §5: predictors >= 1 (G*Power M16: "There must be at least 1 predictor.")."""
+    k = _require_integer("Yordayıcı sayısı", "predictors", predictors)
+    if k < 1:
+        raise ContractError(OUT_OF_RANGE, "predictors", f"En az 1 yordayıcı olmalıdır, alınan: {k}")
+
+
+def validate_n_for_predictors(n: Any, predictors: int) -> None:
+    """N >= yordayıcı + 2 (df2 >= 1). Kâhin: M26 reddedilir, M27 kabul edilir."""
+    number = _require_integer("Örneklem büyüklüğü (n)", "n_total", n)
+    if number < predictors + 2:
+        raise ContractError(
+            OUT_OF_RANGE, "n_total",
+            f"Örneklem büyüklüğü yordayıcı sayısı + 2'den küçük olamaz (en az {predictors + 2}), alınan: {n}",
+        )

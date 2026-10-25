@@ -37,6 +37,16 @@ FIELDS = {
                                 ("ncp", "critical_t", "df", "alpha")),
     ("t-paired", "sensitivity"): (("tails", "alpha", "power", "n_total"),
                                   ("ncp", "critical_t", "df", "dz")),
+    ("multireg-r2", "a-priori"): (("f2", "alpha", "power", "predictors"),
+                                  ("ncp", "critical_f", "df1", "df2", "n_total", "actual_power")),
+    ("multireg-r2", "post-hoc"): (("f2", "alpha", "n_total", "predictors"),
+                                  ("ncp", "critical_f", "df1", "df2", "power")),
+    ("multireg-r2", "compromise"): (("f2", "beta_alpha_ratio", "n_total", "predictors"),
+                                    ("ncp", "critical_f", "df1", "df2", "alpha", "beta", "power")),
+    ("multireg-r2", "criterion"): (("f2", "power", "n_total", "predictors"),
+                                   ("ncp", "critical_f", "df1", "df2", "alpha")),
+    ("multireg-r2", "sensitivity"): (("alpha", "power", "n_total", "predictors"),
+                                     ("ncp", "critical_f", "df1", "df2", "f2")),
 }
 INTEGER_FIELDS = {"tails", "n_total", "n1", "n2", "groups", "df", "predictors"}
 
@@ -45,7 +55,8 @@ ENGINE_PARAM = {"n_total": "n"}
 # Sözleşme çıktı alanı -> motorun iç sonuç anahtarı.
 OUTPUT_SOURCE = {"ncp": "ncp", "critical_t": "critical", "df": "df", "n_total": "n",
                  "actual_power": "actual_power", "power": "actual_power",
-                 "alpha": "alpha", "beta": "beta", "dz": "dz"}
+                 "alpha": "alpha", "beta": "beta", "dz": "dz",
+                 "critical_f": "critical", "df1": "df1", "df2": "df2", "f2": "f2"}
 
 # Ondalık ayırıcı her zaman nokta; Python'a özgü "1_000" ve "nan"/"inf" metinleri geçersiz.
 INTEGER_TEXT = re.compile(r"[+-]?\d+")

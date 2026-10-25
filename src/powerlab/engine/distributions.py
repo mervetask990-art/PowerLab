@@ -87,3 +87,37 @@ def find_root(func: Callable[[float], float], low: float, high: float,
         else:
             high = mid
     return 0.5 * (low + high)
+
+
+def expand_upper(func: Callable[[float], float], start: float, want_positive: bool,
+                 limit: float = 1e6) -> float:
+    """
+    Kök aralığının üst ucunu, fonksiyon istenen işarete geçene kadar ikiye katlayarak büyütür.
+    Sınır aşılırsa None yerine ValueError fırlatır; çağıran bunu NO_SOLUTION'a çevirir.
+    """
+    high = start
+    while (func(high) > 0.0) != want_positive:
+        high *= 2.0
+        if high > limit:
+            raise ValueError("kök aralığı aşıldı")
+    return high
+
+
+# --- F dağılımı (multireg-r2) ---------------------------------------------------------------------
+
+def f_critical_value(alpha: float, df1: int, df2: int) -> float:
+    """Merkezi F'nin (1 - α) yüzdeliği."""
+    return float(special.fdtri(df1, df2, 1.0 - alpha))
+
+
+def f_central_alpha(critical_f: float, df1: int, df2: int) -> float:
+    """Merkezi F altında kritik değeri aşma olasılığı."""
+    return float(special.fdtrc(df1, df2, critical_f))
+
+
+def ncf_power(critical_f: float, df1: int, df2: int, ncp: float) -> float:
+    """Merkezsiz F altında güç: 1 - F_ncf(critical; df1, df2, λ). NaN durumunda uç değere çekilir."""
+    cdf = special.ncfdtr(df1, df2, ncp, critical_f)
+    if math.isnan(cdf):
+        return 1.0 if ncp > critical_f * df1 else 0.0
+    return float(min(max(1.0 - cdf, 0.0), 1.0))

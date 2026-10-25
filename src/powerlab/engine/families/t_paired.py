@@ -12,7 +12,7 @@ verir (LEDGER L13); sözleşme bunu reddeder. Varsayılan değer yoktur (CONTRAC
 import math
 from typing import Dict, Any
 
-from powerlab.engine.distributions import central_alpha, find_root, nct_power, t_critical_value
+from powerlab.engine.distributions import central_alpha, expand_upper, find_root, nct_power, t_critical_value
 from powerlab.engine.errors import MISSING_PARAM, NO_SOLUTION, ContractError
 from powerlab.engine.validation import (
     validate_alpha,
@@ -129,13 +129,11 @@ _BRACKET_LIMIT = 1e6
 
 
 def _expand_upper(func, start: float, want_positive: bool) -> float:
-    """Kök aralığının üst ucunu, fonksiyon istenen işarete geçene kadar ikiye katlayarak büyütür."""
-    high = start
-    while (func(high) > 0.0) != want_positive:
-        high *= 2.0
-        if high > _BRACKET_LIMIT:
-            raise ContractError(NO_SOLUTION, None, "Bu girdilerle çözüm bulunamadı (kök aralığı aşıldı).")
-    return high
+    """Kök aralığının üst ucunu büyütür; aşılırsa NO_SOLUTION."""
+    try:
+        return expand_upper(func, start, want_positive, _BRACKET_LIMIT)
+    except ValueError:
+        raise ContractError(NO_SOLUTION, None, "Bu girdilerle çözüm bulunamadı (kök aralığı aşıldı).") from None
 
 
 def compromise(params: Dict[str, Any]) -> Dict[str, Any]:

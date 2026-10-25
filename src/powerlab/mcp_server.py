@@ -20,7 +20,7 @@ POWER_ANALYSIS_TOOL_SCHEMA = {
     "name": TOOL_NAME,
     "description": "İstatistiksel güç ve örneklem büyüklüğü analizi (CONTRACT.md 1.0.0). G*Power 3.1.9.7 "
                    "davranışını referans alan bağımsız bir yeniden yazım; G*Power değildir. Şu an uygulanan: "
-                   "t-paired a-priori, post-hoc, compromise, criterion ve sensitivity; diğerleri UNSUPPORTED döner.",
+                   "t-paired ve multireg-r2, beş modun hepsi; diğer aileler UNSUPPORTED döner.",
     "inputSchema": {
         "type": "object",
         "properties": {
@@ -33,6 +33,8 @@ POWER_ANALYSIS_TOOL_SCHEMA = {
             "n_total": {"type": "integer",
                         "description": "Toplam örneklem büyüklüğü, çift sayısı (post-hoc, compromise, criterion, sensitivity)"},
             "beta_alpha_ratio": {"type": "number", "description": "β/α oranı (> 0; yalnızca compromise)"},
+            "f2": {"type": "number", "description": "Etki büyüklüğü f² (> 0; multireg-r2)"},
+            "predictors": {"type": "integer", "description": "Yordayıcı sayısı (>= 1; multireg-r2)"},
         },
         "required": ["test", "mode"],
     },

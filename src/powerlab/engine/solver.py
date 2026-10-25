@@ -8,7 +8,7 @@ Test ve mod kimlikleri CONTRACT.md §3 ve §4'teki gibi birebirdir; takma ad yok
 from typing import Any, Dict
 
 from powerlab.engine.errors import UNSUPPORTED, ContractError
-from powerlab.engine.families import t_paired
+from powerlab.engine.families import multireg_r2, t_paired
 
 # Uygulanan (test, mod) çiftleri ve çözücüleri.
 IMPLEMENTED = {
@@ -17,6 +17,11 @@ IMPLEMENTED = {
     ("t-paired", "compromise"): t_paired.compromise,
     ("t-paired", "criterion"): t_paired.criterion,
     ("t-paired", "sensitivity"): t_paired.sensitivity,
+    ("multireg-r2", "a-priori"): multireg_r2.solve_n,
+    ("multireg-r2", "post-hoc"): multireg_r2.compute_power,
+    ("multireg-r2", "compromise"): multireg_r2.compromise,
+    ("multireg-r2", "criterion"): multireg_r2.criterion,
+    ("multireg-r2", "sensitivity"): multireg_r2.sensitivity,
 }
 
 # CONTRACT.md'de tanımlı ama bu motorda uygulanmamış kimlikler de UNSUPPORTED döner.
