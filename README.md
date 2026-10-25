@@ -19,7 +19,8 @@
 - [x] **Katman 4: Diferansiyel Test & Doğrulama** (G*Power'a karşı 33/34 vektör tüm alanlarda eşleşiyor, %90 kapısı geçti; kasıtlı sapmalar kapı dışında; eğitmen protokolünde uygulanan 10/10 uyumlu (t-paired ve multireg-r2, beşer mod); bkz. `tests/report/conformance.md`)
 - [x] **Bonus aile multireg-r2** (G*Power ekran görüntüleri M01–M28, `oracle/gpower_multireg.csv`: 22/22 sayısal uyumlu, 5 G*Power hatası kodlu hata, M25 kasıtlı sapma; eğitmen vektörlerinden 5/5 uyumlu; beş modun hepsi; LEDGER L41–L45)
 - [x] **Bonus modlar (t-paired): compromise, criterion, sensitivity** (G*Power ekran görüntüleri K01–K09, `oracle/gpower_bonus_modes.csv`: 9/9 uyumlu; eğitmen vektörlerinden 3/3 uyumlu; LEDGER L37–L40)
-- [ ] **Katman 5 (Bonus): MCP Sunucusu & Türkçe Klinik Ajan** (taslak kod var: `src/powerlab/mcp_server.py`, `src/powerlab/agent/`; gerçek MCP el sıkışması yok, ajan kural tabanlı, benchmark ölçülmedi)
+- [x] **Bonus: MCP sunucusu** (`gpower-clone-mcp`, stdio JSON-RPC; `initialize` el sıkışması, `tools/list`, `tools/call`; 25 vektörde CLI = MCP; `tests/test_mcp_protocol.py`, `tests/test_mcp_equivalence.py`)
+- [ ] **Bonus: Türkçe klinik ajan** (taslak kod var: `src/powerlab/agent/`; kural tabanlı, `logs/agent_calls.jsonl` henüz yok, benchmark ölçülmedi)
 
 **Kapsam (ödev ataması):** `t-paired` zorunlu (`a-priori`, `post-hoc`); `multireg-r2` bonus (uygulandı, beş mod).
 `t2-indep`, `anova-oneway` ve `chi2-contingency` bu ödevin kapsamı dışındadır; CLI bunlar için `UNSUPPORTED` döner.
@@ -49,21 +50,45 @@ Birincil komut `gpower-clone`, ikinci komut `powerlab`; ikisi de aynı CLI'yi ç
 
 ## 2. MCP Araç Şeması (Model Context Protocol)
 
-Sunucu modülü: `src/powerlab/mcp_server.py`  
-Protokol: Model Context Protocol (MCP) / JSON-RPC 2.0 (stdio)
+Sunucu modülü: `src/powerlab/mcp_server.py`, komut: `gpower-clone-mcp`  
+Protokol: Model Context Protocol (MCP) / JSON-RPC 2.0, stdio (satır başına bir mesaj). Desteklenen protokol
+sürümleri: `2025-06-18`, `2025-03-26`, `2024-11-05`. Yöntemler: `initialize`, `ping`, `tools/list`, `tools/call`;
+bildirimlere (`notifications/*`) yanıt verilmez. stdout'a yalnızca JSON-RPC yazılır, stderr boştur.
 
-| Araç Adı | Parametre | Tip | Zorunlu? | Açıklama |
-|---|---|---|---|---|
-| `power_analysis` | `test` | string | Evet | CONTRACT.md test kimliği; uygulanan: `t-paired` (diğerleri `UNSUPPORTED`) |
-| `power_analysis` | `mode` | string | Evet | `a-priori` ya da `post-hoc` (bonus modlar `UNSUPPORTED`) |
-| `power_analysis` | `tails` | integer | Evet | 1 (tek yönlü) ya da 2 (çift yönlü); varsayılan yok |
-| `power_analysis` | `dz` | number | Evet | Etki büyüklüğü $d_z > 0$; a priori'de $\ge 0.00001$ |
-| `power_analysis` | `alpha` | number | Evet | Anlamlılık düzeyi $\alpha \in (0, 1)$ |
-| `power_analysis` | `power` | number | Yalnızca a-priori | Hedef güç $1 - \beta \in (0, 1)$, güç ≥ α |
-| `power_analysis` | `n_total` | integer | Yalnızca post-hoc | Örneklem çift sayısı ($N \ge 3$) |
+### Bağlama
 
-Alan adları CLI ile birebirdir; çıktı, CLI'nin stdout JSON'u ile aynı metindir (`content[0].text`), hata da aynı
-hata JSON'udur (`isError: true`). 25 referans vektöründe CLI = MCP eşdeğerliği `tests/test_mcp_equivalence.py` ile test edilir.
+Claude Code (repo kökünde, kurulumdan sonra; Smart App Control engeline karşı imzalı Python ile):
+
+```powershell
+claude mcp add powerlab -- "$PWD\.venv\Scripts\python.exe" -m powerlab.mcp_server
+```
+
+Claude Desktop (`claude_desktop_config.json`; yol kendi repo konumunuzla değiştirilir):
+
+```json
+{"mcpServers": {"powerlab": {"command": "C:\\yol\\rea_test\\.venv\\Scripts\\python.exe",
+                             "args": ["-m", "powerlab.mcp_server"]}}}
+```
+
+### Araç: `power_analysis`
+
+| Parametre | Tip | Açıklama |
+|---|---|---|
+| `test` | string | Zorunlu. CONTRACT.md test kimliği; uygulanan: `t-paired`, `multireg-r2` (diğerleri `UNSUPPORTED`) |
+| `mode` | string | Zorunlu. `a-priori`, `post-hoc`, `compromise`, `criterion`, `sensitivity` |
+| `tails` | integer | t-paired: 1 ya da 2; varsayılan yok |
+| `dz` | number | t-paired etki büyüklüğü $d_z > 0$ |
+| `f2` | number | multireg-r2 etki büyüklüğü $f^2 > 0$ |
+| `predictors` | integer | multireg-r2 yordayıcı sayısı (≥ 1) |
+| `alpha` | number | $\alpha \in (0, 1)$ (compromise ve criterion hariç) |
+| `power` | number | Hedef güç (a-priori, criterion, sensitivity) |
+| `n_total` | integer | Toplam örneklem (a-priori hariç) |
+| `beta_alpha_ratio` | number | β/α oranı (yalnızca compromise) |
+
+Hangi alanın hangi modda zorunlu olduğu CONTRACT.md §4'teki gibidir; eksik ya da ilgisiz alan CLI'deki aynı hata
+JSON'unu verir. Çıktı, CLI'nin stdout JSON'u ile aynı metindir (`content[0].text`), hata da aynı hata JSON'udur
+(`isError: true`). 25 referans vektöründe CLI = MCP eşdeğerliği `tests/test_mcp_equivalence.py`, istemci akışı
+(el sıkışma, bildirim, ayrı süreçte stdio oturumu) `tests/test_mcp_protocol.py` ile test edilir.
 
 ---
 
