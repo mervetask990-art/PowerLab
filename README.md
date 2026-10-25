@@ -20,7 +20,7 @@
 - [x] **Bonus aile multireg-r2** (G*Power ekran görüntüleri M01–M28, `oracle/gpower_multireg.csv`: 22/22 sayısal uyumlu, 5 G*Power hatası kodlu hata, M25 kasıtlı sapma; eğitmen vektörlerinden 5/5 uyumlu; beş modun hepsi; LEDGER L41–L45)
 - [x] **Bonus modlar (t-paired): compromise, criterion, sensitivity** (G*Power ekran görüntüleri K01–K09, `oracle/gpower_bonus_modes.csv`: 9/9 uyumlu; eğitmen vektörlerinden 3/3 uyumlu; LEDGER L37–L40)
 - [x] **Bonus: MCP sunucusu** (`gpower-clone-mcp`, stdio JSON-RPC; `initialize` el sıkışması, `tools/list`, `tools/call`; 25 vektörde CLI = MCP; `tests/test_mcp_protocol.py`, `tests/test_mcp_equivalence.py`)
-- [ ] **Bonus: Türkçe klinik ajan** (taslak kod var: `src/powerlab/agent/`; kural tabanlı, `logs/agent_calls.jsonl` henüz yok, benchmark ölçülmedi)
+- [x] **Bonus: AI ajanı** (`gpower-clone-agent`, Gemini + MCP istemcisi; hesap yapmaz, söylenmeyen değeri varsaymaz; log `logs/agent_calls.jsonl`, CONTRACT.md §8; `tests/test_agent.py`)
 
 **Kapsam (ödev ataması):** `t-paired` zorunlu (`a-priori`, `post-hoc`); `multireg-r2` bonus (uygulandı, beş mod).
 `t2-indep`, `anova-oneway` ve `chi2-contingency` bu ödevin kapsamı dışındadır; CLI bunlar için `UNSUPPORTED` döner.
@@ -98,14 +98,51 @@ JSON'unu verir. Çıktı, CLI'nin stdout JSON'u ile aynı metindir (`content[0].
 
 ---
 
-## 3. Türkçe Akıllı Klinik Ajan ve Benchmark (Bonus)
+## 3. AI Ajanı (Bonus, CONTRACT.md §8)
 
-Ajan modülü: `src/powerlab/agent/clinical_agent.py`  
-Benchmark çalıştırıcısı: `python eval/evaluate_agent.py`
+Modül: `src/powerlab/agent/` · komut: `gpower-clone-agent` · model: Gemini (REST, ek paket yok)
 
-### Benchmark Sonuçları (10 Klinik Soru):
-- **Henüz ölçülmedi.** Beklenen etiketler ve `expected_n` değerleri ajanla aynı oturumda yazıldı ve hiçbir kâhinle doğrulanmadı.
-- **Ajan Çağrı Günlüğü**: henüz yok; ajan çalıştırılmadı. Ajan çalışınca `eval/agent_calls.jsonl` dosyasına yazar (CONTRACT.md §8 `logs/agent_calls.jsonl` ister). Eski, geçersiz çalıştırma: `eval/_eski/agent_calls.jsonl`.
+```
+Soru (Türkçe) -> ajan -> Gemini -> power_analysis çağrısı -> MCP istemcisi -> gpower-clone-mcp -> motor
+                  \-> logs/agent_calls.jsonl (araca ulaşan her çağrı tek satır)
+```
+
+- **Hesap yapmaz.** Ajan, `powerlab.mcp_server`'ı ayrı süreç olarak başlatan gerçek bir MCP istemcisidir
+  (`initialize` -> `tools/list` -> `tools/call`); sayılar yalnızca aracın JSON'undan gelir.
+- **Söylenmeyen değeri varsaymaz (§10).** Model `dz`, `f2`, `alpha`, `power`, `n_total`, `predictors`,
+  `beta_alpha_ratio` ya da `tails` için kullanıcının yazmadığı bir değerle aracı çağırmaya kalkarsa çağrı
+  araca gitmeden durdurulur (`NOT_STATED`) ve model kullanıcıya sorar. "Orta etki" dendiğinde ajan 0.5'i
+  önerir ve onay ister; kullanıcı "evet" derse önerideki değer onaylı sayılır (`src/powerlab/agent/grounding.py`).
+- **Log (§8):** `{"ts", "question", "tool_input", "tool_output", "tokens_in", "tokens_out"}`. `question`
+  konuşmadaki kullanıcı mesajlarıdır (` | ` ile); token sayıları çağrıyı üreten model yanıtınındır (Gemini
+  `usageMetadata`). Araca ulaşmayan (engellenen) çağrılar loglanmaz.
+- **Kapsam dışı sorular** (Wilcoxon, ANOVA, ...) için hesap yapılmaz.
+
+### Kurulum ve çalıştırma
+
+1. `.env.example` dosyasını `.env` adıyla kopyalayın; `GEMINI_API_KEY=` satırına anahtarı
+   (https://aistudio.google.com/apikey), isterseniz `GEMINI_MODEL=` satırına model kimliğini yazın
+   (ör. `gemini-3.5-flash-lite`; görünen ad değil, kimlik). `.env` `.gitignore`'dadır; anahtar repoya, loga ve
+   çıktıya yazılmaz (`tests/test_agent.py` denetler). Ortam değişkeni `GEMINI_API_KEY` de kullanılabilir.
+2. Etkileşimli: `.\.venv\Scripts\python -m powerlab.agent.agent` (ya da `gpower-clone-agent`); `çıkış` ile biter.
+3. Tek soru: `... --once --question "<soru>" [--reply "<ajan sorarsa yanıt>"]`.
+
+Testler gerçek model kullanmaz (sahte model; Gemini istemcisi ağsız sınanır), anahtar gerektirmez.
+
+### Gerçek çalıştırma (2026-10-25, `gemini-3.5-flash-lite`, kurgusal senaryolar)
+
+`logs/agent_calls.jsonl` bu çalıştırmanın logudur (4 araç çağrısı).
+
+| Senaryo | Ajanın davranışı | Araç sonucu | Kâhin |
+|---|---|---|---|
+| Değerler tam: t-paired, tek yönlü, dz 0.5, α 0.05, güç 0.95 | Aracı çağırdı | `n_total` 45 | §9 t-paired/a-priori |
+| "Orta etki", tek yönlü, α 0.05, güç 0.95 | dz = 0.5 için onay istedi; "evet" sonrası çağırdı | `n_total` 45 | §9 t-paired/a-priori |
+| multireg-r2, 2 yordayıcı, f² 0.15, α 0.05, güç 0.95 | Aracı çağırdı | `n_total` 107 | §9 multireg-r2/a-priori |
+| t-paired post hoc, 45 çift, dz 0.5, α 0.05, kuyruk yok | Kuyruk sayısını sordu; "tek yönlü" sonrası çağırdı | `power` 0.9512400 | §9 t-paired/post-hoc |
+| Wilcoxon işaretli sıra testi | Hesap yapmadı, kapsam dışı dedi | çağrı yok | — |
+
+Ajanın cümleleri her çalıştırmada farklı olabilir; sayılar araçtan geldiği için değişmez. Eski kural tabanlı
+ajan ve doğrulanmamış değerlendirme dosyaları `eval/_eski/` altındadır (bkz. oradaki README).
 
 ### Token / Süre / Doğruluk Karşılaştırması: MCP Yolu vs. GUI Yolu
 
