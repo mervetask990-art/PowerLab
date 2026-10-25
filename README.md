@@ -60,8 +60,14 @@ bildirimlere (`notifications/*`) yanıt verilmez. stdout'a yalnızca JSON-RPC ya
 Claude Code (repo kökünde, kurulumdan sonra; Smart App Control engeline karşı imzalı Python ile):
 
 ```powershell
-claude mcp add powerlab -- "$PWD\.venv\Scripts\python.exe" -m powerlab.mcp_server
+claude.cmd mcp add powerlab -- "$PWD\.venv\Scripts\python.exe" -m powerlab.mcp_server
+claude.cmd mcp get powerlab   # Status: Connected
 ```
+
+PowerShell'de `claude` komutu `claude.ps1` betiğine gider ve PowerShell betiklere giden `--` ayıracını siler;
+`claude` `-m` seçeneğini kendisine ait sanar (`error: unknown option '-m'`). `claude.cmd` bu sorunu yaşamaz.
+Bağlandıktan sonra Claude Code'a örneğin "power_analysis aracıyla t-paired a-priori, tails 1, dz 0.5, alpha 0.05,
+power 0.95 hesapla" denir; Claude `mcp__powerlab__power_analysis` aracını çağırır ve N = 45 döner.
 
 Claude Desktop (`claude_desktop_config.json`; yol kendi repo konumunuzla değiştirilir):
 
