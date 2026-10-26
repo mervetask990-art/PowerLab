@@ -23,7 +23,9 @@
 - [x] **Bonus: AI ajanı** (`gpower-clone-agent`, Gemini + MCP istemcisi; hesap yapmaz, söylenmeyen değeri varsaymaz; Sistem 1 sınıflandırıcısı; log `logs/agent_calls.jsonl`, CONTRACT.md §8; 10 soruluk değerlendirme TR 10/10, EN 10/10; MCP–GUI token karşılaştırması; `eval/AGENT_EVAL.md`)
 - [x] **Ölçek: statsmodels referans ağı** (516 vektör, kâhin değil; karşılaştırılabilen 499'un 499'u uyumlu; `tests/report/reference_grid.md`)
 
-**Demo videoları:** CLI (60 sn): _[YouTube linki eklenecek]_ · MCP ve ajan: _[YouTube linki eklenecek]_
+**Demo videosu (60 sn):** https://youtu.be/mPegltkb1R8 — temel katman (t-paired a priori, post hoc, geçersiz
+girdi) ve bonuslar (compromise modu, multireg-r2, MCP el sıkışması ve araç çağrısı, Türkçe ajan ve "orta etki"
+onayı, test özeti).
 
 **Ortam kontrolü (yönerge, Kurulum):** REA araçları ve Ghidra sağlayıcısının oturumda kullanılabilirliği:
 ![REA ve Ghidra kontrolü](docs/rea_kontrol.png)
