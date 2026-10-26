@@ -20,7 +20,13 @@
 - [x] **Bonus aile multireg-r2** (G*Power ekran görüntüleri M01–M28, `oracle/gpower_multireg.csv`: 22/22 sayısal uyumlu, 5 G*Power hatası kodlu hata, M25 kasıtlı sapma; eğitmen vektörlerinden 5/5 uyumlu; beş modun hepsi; LEDGER L41–L45)
 - [x] **Bonus modlar (t-paired): compromise, criterion, sensitivity** (G*Power ekran görüntüleri K01–K09, `oracle/gpower_bonus_modes.csv`: 9/9 uyumlu; eğitmen vektörlerinden 3/3 uyumlu; LEDGER L37–L40)
 - [x] **Bonus: MCP sunucusu** (`gpower-clone-mcp`, stdio JSON-RPC; `initialize` el sıkışması, `tools/list`, `tools/call`; 25 vektörde CLI = MCP; `tests/test_mcp_protocol.py`, `tests/test_mcp_equivalence.py`)
-- [x] **Bonus: AI ajanı** (`gpower-clone-agent`, Gemini + MCP istemcisi; hesap yapmaz, söylenmeyen değeri varsaymaz; log `logs/agent_calls.jsonl`, CONTRACT.md §8; `tests/test_agent.py`)
+- [x] **Bonus: AI ajanı** (`gpower-clone-agent`, Gemini + MCP istemcisi; hesap yapmaz, söylenmeyen değeri varsaymaz; Sistem 1 sınıflandırıcısı; log `logs/agent_calls.jsonl`, CONTRACT.md §8; 10 soruluk değerlendirme TR 10/10, EN 10/10; MCP–GUI token karşılaştırması; `eval/AGENT_EVAL.md`)
+- [x] **Ölçek: statsmodels referans ağı** (516 vektör, kâhin değil; karşılaştırılabilen 499'un 499'u uyumlu; `tests/report/reference_grid.md`)
+
+**Demo videoları:** CLI (60 sn): _[YouTube linki eklenecek]_ · MCP ve ajan: _[YouTube linki eklenecek]_
+
+**Ortam kontrolü (yönerge, Kurulum):** REA araçları ve Ghidra sağlayıcısının oturumda kullanılabilirliği:
+![REA ve Ghidra kontrolü](docs/rea_kontrol.png)
 
 **Kapsam (ödev ataması):** `t-paired` zorunlu (`a-priori`, `post-hoc`); `multireg-r2` bonus (uygulandı, beş mod).
 `t2-indep`, `anova-oneway` ve `chi2-contingency` bu ödevin kapsamı dışındadır; CLI bunlar için `UNSUPPORTED` döner.
@@ -117,6 +123,11 @@ Soru (Türkçe) -> ajan -> Gemini -> power_analysis çağrısı -> MCP istemcisi
   konuşmadaki kullanıcı mesajlarıdır (` | ` ile); token sayıları çağrıyı üreten model yanıtınındır (Gemini
   `usageMetadata`). Araca ulaşmayan (engellenen) çağrılar loglanmaz.
 - **Kapsam dışı sorular** (Wilcoxon, ANOVA, ...) için hesap yapılmaz.
+- **Sistem 1 (test ailesi seçimi, `src/powerlab/agent/classifier.py`):** Jev erişimi olmadığı için yönergedeki
+  izinle aynı etiket setine (`t2-indep`, `t-paired`, `anova-oneway`, `chi2-contingency`, `multireg-r2`,
+  `ambiguous`, `unsupported`) JSON şemasıyla kısıtlanmış Gemini kullanılır. Sınıflandırıcı sayı üretmez.
+  Güven < 0.75, `ambiguous` / `unsupported` ya da uygulanmamış bir aile ise ajan hesaba geçmeden araştırmacıya
+  sorar; güvenle seçilen aile dışında bir test ile yapılan çağrı araca gitmez (`WRONG_TEST`).
 
 ### Kurulum ve çalıştırma
 
@@ -131,7 +142,8 @@ Testler gerçek model kullanmaz (sahte model; Gemini istemcisi ağsız sınanır
 
 ### Gerçek çalıştırma (2026-10-25, `gemini-3.5-flash-lite`, kurgusal senaryolar)
 
-`logs/agent_calls.jsonl` bu çalıştırmanın logudur (4 araç çağrısı).
+`logs/agent_calls.jsonl`'in ilk 4 satırı bu demo çalıştırmasının, sonraki satırlar değerlendirme setinin
+(aşağıda) araç çağrılarıdır. Bu demo, sınıflandırıcı eklenmeden önce çalıştırıldı.
 
 | Senaryo | Ajanın davranışı | Araç sonucu | Kâhin |
 |---|---|---|---|
@@ -144,9 +156,33 @@ Testler gerçek model kullanmaz (sahte model; Gemini istemcisi ağsız sınanır
 Ajanın cümleleri her çalıştırmada farklı olabilir; sayılar araçtan geldiği için değişmez. Eski kural tabanlı
 ajan ve doğrulanmamış değerlendirme dosyaları `eval/_eski/` altındadır (bkz. oradaki README).
 
+### Değerlendirme seti (10 soru, Türkçe ve İngilizce)
+
+Set: `eval/agent_eval.jsonl` — her soru için beklenen aile, parametreler ve N / güç; beklenen değerler G*Power
+ekran görüntülerinden (V02, V03, V05, V27, M01, M17) ya da CONTRACT.md §9'dan gelir
+(`tests/test_agent_eval_set.py` denetler). Ayrıntılı rapor: **`eval/AGENT_EVAL.md`** (ham sonuçlar `eval/results/`).
+
+| Ölçüt (`gemini-3.5-flash-lite`) | Türkçe | İngilizce |
+|---|---|---|
+| Test ailesi doğru seçildi | 10/10 | 10/10 |
+| Uçtan uca doğru davranış (doğru N / güç ya da doğru şekilde hesap yapmama) | 10/10 | 10/10 |
+| Kalibrasyon | 20 seçimin hepsi 0.90–1.00 güvenle, 20/20 doğru (örneklem küçük; düşük güven bandı sınanmadı) | |
+
 ### Token / Süre / Doğruluk Karşılaştırması: MCP Yolu vs. GUI Yolu
 
-Henüz ölçülmedi.
+Hesap gerektiren 6 soru (E01–E06), aynı model. Ayrıntı ve sınırlar `eval/AGENT_EVAL.md`'de.
+
+| Yol | Toplam token | Toplam süre | Doğru |
+|---|---|---|---|
+| MCP (sınıflandırıcı + ajan + `power_analysis`) | 18 577 | 36.8 s | 6/6 |
+| GUI, alt sınır (sonucu gösteren tek G*Power ekran görüntüsünün okunması) | 7 582 | 10.6 s | 6/6 |
+
+**Bulgu:** Tek ekran görüntüsü (~1.3 bin token) bizim ajan döngüsünden (soru başına ~2.6–5.2 bin token) ucuz
+çıktı; döngünün tokenlarının çoğu her turda yeniden gönderilen sistem talimatı ve araç şemasıdır. Başabaş noktası
+soru başına ~2.5 ekran görüntüsüdür; G*Power'da bir hesap en az üç ekran gerektirdiği için gerçek bir GUI ajanı
+büyük olasılıkla daha pahalıdır, ama bu **tahmindir**, bir GUI ajanı çalıştırılmadı. GUI yolunda doğru değer
+yalnızca birisi G*Power'a girdileri doğru girdiyse ekrandadır; MCP yolunda değer G*Power'a karşı test edilmiş
+motordan gelir.
 
 ### İnceleme Altındaki Binary Bilgileri
 - **Yazılım**: G*Power 3.1.9.7 for Windows (taşınabilir paket `GPowerWin_3.1.9.7`, kurulum gerektirmez)
@@ -165,7 +201,7 @@ Henüz ölçülmedi.
 
 ---
 
-## 2. Mimari Yapı
+## 4. Mimari Yapı
 
 ```text
 repo/
@@ -185,12 +221,17 @@ repo/
 │   └── NOTLAR.md              # Sonradan alınan kararlar (orijinal prompt'lar değiştirilmez)
 ├── oracle/
 │   ├── gpower_vectors.csv         # G*Power kâhini: 43 vektör (43'ü görüntülü, 39'u dolu)
+│   ├── gpower_bonus_modes.csv     # G*Power kâhini: t-paired bonus modları K01–K09
+│   ├── gpower_multireg.csv        # G*Power kâhini: multireg-r2 M01–M28
+│   ├── public_vectors.jsonl       # Eğitmen protokolü (CONTRACT.md §9)
 │   ├── TOPLAMA_LISTESI.md         # G*Power'da girilecek vektörlerin yazdırılabilir kontrol listesi
 │   ├── generate_toplama_listesi.py
-│   ├── screenshots/               # G*Power ekran görüntüleri (Vxx.png)
+│   ├── screenshots/               # G*Power ekran görüntüleri (V, K, M; 80 adet)
 │   ├── README.md                  # oracle/ dosyalarının kâhin statüsü
 │   ├── reference_statsmodels.csv  # KÂHİN DEĞİL: statsmodels TTestPower ile çapraz kontrol
 │   ├── generate_reference_statsmodels.py
+│   ├── reference_grid.csv         # KÂHİN DEĞİL: statsmodels ile 516 vektörlük ölçek ağı
+│   ├── generate_reference_grid.py
 │   ├── selfcheck_scipy.csv        # KÂHİN DEĞİL: motorun kendi kendine tutarlılık verisi
 │   ├── generate_selfcheck_scipy.py
 │   ├── boundary_vectors.csv       # Sınır değerler
@@ -205,18 +246,25 @@ repo/
 │       │   ├── errors.py          # ContractError (code, field)
 │       │   ├── validation.py      # Geçersiz girdi kuralları
 │       │   └── families/
-│       │       └── t_paired.py    # Eşleştirilmiş t-testi
+│       │       ├── t_paired.py    # Eşleştirilmiş t-testi (beş mod)
+│       │       └── multireg_r2.py # Çoklu regresyon R² (bonus, beş mod)
 │       ├── cli.py                 # İnce katman: argparse -> engine -> JSON
-│       ├── mcp_server.py          # İnce katman (bonus MCP)
+│       ├── mcp_server.py          # İnce katman (bonus MCP, stdio JSON-RPC)
 │       ├── ui/                    # İsteğe bağlı yerel web arayüzü (gpower-clone-ui; ödev kapsamı dışında)
-│       └── agent/                 # Bonus Türkçe klinik soru ajanı
+│       └── agent/                 # Bonus AI ajanı: agent, classifier, grounding, gemini, mcp_client, config
+├── eval/                      # Ajan değerlendirmesi: agent_eval.jsonl, AGENT_EVAL.md, results/, _eski/
+├── logs/agent_calls.jsonl     # Ajanın araç çağrısı logu (CONTRACT.md §8)
 └── tests/
     ├── test_differential.py       # Oracle CSV'lerini koşar
     ├── test_boundaries.py
     ├── test_cli_contract.py
     ├── test_cli_mcp_parity.py
     ├── test_reference_statsmodels.py  # statsmodels çapraz kontrolü (kâhin değil)
-    └── report/conformance.md      # Otomatik üretilen uyum raporu
+    ├── test_reference_grid.py     # 516 vektörlük statsmodels ağı (kâhin değil)
+    ├── test_multireg.py, test_bonus_modes.py, test_public_vectors.py
+    ├── test_mcp_equivalence.py, test_mcp_protocol.py   # CLI = MCP, istemci akışı
+    ├── test_agent.py, test_agent_classifier.py, test_agent_eval_set.py
+    └── report/                    # conformance.md (G*Power uyumu), reference_grid.md
 ```
 
 ### Kâhin ve self-check ayrımı
@@ -241,7 +289,7 @@ repo/
 
 ---
 
-## 3. CLI Kullanım Sözleşmesi
+## 5. CLI Kullanım Sözleşmesi
 
 Komut adı: `gpower-clone` (birincil), `powerlab` (ikincil). Kurulum yapılmadan `python -m powerlab.cli` de aynı CLI'yi çalıştırır.
 
@@ -342,7 +390,7 @@ Seçenekler: `--port 8765`, `--no-browser`. Komut tanınmıyorsa bir kez `pip in
 
 ---
 
-## 4. Yazılım Mühendisliği & Sommerville Bağlantısı (Sınav Notları)
+## 6. Yazılım Mühendisliği & Sommerville Bağlantısı (Sınav Notları)
 
 1. **Doğrulama (Verification) vs. Geçerleme (Validation)**:
    - *Verification ("Did we build the system right?")*: Motorun `SPEC.md` matematiksel tanımına ve test senaryolarına tam uygun çalıştığının birim testlerle (`pytest`) kanıtlanması.

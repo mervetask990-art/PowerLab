@@ -55,8 +55,8 @@ Prompt cache (main):   81 requests · 98% of input tokens from cache · no misse
 
 ## Token ve Maliyet Özeti
 - **Oturumlar**: yukarıdaki Gemini tablosu (tahmini, önceki araç); 2026-10-20 denetim ve temizlik turları;
-  inceleme oturumu 1 (`c5b7bad`) ve 2 (`0f99cf1`); 2026-10-22 yazım oturumu. Bonus (MCP sunucusu, ajan)
-  tamamlanmadı (README, Katman 5).
+  inceleme oturumu 1 (`c5b7bad`) ve 2 (`0f99cf1`); 2026-10-22 yazım oturumu; 2026-10-25/26 bonus oturumu
+  (aşağıda).
 - **Toplam Token Harcaması**: ~69,000 token (tahmini, önceki araç: yalnızca Gemini satırlarının toplamı)
 - **Birim Maliyet Referansı**: Gemini 1.5 Flash tarifesi (tahmini, önceki araç)
 - **Ölçülen maliyet**: yalnızca 2026-10-22 Claude Code oturumu, $6.48 (yukarıdaki `/cost` çıktısı)
@@ -65,3 +65,35 @@ Prompt cache (main):   81 requests · 98% of input tokens from cache · no misse
   satırlarına göre değiştirdi: L18–L21 kuralları `095f284`'te kodda kanıtlarıyla anıldı; L32/L33 girdi
   aralıkları önce kırmızı test (`063075d`), sonra motor (`818a9d6`) olarak eklendi. Eski Gemini dönemi notu
   kanıtsız olduğu için kaldırıldı.
+
+---
+
+## Bonus oturumu (2026-10-25/26, Claude Code / Claude Opus 5.5)
+
+| Adım | İçerik | Commit |
+|---|---|---|
+| multireg-r2 | Beş mod; G*Power M01–M28 (22/22 sayısal), eğitmen vektörleri 5/5 | `9342247`…`e6506ef` |
+| MCP sunucusu | `initialize` el sıkışması, `gpower-clone-mcp`, BOM düzeltmesi, Claude Code ile canlı bağlantı | `b816891`…`e152c15` |
+| AI ajanı | Gemini + MCP istemcisi, değer kaynağı denetimi (§10), log (§8) | `65f411a`…`48bcf4f` |
+| Ölçek ağı | statsmodels 516 vektör, 499/499 uyumlu; `FTestPower` takası bulundu (H12) | `94eed4c` |
+| Sistem 1 ve değerlendirme | Sınıflandırıcı, 10 soruluk set (TR 10/10, EN 10/10), MCP–GUI token ölçümü | `f6308b8`…`40a9b59` |
+
+İterasyon: her adım önce kırmızı test, sonra kod (yeşil), sonra belge; canlı denemelerde iki hata yakalandı
+(H10 `--` ayıracı, H11 UTF-8 BOM) ve bir yanlış varsayım düzeltildi (H12).
+
+**Ajanın kendi model maliyeti (ölçülen, Gemini `usageMetadata`, `gemini-3.5-flash-lite`, ücretsiz katman):**
+
+| Çalıştırma | Giriş token | Çıkış token |
+|---|---|---|
+| Değerlendirme, MCP yolu, Türkçe (10 soru) | 18 685 | 1 192 |
+| Değerlendirme, MCP yolu, İngilizce (10 soru) | 18 592 | 1 212 |
+| Değerlendirme, GUI yolu (6 soru, ekran görüntüsüyle) | 7 555 | 27 |
+| Demo videosu (5 senaryo, `logs/agent_calls.jsonl` ilk 4 satır) | yalnızca araç çağıran turlar loglandı | |
+
+Ücretsiz katman kullanıldığı için para maliyeti $0. Ham sayılar: `eval/results/`, `logs/agent_calls.jsonl`.
+
+**Claude Code oturumunun maliyeti:** _[`/cost` çıktısı eklenecek]_
+
+**Neyi farklı yapardım:** Canlı istemciyle denemeyi (gerçek Claude Code, gerçek PowerShell) belgeyi yazmadan
+önce yapardım; H10 ve H11 birim testlerin göremediği, yalnızca gerçek ortamda çıkan hatalardı. Bağımsız bir
+kütüphaneyi kullanmadan önce kâhin vektörüyle sınamak (H12) baştan kural olmalıydı.
