@@ -92,7 +92,19 @@ Prompt cache (main):   81 requests · 98% of input tokens from cache · no misse
 
 Ücretsiz katman kullanıldığı için para maliyeti $0. Ham sayılar: `eval/results/`, `logs/agent_calls.jsonl`.
 
-**Claude Code oturumunun maliyeti:** _[`/cost` çıktısı eklenecek]_
+**Claude Code oturumunun maliyeti (`/cost`, 2026-10-26, kullanıcının yapıştırdığı çıktıdan aynen):**
+
+```text
+Session:
+- Opus 5.5: 178 in / 80k out / 27.5M cache read / 487k cache write
+- Cost: $56.16 | API 80m | Wall 14m
+```
+
+> Kapsam notu: Bu oturum terminalde başladı ve 2026-10-26'da Claude masaüstü uygulamasında sürdü. "Wall 14m"
+> yalnızca masaüstü kısmının duvar süresidir; "Cost" ve token satırının terminaldeki önceki kısmı (2026-10-25:
+> multireg-r2, MCP, ajan) kapsayıp kapsamadığı çıktıdan anlaşılmıyor. Terminal kısmı için ayrı bir `/cost`
+> alınmadı. Girdi tokenlarının çoğu önbellekten okundu (27.5M cache read); maliyetin büyük kısmı bundan ve
+> 80k çıktı tokenından gelir.
 
 **Neyi farklı yapardım:** Canlı istemciyle denemeyi (gerçek Claude Code, gerçek PowerShell) belgeyi yazmadan
 önce yapardım; H10 ve H11 birim testlerin göremediği, yalnızca gerçek ortamda çıkan hatalardı. Bağımsız bir
