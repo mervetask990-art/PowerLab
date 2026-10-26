@@ -101,6 +101,25 @@ def main():
     if n:
         lines.append(f"| **Toplam** | **{totals[0]}** | **{totals[1]:.1f} s** | **{totals[2]}/{n}** | **{totals[3]}** | "
                      f"**{totals[4]:.1f} s** | **{totals[5]}/{n}** | **{totals[3] / totals[0]:.2f}** |")
+    if n:
+        per_shot = totals[3] / n
+        breakeven = totals[0] / totals[3]
+        lines += [
+            "",
+            "**Bulgu (ölçülen):** Bu ölçümde MCP yolu, tek ekran görüntüsü okumaktan **daha pahalı** çıktı "
+            f"(GUI / MCP = {totals[3] / totals[0]:.2f}). Ekran görüntüsü başına ortalama {per_shot:.0f} token ölçüldü; "
+            f"MCP yolunun maliyetine soru başına yaklaşık **{breakeven:.1f} ekran görüntüsünde** ulaşılır. "
+            "Yönergedeki \"bir ekran görüntüsü yüzlerce, hatta binlerce token\" tahmini doğrulandı (~1.3 bin). "
+            "Ama metin yolu \"birkaç token\" değil: araç çağrısının kendisi (JSON girdi ve çıktı) kısadır, ajan "
+            "döngüsünün tokenlarının çoğu ise her turda yeniden gönderilen sistem talimatı ve araç şemasıdır; soru başına "
+            "iki model turu ve bir sınıflandırıcı çağrısı vardır. CLI'yi doğrudan çağıran bir ajan bu sabit maliyeti "
+            "ödemez.",
+            "",
+            "**Tahmin (ölçülmedi):** G*Power'da bir hesap en az üç ekran gerektirir (test ailesi seçimi, girdilerin "
+            "girilmesi, sonuç); her tıklamadan sonra görüntü alan bir GUI ajanı için bu sayı daha yüksektir. Üç "
+            f"görüntüde GUI yolu yaklaşık {3 * per_shot:.0f} token olur ve MCP yolunu geçer. Bu bir tahmindir; gerçek bir "
+            "GUI ajanı bu projede çalıştırılmadı.",
+        ]
     lines += [
         "",
         "**Yorum ve sınırlar:**",
